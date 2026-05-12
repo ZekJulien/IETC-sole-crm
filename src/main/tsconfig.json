@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@shared/*": ["../shared/*"],
+      "@db/*":     ["../../prisma/generated/*"]
+    }
+  },
+  "include": ["**/*.ts"]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "sole",
+  "version": "1.0.0",
+  "productName": "Sole",
+  "description": "CRM desktop pour indépendants — Electron Forge, Angular, Prisma, SQLite. Projet bachelier 2 SGBD (IETC).",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start":           "npm run build:renderer && electron-forge start",
+    "build:renderer":  "cd src/renderer && npx ng build --base-href ./",
+    "package":         "electron-forge package",
+    "make":            "electron-forge make",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate":  "npx prisma migrate dev --name init",
+    "prisma:studio":   "npx prisma studio",
+    "postinstall":     "npm install --prefix src/renderer",
+    "test":            "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["electron", "angular", "prisma", "sqlite", "boilerplate"],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-rpm": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
+    "@electron-forge/plugin-fuses": "^7.11.1",
+    "@electron-forge/plugin-vite": "^7.11.1",
+    "@electron/fuses": "^1.8.0",
+    "@electron/rebuild": "^4.0.4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/electron-squirrel-startup": "^1.0.2",
+    "dotenv": "^17.4.2",
+    "electron": "^41.1.1",
+    "prisma": "^7.8.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.9.0",
+    "electron-squirrel-startup": "^1.0.1"
+  }
+}

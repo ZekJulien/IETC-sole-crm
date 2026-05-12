@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+/src/renderer/node_modules/
+
+# Build outputs
+.vite/
+dist/
+out/
+/src/renderer/dist/
+
+# Angular
+/src/renderer/.angular/
+/src/renderer/.cache/
+
+# Database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Prisma
+/prisma/generated/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
