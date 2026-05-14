@@ -32,17 +32,15 @@ class Logger {
 
       this.stream.end()
 
-      // Décale les anciens fichiers : main.1.log → main.2.log, etc.
       for (let i = MAX_FILES - 2; i >= 1; i--) {
         const from = this.logPath.replace('.log', `.${i}.log`)
         const to   = this.logPath.replace('.log', `.${i + 1}.log`)
         if (existsSync(from)) renameSync(from, to)
       }
 
-      // main.log → main.1.log
       renameSync(this.logPath, this.logPath.replace('.log', '.1.log'))
       this.openStream()
-    } catch { /* pas encore de fichier */ }
+    } catch { }
   }
 
   private write(level: Level, message: string, ...args: unknown[]): void {

@@ -1,0 +1,37 @@
+<div class="toaster">
+  @for (pos of [Position.TOPLEFT, Position.TOPCENTER, Position.TOPRIGHT, Position.BOTTOMLEFT, Position.BOTTOMRIGHT]; track pos) {
+    <div class="toaster__zone toaster__zone--{{ pos }}">
+      @for (t of toastsByPosition()[pos]; track t.id) {
+        <div
+          class="toast toast--{{ t.type }}"
+          [class.toast--hero]="!!t.title"
+          [style.--toast-duration.ms]="t.autoCloseTime"
+          (mouseenter)="t.pauseOnHover && pause(t.id)"
+          (mouseleave)="t.pauseOnHover && resume(t.id)"
+        >
+          <span class="toast__indicator"></span>
+
+          <div class="toast__content">
+            @if (t.title) {
+              <strong class="toast__title">{{ t.title }}</strong>
+            }
+            <span class="toast__message">{{ t.message }}</span>
+          </div>
+
+          @if (t.canClose) {
+            <button
+              type="button"
+              class="toast__close"
+              (click)="remove(t.id)"
+              aria-label="Fermer la notification"
+            >&times;</button>
+          }
+
+          @if (t.autoCloseTime > 0) {
+            <div class="toast__progress"></div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

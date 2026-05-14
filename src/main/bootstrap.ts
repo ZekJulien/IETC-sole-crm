@@ -8,7 +8,7 @@ import { buildDependencies } from './dependencies'
 import { registerAllHandlers } from './handlers'
 
 export async function bootstrap(): Promise<PrismaClient> {
-  const dbPath = path.join(app.getPath('userData'), 'app.db')
+  const dbPath = path.join(app.getPath('userData'), 'sole.db')
   const migrationsPath = path.join(__dirname, '../../prisma/migrations')
 
   runMigrations(dbPath, migrationsPath)

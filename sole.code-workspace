@@ -1,0 +1,20 @@
+{
+  "folders": [
+    { "name": "racine", "path": "." },
+    { "name": "renderer (Angular)", "path": "src/renderer" },
+    { "name": "main (Electron)", "path": "src/main" },
+    { "name": "preload (contextBridge)", "path": "src/preload" },
+    { "name": "shared (IPC)", "path": "src/shared" },
+    { "name": "prisma", "path": "prisma" }
+  ],
+  "settings": {
+    "window.title": "Sole — CRM freelance",
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/out": true,
+      "**/.vite": true,
+      "**/.angular": true,
+      "**/dist": true
+    }
+  }
+}

@@ -1,0 +1,40 @@
+.dashboard {
+  padding: 2rem;
+}
+
+.dashboard__header {
+  margin-bottom: 2rem;
+}
+
+.dashboard__header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -.02em;
+}
+
+.dashboard__header p {
+  color: var(--color-text-subtle);
+  font-size: .9rem;
+  margin-top: .25rem;
+}
+
+.dashboard__placeholder {
+  background: var(--color-bg-surface);
+  border: 1px dashed var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.dashboard__placeholder strong {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.dashboard__hint {
+  color: var(--color-text-subtle);
+  font-size: .85rem;
+  font-style: italic;
+}

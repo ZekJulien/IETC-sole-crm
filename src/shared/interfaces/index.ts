@@ -1,2 +1,1 @@
-export * from './ping.dto'
-export * from './ping.interface'
+export * from './log.interface'
