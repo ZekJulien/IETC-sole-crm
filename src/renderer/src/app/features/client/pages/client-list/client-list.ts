@@ -4,7 +4,6 @@ import { LucidePlus, LucidePencil, LucideTrash2, LucideUsers, LucideX, LucideChe
 import { ClientDto, CreateClientDto, UpdateClientDto, ClientType, ContactDto, CreateContactDto, UpdateContactDto } from '@shared/dtos/client'
 import { ClientStore } from '@app/stores/client/client-store'
 import { ContactStore } from '@app/stores/client/contact-store'
-import { LayoutService } from '@app/services/layout/layout.service'
 import { ViewMode, SearchBar, DataTable, InboxLayout, StatusBadge, Avatar, Button, ConfirmDialog } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
@@ -19,7 +18,6 @@ import { ClientForm, ContactList, ContactForm } from '../../components'
 })
 export class ClientList implements OnInit {
   private readonly fb      = inject(FormBuilder)
-  private readonly layout  = inject(LayoutService)
   readonly clientStore     = inject(ClientStore)
   readonly contactStore    = inject(ContactStore)
 
@@ -59,7 +57,6 @@ export class ClientList implements OnInit {
   ]
 
   async ngOnInit(): Promise<void> {
-    this.layout.setTitle('Clients')
     await this.clientStore.load()
   }
 

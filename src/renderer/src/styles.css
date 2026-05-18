@@ -14,8 +14,6 @@
   --color-warning:     #f9e2af;
   --color-danger:      #f38ba8;
 
-  --sidebar-width:           240px;
-  --sidebar-width-collapsed: 64px;
   --topbar-height:           56px;
   --radius:                  6px;
   --radius-lg:               8px;
@@ -75,3 +73,4 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--color-bg-elevated) transparent;
 }
+
