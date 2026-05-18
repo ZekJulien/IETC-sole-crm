@@ -1,0 +1,208 @@
+.client-list {
+  display: flex; flex-direction: column;
+  height: 100%; overflow: hidden;
+}
+
+app-inbox-layout { flex: 1; overflow: hidden; }
+
+[inbox-list] { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+/* ── Toolbar compacte (search + actions sur une ligne) ── */
+.inbox-list__toolbar {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink:   0;
+}
+.inbox-list__search { flex: 1; min-width: 0; }
+
+.table-toolbar {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       12px 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+.table-toolbar__search { flex: 1; max-width: 420px; }
+
+/* ── Icon buttons (compact actions) ─────────────────── */
+.icon-btn {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  width:           30px; height: 30px;
+  background:      transparent;
+  border:          1px solid var(--color-border);
+  border-radius:   var(--radius);
+  color:           var(--color-text-muted);
+  cursor:          pointer;
+  transition:      background var(--transition), color var(--transition), border-color var(--transition);
+  flex-shrink:     0;
+}
+.icon-btn:hover {
+  background:   var(--color-bg-elevated);
+  color:        var(--color-text);
+  border-color: var(--color-border-soft);
+}
+.icon-btn--active {
+  background:   var(--color-bg-elevated);
+  color:        var(--color-accent);
+  border-color: var(--color-accent);
+}
+.icon-btn--primary {
+  background:   var(--color-accent);
+  border-color: var(--color-accent);
+  color:        var(--color-bg-deep);
+}
+.icon-btn--primary:hover {
+  background:   var(--color-accent);
+  color:        var(--color-bg-deep);
+  filter:       brightness(1.1);
+}
+
+/* ── View switch (groupe de boutons collés) ────────── */
+.view-switch {
+  display: flex;
+  gap: 0;
+}
+.view-switch .icon-btn:first-child  { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.view-switch .icon-btn:last-child   { border-top-left-radius:  0; border-bottom-left-radius:  0; border-left: none; }
+
+.inbox-list__items { flex: 1; overflow-y: auto; }
+
+/* ── Bouton create en bas du panel inbox ────────────── */
+.inbox-list__create {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             6px;
+  padding:         12px;
+  margin:          0;
+  background:      var(--color-bg-surface);
+  border:          none;
+  border-top:      1px solid var(--color-border);
+  color:           var(--color-accent);
+  font-size:       13px;
+  font-weight:     500;
+  cursor:          pointer;
+  transition:      background var(--transition);
+  flex-shrink:     0;
+}
+.inbox-list__create:hover {
+  background: var(--color-bg-elevated);
+}
+
+.inbox-item {
+  display:       flex;
+  align-items:   center;
+  gap:           10px;
+  padding:       10px 14px;
+  cursor:        pointer;
+  border-bottom: 1px solid var(--color-border);
+  transition:    background var(--transition);
+}
+.inbox-item:hover   { background: var(--color-bg-elevated); }
+.inbox-item--active { background: var(--color-bg-elevated); border-left: 2px solid var(--color-accent); }
+
+.inbox-item__info  { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.inbox-item__name  { font-size: 13px; font-weight: 500; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inbox-item__city  { font-size: 11px; color: var(--color-text-subtle); }
+
+/* ── Detail panel ───────────────────────────────────── */
+.inbox-detail { display: flex; flex-direction: column; gap: 16px; }
+
+.inbox-detail--form {}
+.inbox-detail__form-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding-bottom:  12px;
+  border-bottom:   1px solid var(--color-border);
+}
+.inbox-detail__form-header h3 { font-size: 15px; font-weight: 600; }
+
+.inbox-detail__header     { display: flex; align-items: flex-start; justify-content: space-between; }
+.inbox-detail__header h3  { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.inbox-detail__actions    { display: flex; gap: 8px; }
+
+/* ── View sections (mirror form sections) ───────────── */
+.view-section {
+  display:        flex;
+  flex-direction: column;
+  gap:            12px;
+  padding:        16px;
+  background:     var(--color-bg-surface);
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-lg);
+}
+
+.view-section__title {
+  font-size:      11px;
+  font-weight:    600;
+  color:          var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.view-section__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.view-section__grid--3 { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+
+.view-field {
+  display: flex; flex-direction: column; gap: 4px;
+  min-width: 0;
+}
+.view-field > label {
+  font-size: 11px; font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.view-field > span,
+.view-field > a {
+  font-size: 13px; color: var(--color-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.view-field > a {
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.view-field > a:hover { color: var(--color-accent); }
+
+.view-field__notes {
+  font-size: 13px; color: var(--color-text);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.view-field__placeholder {
+  font-size:   13px;
+  font-style:  italic;
+  color:       var(--color-text-subtle);
+  opacity:     .7;
+}
+
+/* ── Inputs en mode édition (alignés sur view-field) ── */
+.view-field__input {
+  padding:       7px 10px;
+  background:    var(--color-bg-elevated);
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius);
+  color:         var(--color-text);
+  font-size:     13px;
+  font-family:   inherit;
+  outline:       none;
+  transition:    border-color var(--transition);
+  width:         100%;
+}
+.view-field__input:focus { border-color: var(--color-accent); }
+.view-field__input--textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}

@@ -1,0 +1,21 @@
+<div class="field">
+  <label class="field__label">{{ label() }}</label>
+
+  @if (type() === 'textarea') {
+    <textarea
+      class="field__input field__input--textarea"
+      [placeholder]="placeholder()"
+      [formControl]="$any(control())">
+    </textarea>
+  } @else {
+    <input
+      class="field__input"
+      [type]="type()"
+      [placeholder]="placeholder()"
+      [formControl]="$any(control())" />
+  }
+
+  @if (errorMessage()) {
+    <span class="field__error">{{ errorMessage() }}</span>
+  }
+</div>

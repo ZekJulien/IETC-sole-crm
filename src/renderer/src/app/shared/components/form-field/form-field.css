@@ -1,0 +1,27 @@
+.field { display: flex; flex-direction: column; gap: 4px; }
+
+.field__label {
+  font-size:  12px;
+  font-weight: 500;
+  color:      var(--color-text-muted);
+}
+
+.field__input {
+  padding:       8px 10px;
+  background:    var(--color-bg-elevated);
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius);
+  color:         var(--color-text);
+  font-size:     13px;
+  outline:       none;
+  transition:    border-color var(--transition);
+}
+
+.field__input:focus { border-color: var(--color-accent); }
+
+.field__input--textarea { resize: vertical; min-height: 80px; }
+
+.field__error {
+  font-size: 11px;
+  color:     var(--color-danger);
+}

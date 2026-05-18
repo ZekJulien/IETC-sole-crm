@@ -1,0 +1,20 @@
+<form class="contact-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="client-form__section">
+    <h4 class="client-form__section-title">{{ 'form.identity' | t }}</h4>
+    <div class="client-form__row">
+      <app-form-field [label]="'contact.lastName'  | t" [control]="form.get('lastName')" />
+      <app-form-field [label]="'contact.firstName' | t" [control]="form.get('firstName')" />
+    </div>
+  </div>
+
+  <div class="client-form__section">
+    <h4 class="client-form__section-title">{{ 'form.contact' | t }}</h4>
+    <div class="client-form__row">
+      <app-form-field [label]="'common.email' | t" type="email" [control]="form.get('email')" />
+      <app-form-field [label]="'common.phone' | t" type="tel"   [control]="form.get('phone')" />
+    </div>
+    <app-form-field [label]="'contact.role' | t" [control]="form.get('role')" />
+  </div>
+
+  <app-form-actions [loading]="loading()" (cancelled)="cancelled.emit()" />
+</form>

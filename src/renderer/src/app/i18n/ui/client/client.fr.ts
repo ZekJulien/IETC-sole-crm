@@ -1,0 +1,12 @@
+export default {
+  'client.title':           'Clients',
+  'client.new':             'Nouveau client',
+  'client.type':            'Type',
+  'client.type.company':    'Entreprise',
+  'client.type.individual': 'Particulier',
+  'client.companyNumber':   'Numéro d\'entreprise',
+  'client.vatNumber':       'Numéro TVA',
+  'client.peppolId':        'ID PEPPOL',
+  'client.searchPlaceholder': 'Rechercher par nom, email, ville...',
+  'client.selectPrompt':       'Sélectionnez un client pour voir ses détails',
+} satisfies Record<string, string>

@@ -1,0 +1,13 @@
+<div class="form-actions">
+  <app-button
+    [variant]="ButtonVariant.GHOST"
+    (clicked)="cancelled.emit()">
+    {{ 'common.cancel' | t }}
+  </app-button>
+  <app-button
+    type="submit"
+    [variant]="ButtonVariant.PRIMARY"
+    [loading]="loading()">
+    {{ 'common.save' | t }}
+  </app-button>
+</div>

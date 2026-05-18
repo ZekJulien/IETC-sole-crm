@@ -1,13 +1,29 @@
 <aside class="sidebar" [class.sidebar--collapsed]="collapsed()">
   <header class="sidebar__brand">
-    <h1>Sole</h1>
-    <p>CRM freelance</p>
+    @if (!collapsed()) {
+      <h1>Sole</h1>
+      <p>CRM freelance</p>
+    } @else {
+      <span class="sidebar__brand-icon">S</span>
+    }
   </header>
 
   <nav class="sidebar__nav">
+    @for (item of navItems; track item.route) {
+      <a
+        class="nav-item"
+        [routerLink]="item.route"
+        routerLinkActive="nav-item--active"
+        [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
+        <ng-container [ngComponentOutlet]="item.icon" />
+        @if (!collapsed()) {
+          <span>{{ item.labelKey | t }}</span>
+        }
+      </a>
+    }
   </nav>
 
   <footer class="sidebar__footer">
-    <small>v0.1.0</small>
+    @if (!collapsed()) { <small>v0.2.0</small> }
   </footer>
 </aside>

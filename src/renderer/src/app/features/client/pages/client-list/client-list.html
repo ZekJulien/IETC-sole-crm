@@ -1,0 +1,272 @@
+<div class="client-list">
+  @if (viewMode() === 'inbox') {
+    <app-inbox-layout [hasDetail]="hasPanel()">
+      <div inbox-list>
+        <div class="inbox-list__toolbar">
+          <div class="inbox-list__search">
+            <app-search-bar [placeholder]="'client.searchPlaceholder' | t" (search)="load($event)" />
+          </div>
+          <div class="view-switch">
+            <button type="button" class="icon-btn" [class.icon-btn--active]="viewMode() === 'inbox'" (click)="viewMode.set('inbox')" [title]="'common.viewInbox' | t">
+              <svg lucideLayoutList [size]="14" />
+            </button>
+            <button type="button" class="icon-btn" [class.icon-btn--active]="viewMode() === 'table'" (click)="viewMode.set('table')" [title]="'common.viewTable' | t">
+              <svg lucideTable2 [size]="14" />
+            </button>
+          </div>
+        </div>
+        <div class="inbox-list__items">
+          @for (client of clientStore.clients(); track client.id) {
+            <div
+              class="inbox-item"
+              [class.inbox-item--active]="selectedClient()?.id === client.id"
+              (click)="onSelect(client)">
+              <app-avatar [lastName]="client.name" size="sm" />
+              <div class="inbox-item__info">
+                <span class="inbox-item__name">{{ client.name }}</span>
+                <span class="inbox-item__city">{{ client.city || ('common.notDefined' | t) }}</span>
+              </div>
+              <app-status-badge [status]="client.type" />
+            </div>
+          }
+        </div>
+
+        <button type="button" class="inbox-list__create" (click)="onNew()">
+          <svg lucidePlus [size]="14" /> {{ 'client.new' | t }}
+        </button>
+      </div>
+
+      <div inbox-detail>
+        @if (isCreating()) {
+          <div class="inbox-detail inbox-detail--form">
+            <div class="inbox-detail__form-header">
+              <h3>{{ 'client.new' | t }}</h3>
+              <app-button [variant]="ButtonVariant.GHOST" (clicked)="onCreateCancel()">
+                <svg lucideX [size]="15" />
+              </app-button>
+            </div>
+            <app-client-form
+              [loading]="clientStore.saving()"
+              (submitted)="onCreateSubmit($any($event))"
+              (cancelled)="onCreateCancel()" />
+          </div>
+
+        } @else if (selectedClient()) {
+          <form class="inbox-detail" [formGroup]="editForm" (ngSubmit)="onEditSave()">
+            <div class="inbox-detail__header">
+              <div>
+                <h3>{{ selectedClient()!.name }}</h3>
+                <app-status-badge [status]="selectedClient()!.type" [i18nKey]="'client.type.' + selectedClient()!.type.toLowerCase()" />
+              </div>
+              <div class="inbox-detail__actions">
+                @if (isEditing()) {
+                  <app-button [variant]="ButtonVariant.GHOST" (clicked)="onEditCancel()">
+                    <svg lucideX [size]="13" /> {{ 'common.cancel' | t }}
+                  </app-button>
+                  <app-button [variant]="ButtonVariant.PRIMARY" type="submit" [loading]="clientStore.saving()">
+                    <svg lucideCheck [size]="13" /> {{ 'common.save' | t }}
+                  </app-button>
+                } @else {
+                  <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="onEditStart()">
+                    <svg lucidePencil [size]="13" /> {{ 'common.edit' | t }}
+                  </app-button>
+                  <app-button [variant]="ButtonVariant.DANGER" (clicked)="onRemoveRequest(selectedClient()!.id)">
+                    <svg lucideTrash2 [size]="13" />
+                  </app-button>
+                }
+              </div>
+            </div>
+
+            <!-- IDENTITY -->
+            <div class="view-section">
+              <h4 class="view-section__title">{{ 'form.identity' | t }}</h4>
+              @if (isEditing()) {
+                <div class="view-section__grid">
+                  <div class="view-field">
+                    <label>{{ 'common.name' | t }}</label>
+                    <input class="view-field__input" type="text" formControlName="name" />
+                  </div>
+                  <div class="view-field">
+                    <label>{{ 'client.type' | t }}</label>
+                    <select class="view-field__input" formControlName="type">
+                      <option [value]="ClientType.COMPANY">{{ 'client.type.company' | t }}</option>
+                      <option [value]="ClientType.INDIVIDUAL">{{ 'client.type.individual' | t }}</option>
+                    </select>
+                  </div>
+                </div>
+              }
+              <div class="view-section__grid">
+                <div class="view-field">
+                  <label>{{ 'common.email' | t }}</label>
+                  @if (isEditing()) {
+                    <input class="view-field__input" type="email" formControlName="email" />
+                  } @else if (selectedClient()!.email) {
+                    <a [href]="'mailto:' + selectedClient()!.email">{{ selectedClient()!.email }}</a>
+                  } @else {
+                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                  }
+                </div>
+                <div class="view-field">
+                  <label>{{ 'common.phone' | t }}</label>
+                  @if (isEditing()) {
+                    <input class="view-field__input" type="tel" formControlName="phone" />
+                  } @else if (selectedClient()!.phone) {
+                    <a [href]="'tel:' + selectedClient()!.phone">{{ selectedClient()!.phone }}</a>
+                  } @else {
+                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- ADDRESS -->
+            <div class="view-section">
+              <h4 class="view-section__title">{{ 'form.address' | t }}</h4>
+              <div class="view-field">
+                <label>{{ 'common.street' | t }}</label>
+                @if (isEditing()) {
+                  <input class="view-field__input" type="text" formControlName="street" />
+                } @else if (selectedClient()!.street) {
+                  <span>{{ selectedClient()!.street }}</span>
+                } @else {
+                  <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                }
+              </div>
+              <div class="view-section__grid view-section__grid--3">
+                <div class="view-field">
+                  <label>{{ 'common.zipCode' | t }}</label>
+                  @if (isEditing()) {
+                    <input class="view-field__input" type="text" formControlName="zipCode" />
+                  } @else if (selectedClient()!.zipCode) {
+                    <span>{{ selectedClient()!.zipCode }}</span>
+                  } @else {
+                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                  }
+                </div>
+                <div class="view-field">
+                  <label>{{ 'common.city' | t }}</label>
+                  @if (isEditing()) {
+                    <input class="view-field__input" type="text" formControlName="city" />
+                  } @else if (selectedClient()!.city) {
+                    <span>{{ selectedClient()!.city }}</span>
+                  } @else {
+                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                  }
+                </div>
+                <div class="view-field">
+                  <label>{{ 'common.country' | t }}</label>
+                  @if (isEditing()) {
+                    <input class="view-field__input" type="text" formControlName="country" />
+                  } @else if (selectedClient()!.country) {
+                    <span>{{ selectedClient()!.country }}</span>
+                  } @else {
+                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- BILLING -->
+            <div class="view-section">
+              <h4 class="view-section__title">{{ 'form.billing' | t }}</h4>
+              <div class="view-section__grid">
+                <div class="view-field">
+                  <label>{{ 'client.companyNumber' | t }}</label>
+                  @if (isEditing()) {
+                    <input class="view-field__input" type="text" formControlName="companyNumber" />
+                  } @else if (selectedClient()!.companyNumber) {
+                    <span>{{ selectedClient()!.companyNumber }}</span>
+                  } @else {
+                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                  }
+                </div>
+                <div class="view-field">
+                  <label>{{ 'client.vatNumber' | t }}</label>
+                  @if (isEditing()) {
+                    <input class="view-field__input" type="text" formControlName="vatNumber" />
+                  } @else if (selectedClient()!.vatNumber) {
+                    <span>{{ selectedClient()!.vatNumber }}</span>
+                  } @else {
+                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                  }
+                </div>
+              </div>
+              <div class="view-field">
+                <label>{{ 'client.peppolId' | t }}</label>
+                @if (isEditing()) {
+                  <input class="view-field__input" type="text" formControlName="peppolId" />
+                } @else if (selectedClient()!.peppolId) {
+                  <span>{{ selectedClient()!.peppolId }}</span>
+                } @else {
+                  <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- NOTES -->
+            <div class="view-section">
+              <h4 class="view-section__title">{{ 'form.notes' | t }}</h4>
+              <div class="view-field">
+                @if (isEditing()) {
+                  <textarea class="view-field__input view-field__input--textarea" formControlName="notes" rows="4"></textarea>
+                } @else if (selectedClient()!.notes) {
+                  <p class="view-field__notes">{{ selectedClient()!.notes }}</p>
+                } @else {
+                  <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- CONTACTS (toujours visibles) -->
+            <app-contact-list
+              [contacts]="contactStore.contacts()"
+              (add)="onContactAdd()"
+              (edit)="onContactEdit($event)"
+              (remove)="onContactRemove($event)" />
+
+            @if (showContactForm()) {
+              <app-contact-form
+                [contact]="editingContact()"
+                [clientId]="selectedClient()!.id"
+                (submitted)="onContactSubmit($event)"
+                (cancelled)="showContactForm.set(false)" />
+            }
+          </form>
+        }
+      </div>
+
+      <div inbox-placeholder>
+        <svg lucideUsers [size]="40" />
+        <p>{{ 'client.selectPrompt' | t }}</p>
+      </div>
+    </app-inbox-layout>
+
+  } @else {
+    <div class="table-toolbar">
+      <div class="table-toolbar__search">
+        <app-search-bar [placeholder]="'client.searchPlaceholder' | t" (search)="load($event)" />
+      </div>
+      <button type="button" class="icon-btn icon-btn--primary" (click)="onNew()" [title]="'client.new' | t">
+        <svg lucidePlus [size]="15" />
+      </button>
+      <div class="view-switch">
+        <button type="button" class="icon-btn" [class.icon-btn--active]="viewMode() === 'inbox'" (click)="viewMode.set('inbox')" [title]="'common.viewInbox' | t">
+          <svg lucideLayoutList [size]="14" />
+        </button>
+        <button type="button" class="icon-btn" [class.icon-btn--active]="viewMode() === 'table'" (click)="viewMode.set('table')" [title]="'common.viewTable' | t">
+          <svg lucideTable2 [size]="14" />
+        </button>
+      </div>
+    </div>
+    <app-data-table
+      [columns]="columns"
+      [data]="clientStore.clients()"
+      [loading]="clientStore.loading()"
+      (rowClick)="onSelect($event)" />
+  }
+
+  <app-confirm-dialog
+    [visible]="pendingRemoveId() !== null"
+    (confirmed)="onRemoveConfirm()"
+    (cancelled)="pendingRemoveId.set(null)" />
+</div>

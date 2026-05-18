@@ -1,0 +1,45 @@
+<form class="client-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="client-form__section">
+    <h4 class="client-form__section-title">{{ 'form.identity' | t }}</h4>
+    <div class="client-form__row">
+      <app-form-field [label]="'common.name' | t" [control]="form.get('name')" />
+      <div class="client-form__field">
+        <label class="field__label">{{ 'client.type' | t }}</label>
+        <select class="field__input" formControlName="type">
+          <option [value]="ClientType.COMPANY">{{ 'client.type.company' | t }}</option>
+          <option [value]="ClientType.INDIVIDUAL">{{ 'client.type.individual' | t }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="client-form__row">
+      <app-form-field [label]="'common.email' | t" type="email" [control]="form.get('email')" />
+      <app-form-field [label]="'common.phone' | t" type="tel"   [control]="form.get('phone')" />
+    </div>
+  </div>
+
+  <div class="client-form__section">
+    <h4 class="client-form__section-title">{{ 'form.address' | t }}</h4>
+    <app-form-field [label]="'common.street'  | t" [control]="form.get('street')" />
+    <div class="client-form__row">
+      <app-form-field [label]="'common.zipCode' | t" [control]="form.get('zipCode')" />
+      <app-form-field [label]="'common.city'    | t" [control]="form.get('city')" />
+      <app-form-field [label]="'common.country' | t" [control]="form.get('country')" />
+    </div>
+  </div>
+
+  <div class="client-form__section">
+    <h4 class="client-form__section-title">{{ 'form.billing' | t }}</h4>
+    <div class="client-form__row">
+      <app-form-field [label]="'client.companyNumber' | t" [control]="form.get('companyNumber')" />
+      <app-form-field [label]="'client.vatNumber'     | t" [control]="form.get('vatNumber')" />
+    </div>
+    <app-form-field [label]="'client.peppolId' | t" [control]="form.get('peppolId')" />
+  </div>
+
+  <div class="client-form__section">
+    <h4 class="client-form__section-title">{{ 'form.notes' | t }}</h4>
+    <app-form-field [label]="'common.notes' | t" type="textarea" [control]="form.get('notes')" />
+  </div>
+
+  <app-form-actions [loading]="loading()" (cancelled)="cancelled.emit()" />
+</form>

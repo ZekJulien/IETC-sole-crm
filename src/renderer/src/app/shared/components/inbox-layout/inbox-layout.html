@@ -1,0 +1,14 @@
+<div class="inbox" [class.inbox--has-detail]="hasDetail()">
+  <aside class="inbox__list">
+    <ng-content select="[inbox-list]" />
+  </aside>
+  <main class="inbox__detail">
+    @if (hasDetail()) {
+      <ng-content select="[inbox-detail]" />
+    } @else {
+      <div class="inbox__placeholder">
+        <ng-content select="[inbox-placeholder]" />
+      </div>
+    }
+  </main>
+</div>

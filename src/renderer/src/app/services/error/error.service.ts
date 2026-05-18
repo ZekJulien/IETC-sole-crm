@@ -6,8 +6,8 @@ import { ErrorContext } from '../../models'
 export class ErrorService {
   private readonly toast = inject(ToastService)
 
-  handle(error: Error | string, context?: ErrorContext): void {
-    const message = error instanceof Error ? error.message : error
+  handle(error: unknown, context?: ErrorContext): void {
+    const message = error instanceof Error ? error.message : String(error)
     const stack   = error instanceof Error ? error.stack   : undefined
 
     if (!context?.silent) {

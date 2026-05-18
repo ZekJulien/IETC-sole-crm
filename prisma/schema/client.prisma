@@ -1,0 +1,20 @@
+model Client {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String?  @unique
+  phone         String?
+  street        String?
+  zipCode       String?
+  city          String?
+  country       String?
+  type          String   @default("COMPANY")
+  companyNumber String?
+  vatNumber     String?
+  peppolId      String?
+  notes         String?
+  archived      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  contacts      Contact[]
+}

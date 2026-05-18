@@ -1,0 +1,61 @@
+<div class="contact-list">
+  <div class="contact-list__header">
+    <span class="contact-list__title">{{ 'contact.title' | t }}</span>
+    <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="add.emit()">
+      <svg lucidePlus [size]="13" /> {{ 'contact.new' | t }}
+    </app-button>
+  </div>
+
+  @if (contacts().length > 2) {
+    <app-search-bar [placeholder]="'contact.searchPlaceholder' | t" (search)="search.set($event)" />
+  }
+
+  @if (filtered().length === 0) {
+    <p class="contact-list__empty">{{ 'common.empty' | t }}</p>
+  } @else {
+    <div class="contact-list__grid">
+      @for (contact of filtered(); track contact.id) {
+        <app-card [clickable]="true" (clicked)="edit.emit(contact)">
+          <button
+            type="button"
+            class="contact-card__delete"
+            (click)="$event.stopPropagation(); remove.emit(contact.id)"
+            [title]="'common.delete' | t">
+            <svg lucideTrash2 [size]="13" />
+          </button>
+
+          <div class="contact-card__head">
+            <app-avatar [firstName]="contact.firstName" [lastName]="contact.lastName" size="lg" />
+            <div class="contact-card__identity">
+              <span class="contact-card__name">
+                {{ contact.firstName }} {{ contact.lastName }}
+              </span>
+              <span class="contact-card__role" [class.contact-card__placeholder]="!contact.role">
+                {{ contact.role || ('common.noRole' | t) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="contact-card__meta">
+            <div class="contact-card__row" [class.contact-card__row--empty]="!contact.email">
+              <svg lucideMail [size]="13" />
+              @if (contact.email) {
+                <a [href]="'mailto:' + contact.email" (click)="$event.stopPropagation()">{{ contact.email }}</a>
+              } @else {
+                <span class="contact-card__placeholder">{{ 'common.notDefined' | t }}</span>
+              }
+            </div>
+            <div class="contact-card__row" [class.contact-card__row--empty]="!contact.phone">
+              <svg lucidePhone [size]="13" />
+              @if (contact.phone) {
+                <a [href]="'tel:' + contact.phone" (click)="$event.stopPropagation()">{{ contact.phone }}</a>
+              } @else {
+                <span class="contact-card__placeholder">{{ 'common.notDefined' | t }}</span>
+              }
+            </div>
+          </div>
+        </app-card>
+      }
+    </div>
+  }
+</div>

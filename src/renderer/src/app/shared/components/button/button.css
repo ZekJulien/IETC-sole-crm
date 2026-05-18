@@ -1,0 +1,35 @@
+.btn {
+  display:      inline-flex;
+  align-items:  center;
+  gap:          6px;
+  padding:      6px 14px;
+  border-radius: var(--radius);
+  border:       1px solid transparent;
+  font-size:    13px;
+  font-weight:  500;
+  cursor:       pointer;
+  transition:   background var(--transition), opacity var(--transition);
+  white-space:  nowrap;
+}
+
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn--primary  { background: var(--color-accent);  color: var(--color-bg-deep); }
+.btn--danger   { background: var(--color-danger);  color: var(--color-bg-deep); }
+.btn--ghost    { background: transparent;           color: var(--color-text-muted); }
+.btn--outline  { background: transparent; border-color: var(--color-border-soft); color: var(--color-text); }
+
+.btn--primary:hover:not(:disabled),
+.btn--danger:hover:not(:disabled)  { filter: brightness(1.1); }
+.btn--ghost:hover:not(:disabled),
+.btn--outline:hover:not(:disabled) { background: var(--color-bg-elevated); }
+
+.btn__spinner {
+  width: 14px; height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

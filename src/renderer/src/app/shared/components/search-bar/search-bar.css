@@ -1,0 +1,22 @@
+.search { position: relative; display: flex; align-items: center; }
+
+.search__icon {
+  position: absolute; left: 10px;
+  color: var(--color-text-subtle); font-size: 15px; pointer-events: none;
+}
+
+.search__input {
+  width: 100%; padding: 7px 32px;
+  background: var(--color-bg-elevated); border: 1px solid var(--color-border);
+  border-radius: var(--radius); color: var(--color-text); font-size: 13px;
+  outline: none; transition: border-color var(--transition);
+}
+.search__input:focus       { border-color: var(--color-accent); }
+.search__input::placeholder { color: var(--color-text-subtle); }
+
+.search__clear {
+  position: absolute; right: 8px;
+  background: none; border: none;
+  color: var(--color-text-subtle); cursor: pointer; font-size: 11px; padding: 2px 4px;
+}
+.search__clear:hover { color: var(--color-text); }
