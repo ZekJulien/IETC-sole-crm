@@ -1,0 +1,7 @@
+<div
+  class="card"
+  [class.card--clickable]="clickable()"
+  [class.card--active]="active()"
+  (click)="clickable() && clicked.emit()">
+  <ng-content />
+</div>

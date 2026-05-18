@@ -1,0 +1,14 @@
+<div class="search">
+  <svg lucideSearch [size]="15" class="search__icon" />
+  <input
+    class="search__input"
+    type="text"
+    [placeholder]="placeholder()"
+    [value]="value()"
+    (input)="onInput($event)" />
+  @if (value()) {
+    <button class="search__clear" (click)="clear()">
+      <svg lucideX [size]="13" />
+    </button>
+  }
+</div>

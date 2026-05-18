@@ -11,7 +11,7 @@
 }
 
 .sidebar__brand {
-  height: var(--topbar-height);   /* aligné avec la topbar (56px) */
+  height: var(--topbar-height);  
   padding: 0 1.25rem;
   border-bottom: 1px solid var(--color-border);
   display: flex;
@@ -55,7 +55,26 @@
   white-space: nowrap;
 }
 
-/* --- Modifier : sidebar collapsed --- */
+.nav-item {
+  display:       flex;
+  align-items:   center;
+  gap:           10px;
+  padding:       8px 10px;
+  border-radius: var(--radius);
+  color:         var(--color-text-muted);
+  text-decoration: none;
+  font-size:     13px;
+  font-weight:   500;
+  transition:    background var(--transition), color var(--transition);
+  white-space:   nowrap;
+  overflow:      hidden;
+}
+
+.nav-item:hover          { background: var(--color-bg-elevated); color: var(--color-text); }
+.nav-item--active        { background: var(--color-bg-elevated); color: var(--color-accent); }
+
+.sidebar--collapsed .nav-item { justify-content: center; padding: 8px; }
+
 .sidebar--collapsed {
   width: var(--sidebar-width-collapsed);
 }

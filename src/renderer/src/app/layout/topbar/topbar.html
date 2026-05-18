@@ -1,13 +1,12 @@
 <header class="topbar">
-  <button
-    type="button"
-    class="topbar__burger"
-    (click)="toggleSidebar()"
-    aria-label="Réduire/agrandir la barre latérale"
-  >&#9776;</button>
-
   <h2 class="topbar__title">{{ titlePage() }}</h2>
 
   <div class="topbar__actions">
+    <button
+      type="button"
+      class="topbar__burger"
+      (click)="toggleSidebar()"
+      aria-label="Réduire/agrandir la barre latérale"
+    >&#9776;</button>
   </div>
 </header>

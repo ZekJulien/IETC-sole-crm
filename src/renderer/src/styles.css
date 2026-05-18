@@ -1,18 +1,18 @@
 :root {
-  --color-bg-base:     #1e1e2e;  
-  --color-bg-surface:  #181825;  
-  --color-bg-deep:     #11111b;  
-  --color-bg-elevated: #313244; 
+  --color-bg-base:     #1e1e2e;
+  --color-bg-surface:  #181825;
+  --color-bg-deep:     #11111b;
+  --color-bg-elevated: #313244;
   --color-border:      #313244;
   --color-border-soft: #45475a;
   --color-text:        #cdd6f4;
   --color-text-muted:  #a6adc8;
   --color-text-subtle: #6c7086;
-  --color-accent:      #cba6f7;  
-  --color-info:        #89b4fa;  
-  --color-success:     #a6e3a1;  
-  --color-warning:     #f9e2af;  
-  --color-danger:      #f38ba8; 
+  --color-accent:      #cba6f7;
+  --color-info:        #89b4fa;
+  --color-success:     #a6e3a1;
+  --color-warning:     #f9e2af;
+  --color-danger:      #f38ba8;
 
   --sidebar-width:           240px;
   --sidebar-width-collapsed: 64px;
@@ -41,4 +41,37 @@ body {
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── Custom scrollbar (Chromium/Electron) ──────────────── */
+::-webkit-scrollbar {
+  width:  10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background:    var(--color-bg-elevated);
+  border:        2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 99px;
+  transition:    background var(--transition);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background:    var(--color-border-soft);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox fallback */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-bg-elevated) transparent;
 }

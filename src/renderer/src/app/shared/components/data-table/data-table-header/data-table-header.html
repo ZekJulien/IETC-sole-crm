@@ -1,0 +1,15 @@
+<th
+  class="th"
+  [class.th--sortable]="column().sortable"
+  [class.th--active]="isActive()"
+  [style.width]="column().width ?? 'auto'"
+  (click)="onSort()">
+  {{ column().labelKey | t }}
+  @if (column().sortable) {
+    <span class="th__icon">
+      @if      (dir() === 'asc')  { <svg lucideArrowUp   [size]="11" /> }
+      @else if (dir() === 'desc') { <svg lucideArrowDown [size]="11" /> }
+      @else                       { <svg lucideChevronsUpDown [size]="11" /> }
+    </span>
+  }
+</th>

@@ -5,17 +5,23 @@
   "description": "CRM desktop pour indépendants — Electron Forge, Angular, Prisma, SQLite. Projet bachelier 2 SGBD (IETC).",
   "main": ".vite/build/main.js",
   "scripts": {
-    "start":           "npm run build:renderer && electron-forge start",
-    "build:renderer":  "cd src/renderer && npx ng build --base-href ./",
-    "package":         "electron-forge package",
-    "make":            "electron-forge make",
+    "start": "npm run build:renderer && electron-forge start",
+    "build:renderer": "cd src/renderer && npx ng build --base-href ./",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
     "prisma:generate": "npx prisma generate",
-    "prisma:migrate":  "npx prisma migrate dev --name init",
-    "prisma:studio":   "npx prisma studio",
-    "postinstall":     "npm install --prefix src/renderer",
-    "test":            "echo \"Error: no test specified\" && exit 1"
+    "prisma:migrate": "npx prisma migrate dev --name init",
+    "prisma:studio": "npx prisma studio",
+    "postinstall": "npm install --prefix src/renderer",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["electron", "angular", "prisma", "sqlite", "boilerplate"],
+  "keywords": [
+    "electron",
+    "angular",
+    "prisma",
+    "sqlite",
+    "boilerplate"
+  ],
   "author": "",
   "license": "MIT",
   "type": "commonjs",
@@ -39,6 +45,7 @@
     "vite": "^8.0.10"
   },
   "dependencies": {
+    "@lucide/angular": "^1.16.0",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "better-sqlite3": "^12.9.0",

@@ -1,0 +1,7 @@
+export * from './client-type.enum'
+export * from './client.dto'
+export * from './contact.dto'
+export * from './create-client.dto'
+export * from './update-client.dto'
+export * from './create-contact.dto'
+export * from './update-contact.dto'

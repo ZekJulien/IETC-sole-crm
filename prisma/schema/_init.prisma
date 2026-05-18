@@ -1,3 +1,0 @@
-model Init {
-  id Int @id @default(autoincrement())
-}

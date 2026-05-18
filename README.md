@@ -84,18 +84,26 @@ erDiagram
     CategorieDepense ||--o{ Depense : "1..N Restrict"
 
     Client {
-        Int        id PK
-        String     nom
-        String     email "unique nullable"
-        TypeClient type
-        String     siret "nullable"
-        DateTime   dateCreation
-        Boolean    archive
+        Int      id PK
+        String   name
+        String   email "unique nullable"
+        String   phone "nullable"
+        String   street "nullable"
+        String   zipCode "nullable"
+        String   city "nullable"
+        String   country "nullable"
+        String   type "CHECK IN INDIVIDUAL,COMPANY"
+        String   companyNumber "nullable"
+        Boolean  archived
+        DateTime createdAt
+        DateTime updatedAt
     }
     Contact {
         Int    id PK
-        String nom
+        String lastName
+        String firstName "nullable"
         String email "nullable"
+        String phone "nullable"
         String role "nullable"
         Int    clientId FK
     }
@@ -194,7 +202,7 @@ erDiagram
 | `onDelete: SetNull` | Supprimer une tâche conserve les `TempsPasse` (tacheId → null) |
 | JOIN via `include` | `prisma.projet.findMany({ include: { client: true, taches: true } })` |
 | Agrégat | `prisma.tempsPasse.aggregate({ _sum: { duree: true } })` |
-| Enums | 7 enums : `TypeClient`, `StatutProjet`, `StatutTache`, `Priorite`, `StatutFacture`, `StatutDevis`, `MethodePaiement` |
+| CHECK constraint | `type` sur `Client` : `CHECK ("type" IN ('INDIVIDUAL', 'COMPANY'))` — TEXT+CHECK au lieu d'enum Prisma pour compatibilité multi-DB (SQLite + PG) |
 
 ---
 

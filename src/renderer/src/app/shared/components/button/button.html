@@ -1,0 +1,12 @@
+<button
+  class="btn"
+  [class]="'btn btn--' + variant()"
+  [class.btn--loading]="loading()"
+  [type]="type()"
+  [disabled]="disabled() || loading()"
+  (click)="clicked.emit()">
+  @if (loading()) {
+    <span class="btn__spinner"></span>
+  }
+  <ng-content />
+</button>

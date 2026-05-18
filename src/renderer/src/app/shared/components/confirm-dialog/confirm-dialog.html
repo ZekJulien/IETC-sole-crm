@@ -1,0 +1,12 @@
+@if (visible()) {
+  <div class="dialog-overlay" (click)="cancelled.emit()">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <h3 class="dialog__title">{{ title() | t }}</h3>
+      <p class="dialog__message">{{ message() | t }}</p>
+      <div class="dialog__actions">
+        <app-button [variant]="ButtonVariant.GHOST"  (clicked)="cancelled.emit()">{{ 'common.cancel'  | t }}</app-button>
+        <app-button [variant]="ButtonVariant.DANGER" (clicked)="confirmed.emit()">{{ 'common.confirm' | t }}</app-button>
+      </div>
+    </div>
+  </div>
+}
