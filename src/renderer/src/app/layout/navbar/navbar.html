@@ -1,0 +1,29 @@
+<header class="navbar">
+  <a class="navbar__brand" [routerLink]="'/'">
+    <span class="navbar__brand-mark">S</span>
+    <span class="navbar__brand-text">Sole</span>
+  </a>
+
+  <nav class="navbar__nav" aria-label="Navigation principale">
+    @for (item of navItems; track item.route) {
+      <a
+        class="nav-pill"
+        [routerLink]="item.route"
+        routerLinkActive="nav-pill--active"
+        [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        [attr.aria-label]="item.labelKey | t">
+        <ng-container [ngComponentOutlet]="item.icon" />
+        <span class="nav-pill__label">{{ item.labelKey | t }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="navbar__actions">
+    <button type="button" class="navbar__icon-btn" aria-label="Paramètres">
+      <svg lucideSettings [size]="16" />
+    </button>
+    <button type="button" class="navbar__icon-btn" aria-label="Compte utilisateur">
+      <svg lucideUserCircle2 [size]="16" />
+    </button>
+  </div>
+</header>

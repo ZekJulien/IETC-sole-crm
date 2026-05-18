@@ -1,11 +1,8 @@
 <div class="app-shell">
-  <app-sidebar />
+  <app-navbar />
 
-  <main class="app-shell__main">
-    <app-topbar />
-    <div class="app-shell__content">
-      <router-outlet />
-    </div>
+  <main class="app-shell__anim" [@routeAnim]="prepareRoute(o)">
+    <router-outlet #o="outlet" />
   </main>
 </div>
 
