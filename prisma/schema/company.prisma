@@ -1,0 +1,29 @@
+model Company {
+  id            String   @id @default("default")
+
+  name          String
+  legalForm     String?
+
+  street        String?
+  zipCode       String?
+  city          String?
+  country       String?
+
+  email         String?
+  phone         String?
+  website       String?
+
+  companyNumber String?
+  vatNumber     String?
+  peppolId      String?
+
+  iban          String?
+  bic           String?
+
+  logoPath      String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  settings      CompanySettings?
+}

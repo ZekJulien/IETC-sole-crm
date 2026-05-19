@@ -1,0 +1,21 @@
+model CompanySettings {
+  companyId             String   @id
+  company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  defaultVatRate        Float    @default(21)
+  paymentTermsDays      Int      @default(30)
+  paymentConditions     String?
+
+  invoiceNumberFormat        String   @default("INV-{YYYY}-{####}")
+  invoiceNumberCounter       Int      @default(0)
+  invoiceCounterResetYearly  Boolean  @default(true)
+  invoiceCounterYear         Int      @default(0)
+
+  quoteNumberFormat          String   @default("QUO-{YYYY}-{####}")
+  quoteNumberCounter         Int      @default(0)
+  quoteCounterResetYearly    Boolean  @default(true)
+  quoteCounterYear           Int      @default(0)
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
