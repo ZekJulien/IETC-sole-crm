@@ -1,16 +1,17 @@
-import { Component, OnInit, inject, input, output } from '@angular/core'
+import { Component, effect, inject, input, output } from '@angular/core'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { ContactDto, CreateContactDto, UpdateContactDto } from '@shared/dtos/client'
-import { FormField, FormActions } from '@app/components'
+import { Button, ViewField } from '@app/components'
+import { ButtonVariant } from '@app/enums'
 import { TranslatePipe } from '@app/pipes'
 
 @Component({
   selector: 'app-contact-form',
-  imports: [ReactiveFormsModule, FormField, FormActions, TranslatePipe],
+  imports: [ReactiveFormsModule, Button, ViewField, TranslatePipe],
   templateUrl: './contact-form.html',
   styleUrl: './contact-form.css',
 })
-export class ContactForm implements OnInit {
+export class ContactForm {
   private readonly fb = inject(FormBuilder)
 
   readonly contact   = input<ContactDto | null>(null)
@@ -18,6 +19,12 @@ export class ContactForm implements OnInit {
   readonly loading   = input<boolean>(false)
   readonly submitted = output<CreateContactDto | UpdateContactDto>()
   readonly cancelled = output<void>()
+
+  get titleKey(): string {
+    return this.contact() ? 'contact.edit' : 'contact.new'
+  }
+
+  readonly ButtonVariant = ButtonVariant
 
   readonly form = this.fb.group({
     lastName:  ['', [Validators.required]],
@@ -27,9 +34,17 @@ export class ContactForm implements OnInit {
     role:      [''],
   })
 
-  ngOnInit(): void {
-    const c = this.contact()
-    if (c) this.form.patchValue({ ...c })
+  constructor() {
+    effect(() => {
+      const c = this.contact()
+      this.form.reset({
+        lastName:  c?.lastName  ?? '',
+        firstName: c?.firstName ?? '',
+        email:     c?.email     ?? '',
+        phone:     c?.phone     ?? '',
+        role:      c?.role      ?? '',
+      })
+    })
   }
 
   onSubmit(): void {

@@ -7,14 +7,16 @@
     <textarea
       class="field__input field__input--textarea"
       [placeholder]="placeholder()"
-      [formControl]="$any(control())">
+      [formControl]="$any(control())"
+      (blur)="changed.emit()">
     </textarea>
   } @else {
     <input
       class="field__input"
       [type]="type()"
       [placeholder]="placeholder()"
-      [formControl]="$any(control())" />
+      [formControl]="$any(control())"
+      (blur)="changed.emit()" />
   }
 
   @if (errorMessage()) {

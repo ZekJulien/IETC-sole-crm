@@ -1,13 +1,15 @@
 <div class="contact-list">
-  <div class="contact-list__header">
-    <span class="contact-list__title">{{ 'contact.title' | t }}</span>
-    <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="add.emit()">
-      <svg lucidePlus [size]="13" /> {{ 'contact.new' | t }}
-    </app-button>
-  </div>
+  @if (!embedded()) {
+    <div class="contact-list__header">
+      <span class="contact-list__title">{{ 'contact.title' | t }}</span>
+      <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="add.emit()">
+        <svg lucidePlus [size]="13" /> {{ 'contact.new' | t }}
+      </app-button>
+    </div>
 
-  @if (contacts().length > 2) {
-    <app-search-bar [placeholder]="'contact.searchPlaceholder' | t" (search)="search.set($event)" />
+    @if (contacts().length > 2) {
+      <app-search-bar [placeholder]="'contact.searchPlaceholder' | t" (search)="search.set($event)" />
+    }
   }
 
   @if (filtered().length === 0) {

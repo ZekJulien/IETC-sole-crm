@@ -1,0 +1,169 @@
+<div class="form-panel">
+  <div class="form-panel__body">
+    <form class="view-sections-grid" [class.view-sections-grid--no-billing]="!showBilling" [formGroup]="form" (ngSubmit)="saveEdit()">
+
+      <div class="view-section">
+        <h4 class="view-section__title">{{ 'form.identity' | t }}</h4>
+
+        <div class="view-section__grid">
+          <div class="view-field">
+            <label>{{ 'client.type' | t }}</label>
+            @if (mode() === 'edit') {
+              <select class="view-field__input" formControlName="type" (change)="onTypeChange()">
+                <option [value]="ClientType.COMPANY">{{ 'client.type.company' | t }}</option>
+                <option [value]="ClientType.INDIVIDUAL">{{ 'client.type.individual' | t }}</option>
+              </select>
+            } @else {
+              <span>{{ ('client.type.' + client().type.toLowerCase()) | t }}</span>
+            }
+          </div>
+          @if (!isCompanyCurrent) {
+            <app-view-field
+              [label]="'client.firstName' | t"
+              [editing]="mode() === 'edit'"
+              [control]="form.get('firstName')"
+              [value]="client().firstName" />
+          }
+        </div>
+
+        <app-view-field
+          [label]="(isCompanyCurrent ? 'client.companyName' : 'client.lastName') | t"
+          [editing]="mode() === 'edit'"
+          [control]="form.get('name')"
+          [value]="client().name" />
+
+        <div class="view-section__grid">
+          <app-view-field
+            [label]="'common.email' | t"
+            type="email"
+            [editing]="mode() === 'edit'"
+            [control]="form.get('email')"
+            [value]="client().email" />
+          <app-view-field
+            [label]="'common.phone' | t"
+            type="tel"
+            patternErrorKey="phone"
+            [editing]="mode() === 'edit'"
+            [control]="form.get('phone')"
+            [value]="client().phone" />
+        </div>
+      </div>
+
+      <div class="view-section">
+        <h4 class="view-section__title">{{ 'form.address' | t }}</h4>
+        <app-view-field
+          [label]="'common.street' | t"
+          [editing]="mode() === 'edit'"
+          [control]="form.get('street')"
+          [value]="client().street" />
+        <div class="view-section__grid">
+          <app-view-field
+            [label]="'common.zipCode' | t"
+            patternErrorKey="postalCode"
+            [editing]="mode() === 'edit'"
+            [control]="form.get('zipCode')"
+            [value]="client().zipCode" />
+          <app-view-field
+            [label]="'common.city' | t"
+            [editing]="mode() === 'edit'"
+            [control]="form.get('city')"
+            [value]="client().city" />
+        </div>
+        <app-view-field
+          [label]="'common.country' | t"
+          [editing]="mode() === 'edit'"
+          [control]="form.get('country')"
+          [value]="client().country"
+          (changed)="onCountryChange()" />
+      </div>
+
+      @if (showBilling) {
+        <div class="view-section">
+          <h4 class="view-section__title">{{ 'form.billing' | t }}</h4>
+          <div class="view-section__grid">
+            <app-view-field
+              [label]="'client.companyNumber' | t"
+              patternErrorKey="companyNumber"
+              [editing]="mode() === 'edit'"
+              [control]="form.get('companyNumber')"
+              [value]="client().companyNumber" />
+            <app-view-field
+              [label]="'client.vatNumber' | t"
+              patternErrorKey="vatNumber"
+              [editing]="mode() === 'edit'"
+              [control]="form.get('vatNumber')"
+              [value]="client().vatNumber" />
+          </div>
+          <app-view-field
+            [label]="'client.peppolId' | t"
+            patternErrorKey="peppolId"
+            [editing]="mode() === 'edit'"
+            [control]="form.get('peppolId')"
+            [value]="client().peppolId" />
+        </div>
+      }
+
+      <div class="view-section">
+        <h4 class="view-section__title">{{ 'form.notes' | t }}</h4>
+        <app-view-field
+          type="textarea"
+          [editing]="mode() === 'edit'"
+          [control]="form.get('notes')"
+          [value]="client().notes" />
+      </div>
+
+    </form>
+
+    <div class="view-section">
+      <header class="view-section__header">
+        <h4 class="view-section__title">{{ 'contact.title' | t }}</h4>
+        <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="onContactAdd()">
+          <svg lucidePlus [size]="13" /> {{ 'contact.new' | t }}
+        </app-button>
+      </header>
+
+      <app-contact-list
+        [contacts]="contacts()"
+        [embedded]="true"
+        (edit)="onContactEdit($event)"
+        (remove)="onContactRemoveRequest($event)" />
+
+      @if (showContactForm()) {
+        <app-contact-form
+          [contact]="editingContact()"
+          [clientId]="client().id"
+          (submitted)="onContactSubmit($event)"
+          (cancelled)="onContactCancel()" />
+      }
+    </div>
+  </div>
+
+  <div class="form-panel__header">
+    <div class="form-panel__title">
+      <h3>{{ displayName(client()) }}</h3>
+      <app-status-badge [status]="client().type" [i18nKey]="'client.type.' + client().type.toLowerCase()" />
+    </div>
+    <div class="form-panel__actions">
+      @if (mode() === 'edit') {
+        <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelEdit()" [tabindex]="-1">
+          {{ 'common.cancel' | t }}
+        </app-button>
+        <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="saveEdit()">
+          {{ 'common.save' | t }}
+        </app-button>
+      } @else {
+        <app-button [variant]="ButtonVariant.DANGER" (clicked)="deleted.emit(client().id)" [tabindex]="-1">
+          {{ 'common.delete' | t }}
+        </app-button>
+        <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="startEdit()">
+          {{ 'common.edit' | t }}
+        </app-button>
+      }
+    </div>
+  </div>
+
+  <app-confirm-dialog
+    [visible]="pendingContactRemoveId() !== null"
+    (confirmed)="onContactRemoveConfirm()"
+    (cancelled)="pendingContactRemoveId.set(null)" />
+</div>

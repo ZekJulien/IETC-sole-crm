@@ -4,7 +4,7 @@
     <div class="client-form__row">
       <div class="client-form__field">
         <label class="field__label">{{ 'client.type' | t }}</label>
-        <select class="field__input" formControlName="type">
+        <select class="field__input" formControlName="type" (change)="onTypeChange()">
           <option [value]="ClientType.COMPANY">{{ 'client.type.company' | t }}</option>
           <option [value]="ClientType.INDIVIDUAL">{{ 'client.type.individual' | t }}</option>
         </select>
@@ -31,7 +31,7 @@
       <app-form-field [label]="'common.zipCode' | t" [control]="form.get('zipCode')" patternErrorKey="postalCode" />
       <app-form-field [label]="'common.city'    | t" [control]="form.get('city')" />
     </div>
-    <app-form-field [label]="'common.country' | t" [control]="form.get('country')" />
+    <app-form-field [label]="'common.country' | t" [control]="form.get('country')" (changed)="onCountryChange()" />
   </div>
 
   @if (isCompany) {

@@ -1,0 +1,5 @@
+/* L'host est transparent au layout : le .view-field interne devient le
+   grid item direct du parent (view-section__grid). */
+:host {
+  display: contents;
+}

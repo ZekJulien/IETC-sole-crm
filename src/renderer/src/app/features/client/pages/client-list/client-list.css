@@ -5,13 +5,12 @@
 }
 
 .client-list {
-  display: flex;
-  width:   100%;
-  height:  100%;
+  display:  flex;
+  width:    100%;
+  height:   100%;
   overflow: hidden;
 }
 
-/* ── Main section : morphe de 280px (inbox) à 100% (table) ─ */
 .client-main {
   flex:           0 0 var(--main-width, 280px);
   display:        flex;
@@ -24,11 +23,9 @@
   flex: 1 1 100%;
 }
 
-/* Pendant le drag : pas de transition, sinon ça lag à chaque pixel */
 .client-list--dragging .client-main,
 .client-list--dragging .client-resizer { transition: none; }
 
-/* ── Resizer : visible en mode inbox pour drag la séparation ─ */
 .client-resizer {
   flex-shrink: 0;
   width:       6px;
@@ -59,27 +56,6 @@
   pointer-events: none;
 }
 
-.client-main__header {
-  display:       flex;
-  align-items:   center;
-  gap:           6px;
-  padding:       16px;
-  border-bottom: 1px solid var(--color-border);
-  flex-shrink:   0;
-}
-.client-main__search {
-  flex:      1 1 auto;
-  min-width: 0;
-}
-
-.client-main__content {
-  position:   relative;
-  flex:       1;
-  min-height: 0;
-  overflow:   hidden;
-}
-
-/* ── Detail section : visible en mode inbox, fade out en table ─ */
 .client-detail {
   flex:           1 1 auto;
   display:        flex;
@@ -92,10 +68,16 @@
                   padding 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .client-list--table .client-detail {
-  flex:    0 0 0;
-  opacity: 0;
-  padding: 0;
+  flex:           0 0 0;
+  opacity:        0;
+  padding:        0;
   pointer-events: none;
+}
+
+.client-detail--form-mode {
+  overflow: hidden;
+  padding:  0;
+  gap:      0;
 }
 
 .client-detail__placeholder {
@@ -110,315 +92,3 @@
   text-align:      center;
 }
 .client-detail__placeholder svg { display: block; }
-
-/* ── View panes (pour l'animation entre items/data-table) ─── */
-.view-pane {
-  display:        flex;
-  flex-direction: column;
-  width:          100%;
-  height:         100%;
-  overflow:       hidden;
-}
-.view-pane--inbox .inbox-list__items { flex: 1; overflow-y: auto; }
-
-/* ── Icon buttons (compact actions) ─────────────────── */
-.icon-btn {
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
-  width:           var(--control-height); height: var(--control-height);
-  background:      transparent;
-  border:          1px solid var(--color-border);
-  border-radius:   var(--radius);
-  color:           var(--color-text-muted);
-  cursor:          pointer;
-  transition:      background var(--transition), color var(--transition), border-color var(--transition);
-  flex-shrink:     0;
-}
-.icon-btn:hover {
-  background:   var(--color-bg-elevated);
-  color:        var(--color-text);
-  border-color: var(--color-border-soft);
-}
-.icon-btn--active {
-  background:   var(--color-bg-elevated);
-  color:        var(--color-accent);
-  border-color: var(--color-accent);
-  z-index:      1;
-}
-.icon-btn--primary {
-  background:   var(--color-accent);
-  border-color: var(--color-accent);
-  color:        var(--color-bg-deep);
-}
-.icon-btn--primary:hover {
-  background:   var(--color-accent);
-  color:        var(--color-bg-deep);
-  filter:       brightness(1.1);
-}
-
-/* ── View switch (groupe de boutons collés) ────────── */
-.view-switch {
-  display: flex;
-  gap: 0;
-}
-.view-switch .icon-btn                  { position: relative; }
-.view-switch .icon-btn:first-child      { border-top-right-radius: 0; border-bottom-right-radius: 0; }
-.view-switch .icon-btn:last-child       { border-top-left-radius:  0; border-bottom-left-radius:  0; margin-left: -1px; }
-
-.inbox-list__items { flex: 1; overflow-y: auto; }
-
-/* ── Dropdown "+ Nouveau client" (split-button) ──────── */
-.new-dropdown { position: relative; display: inline-flex; }
-.view-pane--inbox .new-dropdown {
-  align-self: stretch;
-  max-width:  calc(var(--main-width, 280px) - 16px);
-  margin:     8px;
-}
-.client-main__header .new-dropdown { margin: 0; }
-.new-dropdown > .inbox-list__create {
-  margin: 0;
-  width:  100%;
-}
-
-.new-dropdown__menu {
-  position:      absolute;
-  left:          0;
-  right:         0;
-  background:    var(--color-bg-elevated);
-  border:        1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding:       4px;
-  display:       flex;
-  flex-direction: column;
-  gap:           2px;
-  box-shadow:    0 6px 16px rgba(0, 0, 0, 0.4);
-  z-index:       50;
-}
-.new-dropdown__menu--above { bottom: calc(100% + 6px); }
-.new-dropdown__menu--below { top:    calc(100% + 6px); }
-
-.new-dropdown__item {
-  display:       flex;
-  align-items:   center;
-  gap:           8px;
-  padding:       8px 12px;
-  background:    transparent;
-  border:        none;
-  color:         var(--color-text);
-  cursor:        pointer;
-  font-size:     13px;
-  font-family:   inherit;
-  border-radius: calc(var(--radius) - 2px);
-  text-align:    left;
-  transition:    background var(--transition), color var(--transition);
-}
-.new-dropdown__item:hover {
-  background: var(--color-accent);
-  color:      var(--color-bg-deep);
-}
-
-/* ── Bouton create en bas du panel inbox ────────────── */
-.inbox-list__create {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  gap:             6px;
-  padding:         10px 12px;
-  margin:          8px;
-  background:      transparent;
-  border:          1px solid var(--color-accent);
-  border-radius:   var(--radius);
-  color:           var(--color-accent);
-  font-size:       13px;
-  font-weight:     500;
-  cursor:          pointer;
-  transition:      background var(--transition), color var(--transition);
-  flex-shrink:     0;
-}
-.inbox-list__create:hover {
-  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
-}
-
-.inbox-item {
-  display:       flex;
-  align-items:   center;
-  gap:           10px;
-  padding:       10px 14px;
-  cursor:        pointer;
-  border-bottom: 1px solid var(--color-border);
-  transition:    background var(--transition);
-}
-.inbox-item:hover   { background: var(--color-bg-elevated); }
-.inbox-item--active {
-  background:  color-mix(in srgb, var(--color-accent) 10%, var(--color-bg-surface));
-  border-left: 2px solid var(--color-accent);
-}
-
-.inbox-item__info  { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.inbox-item__name  { font-size: 13px; font-weight: 500; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.inbox-item__city  { font-size: 11px; color: var(--color-text-subtle); }
-
-/* ── Detail panel ───────────────────────────────────── */
-.inbox-detail { display: flex; flex-direction: column; gap: 16px; }
-
-/* Grid des sections (view/edit) : 1 col par défaut, 2 cols au-delà de 900px (container query) */
-.view-sections-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@container form-body (min-width: 900px) {
-  .view-sections-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  /* Sans FACTURATION (mode particulier), NOTES (dernière section) prend toute la largeur */
-  .view-sections-grid--no-billing > .view-section:last-child {
-    grid-column: 1 / -1;
-  }
-}
-
-.inbox-detail__form-header {
-  display:         flex;
-  align-items:     center;
-  justify-content: space-between;
-  gap:             8px;
-  padding:         16px;
-  min-height:      57px;
-  border-bottom:   1px solid var(--color-border);
-  flex-shrink:     0;
-  background:      var(--color-bg-surface);
-  order:           -1;
-}
-.inbox-detail__form-header h3 { font-size: 15px; font-weight: 600; }
-.inbox-detail__form-title     { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.inbox-detail__form-actions   { display: flex; gap: 8px; align-items: center; }
-
-.inbox-detail__form-body {
-  flex:              1;
-  min-height:        0;
-  overflow-y:        auto;
-  padding:           16px;
-  display:           flex;
-  flex-direction:    column;
-  gap:               16px;
-  container-type:    inline-size;
-  container-name:    form-body;
-}
-
-/* Fade-in subtil quand le form de création apparaît */
-.inbox-detail--form {
-  animation: form-fade-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes form-fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* En mode création, le scroll se fait dans .inbox-detail__form-body, pas sur .client-detail */
-.client-detail--form-mode {
-  overflow: hidden;
-  padding:  0;
-  gap:      0;
-}
-.client-detail--form-mode .inbox-detail--form {
-  display:        flex;
-  flex-direction: column;
-  height:         100%;
-  width:          100%;
-  overflow:       hidden;
-  gap:            0;
-}
-
-.inbox-detail__header     { display: flex; align-items: flex-start; justify-content: space-between; }
-.inbox-detail__header h3  { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
-.inbox-detail__actions    { display: flex; gap: 8px; }
-
-/* ── View sections (mirror form sections) ───────────── */
-.view-section {
-  display:        flex;
-  flex-direction: column;
-  gap:            12px;
-  padding:        16px;
-  background:     var(--color-bg-surface);
-  border:         1px solid var(--color-border);
-  border-radius:  var(--radius-lg);
-}
-
-.view-section__title {
-  font-size:      11px;
-  font-weight:    600;
-  color:          var(--color-text-subtle);
-  text-transform: uppercase;
-  letter-spacing: .4px;
-}
-
-.view-section__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-.view-section__grid--3 { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
-
-.view-field {
-  display: flex; flex-direction: column; gap: 4px;
-  min-width: 0;
-}
-.view-field > label {
-  font-size: 11px; font-weight: 500;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: .3px;
-}
-.view-field > span,
-.view-field > a {
-  font-size: 13px; color: var(--color-text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.view-field > a {
-  text-decoration: none;
-  transition: color var(--transition);
-}
-.view-field > a:hover { color: var(--color-accent); }
-
-.view-field__notes {
-  font-size: 13px; color: var(--color-text);
-  white-space: pre-wrap;
-  line-height: 1.5;
-}
-
-.view-field__placeholder {
-  font-size:   13px;
-  font-style:  italic;
-  color:       var(--color-text-subtle);
-  opacity:     .7;
-}
-
-/* ── Inputs en mode édition (alignés sur view-field) ── */
-.view-field__input {
-  height:        var(--control-height);
-  padding:       0 10px;
-  background:    var(--color-bg-elevated);
-  border:        1px solid var(--color-border);
-  border-radius: var(--radius);
-  color:         var(--color-text);
-  font-size:     13px;
-  font-family:   inherit;
-  outline:       none;
-  transition:    border-color var(--transition);
-  width:         100%;
-}
-.view-field__input:focus { border-color: var(--color-accent); }
-
-.view-field__error {
-  font-size: 11px;
-  color:     var(--color-danger);
-  margin-top: 2px;
-}
-.view-field__input--textarea {
-  height:      auto;
-  padding:     10px;
-  min-height:  80px;
-  line-height: 1.5;
-  resize:      vertical;
-}

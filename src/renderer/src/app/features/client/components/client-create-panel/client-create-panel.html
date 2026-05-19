@@ -1,0 +1,27 @@
+<div class="form-panel" appFocusTrap>
+  <div class="form-panel__body">
+    <app-client-form
+      [loading]="saving()"
+      [showActions]="false"
+      [initialType]="initialType()"
+      (submitted)="onChildSubmit($event)"
+      (cancelled)="cancelled.emit()" />
+  </div>
+
+  <div class="form-panel__header">
+    <div class="form-panel__title">
+      <h3>{{ 'client.new' | t }}</h3>
+      @if (clientForm?.form?.get('type')?.value; as type) {
+        <app-status-badge [status]="type" [i18nKey]="'client.type.' + type.toLowerCase()" />
+      }
+    </div>
+    <div class="form-panel__actions">
+      <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()" [tabindex]="-1">
+        {{ 'common.cancel' | t }}
+      </app-button>
+      <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="triggerSubmit()">
+        {{ 'common.save' | t }}
+      </app-button>
+    </div>
+  </div>
+</div>

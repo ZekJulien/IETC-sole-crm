@@ -4,12 +4,14 @@ import { FindManyArgs } from '@shared/types'
 import { ClientService } from '@app/services/client/client'
 import { ToastService } from '@app/services/toast/toast.service'
 import { ErrorService } from '@app/services/error/error.service'
+import { I18nService } from '@app/services/i18n/i18n'
 
 @Injectable({ providedIn: 'root' })
 export class ClientStore {
   private readonly clientSvc = inject(ClientService)
   private readonly toast     = inject(ToastService)
   private readonly errors    = inject(ErrorService)
+  private readonly i18n      = inject(I18nService)
 
   private readonly _clients  = signal<ClientDto[]>([])
   private readonly _selected = signal<ClientDto | null>(null)
@@ -43,7 +45,7 @@ export class ClientStore {
     try {
       const created = await this.clientSvc.add(data)
       this._clients.update(list => [...list, created])
-      this.toast.success('Client created')
+      this.toast.success(this.i18n.t('client.toast.created'))
       return created
     } catch (e) { this.errors.handle(e); return null }
     finally { this._saving.set(false) }
@@ -55,7 +57,7 @@ export class ClientStore {
       const updated = await this.clientSvc.update(data)
       this._clients.update(list => list.map(c => c.id === data.id ? updated : c))
       if (this._selected()?.id === data.id) this._selected.set(updated)
-      this.toast.success('Client saved')
+      this.toast.success(this.i18n.t('client.toast.saved'))
       return updated
     } catch (e) { this.errors.handle(e); return null }
     finally { this._saving.set(false) }
@@ -66,7 +68,7 @@ export class ClientStore {
       await this.clientSvc.remove(id)
       this._clients.update(list => list.filter(c => c.id !== id))
       if (this._selected()?.id === id) this._selected.set(null)
-      this.toast.success('Client deleted')
+      this.toast.success(this.i18n.t('client.toast.deleted'))
     } catch (e) { this.errors.handle(e) }
   }
 }

@@ -1,345 +1,47 @@
 <div class="client-list" [class.client-list--table]="viewMode() === 'table'" [class.client-list--dragging]="dragging()" [style.--main-width.px]="mainWidth()">
 
-  <!-- Main section : search + content, morphe entre 280px (inbox) et 100% (table) -->
   <section class="client-main">
-    <header class="client-main__header">
-      <div class="client-main__search">
-        <app-search-bar [(value)]="searchTerm" [placeholder]="'client.searchPlaceholder' | t" (search)="load($event)" />
-      </div>
-      <div class="view-switch">
-        <button type="button" class="icon-btn" [class.icon-btn--active]="viewMode() === 'inbox'" (click)="viewMode.set('inbox')" [title]="'common.viewInbox' | t">
-          <svg lucideLayoutList [size]="16" />
-        </button>
-        <button type="button" class="icon-btn" [class.icon-btn--active]="viewMode() === 'table'" (click)="viewMode.set('table')" [title]="'common.viewTable' | t">
-          <svg lucideTable2 [size]="16" />
-        </button>
-      </div>
-      @if (viewMode() === 'table') {
-        <div class="new-dropdown">
-          <button type="button" class="inbox-list__create" (click)="toggleNewMenu()">
-            <svg lucidePlus [size]="14" /> {{ 'client.new' | t }}
-          </button>
-          @if (newMenuOpen()) {
-            <div class="new-dropdown__menu new-dropdown__menu--below">
-              <button type="button" class="new-dropdown__item" (click)="onNew(ClientType.COMPANY)">
-                {{ 'client.type.company' | t }}
-              </button>
-              <button type="button" class="new-dropdown__item" (click)="onNew(ClientType.INDIVIDUAL)">
-                {{ 'client.type.individual' | t }}
-              </button>
-            </div>
-          }
-        </div>
-      }
-    </header>
-
-    <div class="client-main__content" [@viewSwitch]="viewMode()">
-    @if (viewMode() === 'inbox') {
-      <div class="view-pane view-pane--inbox">
-        <div class="inbox-list__items">
-          @for (client of clientStore.clients(); track client.id) {
-            <div
-              class="inbox-item"
-              [class.inbox-item--active]="selectedClient()?.id === client.id"
-              (click)="onSelect(client)">
-              <app-avatar [lastName]="displayName(client)" size="sm" />
-              <div class="inbox-item__info">
-                <span class="inbox-item__name">{{ displayName(client) }}</span>
-                <span class="inbox-item__city">{{ client.city || ('common.notDefined' | t) }}</span>
-              </div>
-              <app-status-badge [status]="client.type" [i18nKey]="'client.type.' + client.type.toLowerCase()" />
-            </div>
-          }
-        </div>
-        <div class="new-dropdown">
-          <button type="button" class="inbox-list__create" (click)="toggleNewMenu()">
-            <svg lucidePlus [size]="14" /> {{ 'client.new' | t }}
-          </button>
-          @if (newMenuOpen()) {
-            <div class="new-dropdown__menu new-dropdown__menu--above">
-              <button type="button" class="new-dropdown__item" (click)="onNew(ClientType.COMPANY)">
-                {{ 'client.type.company' | t }}
-              </button>
-              <button type="button" class="new-dropdown__item" (click)="onNew(ClientType.INDIVIDUAL)">
-                {{ 'client.type.individual' | t }}
-              </button>
-            </div>
-          }
-        </div>
-      </div>
-    } @else {
-      <div class="view-pane">
-        <app-data-table
-          [columns]="columns"
-          [data]="tableClients()"
-          [loading]="clientStore.loading()"
-          (rowClick)="onTableRowClick($event)" />
-      </div>
-    }
-    </div>
+    <app-client-list-panel
+      [clients]="clientStore.clients()"
+      [selectedId]="selectedClient()?.id ?? null"
+      [loading]="clientStore.loading()"
+      [(viewMode)]="viewMode"
+      [(searchTerm)]="searchTerm"
+      (select)="onSelect($event)"
+      (search)="load($event)"
+      (newClient)="onNew($event)" />
   </section>
 
-  <div class="client-resizer" (pointerdown)="startDrag()" aria-hidden="true"></div>
+  <div class="client-resizer"
+       appResizableSplitter
+       [resizableMin]="MAIN_WIDTH_MIN"
+       [resizableMax]="MAIN_WIDTH_MAX"
+       (widthChange)="onWidthChange($event)"
+       (draggingChange)="onDraggingChange($event)"
+       aria-hidden="true"></div>
 
-  <!-- Detail section : visible uniquement en mode inbox, fade out en mode table -->
   <section class="client-detail" [class.client-detail--form-mode]="isCreating() || !!selectedClient()">
-        @if (isCreating()) {
-          <div class="inbox-detail inbox-detail--form">
-            <div class="inbox-detail__form-body">
-              <app-client-form
-                [loading]="clientStore.saving()"
-                [showActions]="false"
-                [initialType]="newClientType()"
-                (submitted)="onCreateSubmit($any($event))"
-                (cancelled)="onCreateCancel()" />
-            </div>
-            <div class="inbox-detail__form-header">
-              <div class="inbox-detail__form-title">
-                <h3>{{ 'client.new' | t }}</h3>
-                @if (clientForm?.form?.get('type')?.value; as type) {
-                  <app-status-badge [status]="type" [i18nKey]="'client.type.' + type.toLowerCase()" />
-                }
-              </div>
-              <div class="inbox-detail__form-actions">
-                <app-button [variant]="ButtonVariant.GHOST" (clicked)="onCreateCancel()" [tabindex]="-1">
-                  {{ 'common.cancel' | t }}
-                </app-button>
-                <app-button [variant]="ButtonVariant.PRIMARY" [loading]="clientStore.saving()" (clicked)="clientForm?.submit()">
-                  {{ 'common.save' | t }}
-                </app-button>
-              </div>
-            </div>
-          </div>
-
-        } @else if (selectedClient()) {
-          <div class="inbox-detail inbox-detail--form">
-            <div class="inbox-detail__form-body">
-              <form class="view-sections-grid" [class.view-sections-grid--no-billing]="!showBilling" [formGroup]="editForm" (ngSubmit)="onEditSave()">
-
-            <!-- IDENTITY -->
-            <div class="view-section">
-              <h4 class="view-section__title">{{ 'form.identity' | t }}</h4>
-
-              <!-- Type + Prénom (si particulier) -->
-              <div class="view-section__grid">
-                <div class="view-field">
-                  <label>{{ 'client.type' | t }}</label>
-                  @if (isEditing()) {
-                    <select class="view-field__input" formControlName="type">
-                      <option [value]="ClientType.COMPANY">{{ 'client.type.company' | t }}</option>
-                      <option [value]="ClientType.INDIVIDUAL">{{ 'client.type.individual' | t }}</option>
-                    </select>
-                  } @else {
-                    <span>{{ ('client.type.' + selectedClient()!.type.toLowerCase()) | t }}</span>
-                  }
-                </div>
-                @if (!isCompanyCurrent) {
-                  <div class="view-field">
-                    <label>{{ 'client.firstName' | t }}</label>
-                    @if (isEditing()) {
-                      <input class="view-field__input" type="text" formControlName="firstName" />
-                      @if (editError('firstName'); as err) { <span class="view-field__error">{{ err }}</span> }
-                    } @else if (selectedClient()!.firstName) {
-                      <span>{{ selectedClient()!.firstName }}</span>
-                    } @else {
-                      <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                    }
-                  </div>
-                }
-              </div>
-
-              <!-- Nom (label adaptatif : "Nom de l'entreprise" ou "Nom de famille") -->
-              <div class="view-field">
-                <label>{{ (isCompanyCurrent ? 'client.companyName' : 'client.lastName') | t }}</label>
-                @if (isEditing()) {
-                  <input class="view-field__input" type="text" formControlName="name" />
-                  @if (editError('name'); as err) { <span class="view-field__error">{{ err }}</span> }
-                } @else {
-                  <span>{{ selectedClient()!.name }}</span>
-                }
-              </div>
-
-              <!-- Email + Téléphone -->
-              <div class="view-section__grid">
-                <div class="view-field">
-                  <label>{{ 'common.email' | t }}</label>
-                  @if (isEditing()) {
-                    <input class="view-field__input" type="email" formControlName="email" />
-                    @if (editError('email'); as err) { <span class="view-field__error">{{ err }}</span> }
-                  } @else if (selectedClient()!.email) {
-                    <a [href]="'mailto:' + selectedClient()!.email">{{ selectedClient()!.email }}</a>
-                  } @else {
-                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                  }
-                </div>
-                <div class="view-field">
-                  <label>{{ 'common.phone' | t }}</label>
-                  @if (isEditing()) {
-                    <input class="view-field__input" type="tel" formControlName="phone" />
-                    @if (editError('phone', 'phone'); as err) { <span class="view-field__error">{{ err }}</span> }
-                  } @else if (selectedClient()!.phone) {
-                    <a [href]="'tel:' + selectedClient()!.phone">{{ selectedClient()!.phone }}</a>
-                  } @else {
-                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <!-- ADDRESS -->
-            <div class="view-section">
-              <h4 class="view-section__title">{{ 'form.address' | t }}</h4>
-              <div class="view-field">
-                <label>{{ 'common.street' | t }}</label>
-                @if (isEditing()) {
-                  <input class="view-field__input" type="text" formControlName="street" />
-                } @else if (selectedClient()!.street) {
-                  <span>{{ selectedClient()!.street }}</span>
-                } @else {
-                  <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                }
-              </div>
-              <div class="view-section__grid">
-                <div class="view-field">
-                  <label>{{ 'common.zipCode' | t }}</label>
-                  @if (isEditing()) {
-                    <input class="view-field__input" type="text" formControlName="zipCode" />
-                    @if (editError('zipCode', 'postalCode'); as err) { <span class="view-field__error">{{ err }}</span> }
-                  } @else if (selectedClient()!.zipCode) {
-                    <span>{{ selectedClient()!.zipCode }}</span>
-                  } @else {
-                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                  }
-                </div>
-                <div class="view-field">
-                  <label>{{ 'common.city' | t }}</label>
-                  @if (isEditing()) {
-                    <input class="view-field__input" type="text" formControlName="city" />
-                  } @else if (selectedClient()!.city) {
-                    <span>{{ selectedClient()!.city }}</span>
-                  } @else {
-                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                  }
-                </div>
-              </div>
-              <div class="view-field">
-                <label>{{ 'common.country' | t }}</label>
-                @if (isEditing()) {
-                  <input class="view-field__input" type="text" formControlName="country" />
-                } @else if (selectedClient()!.country) {
-                  <span>{{ selectedClient()!.country }}</span>
-                } @else {
-                  <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                }
-              </div>
-            </div>
-
-            <!-- BILLING (visible uniquement pour les entreprises) -->
-            @if (showBilling) {
-              <div class="view-section">
-                <h4 class="view-section__title">{{ 'form.billing' | t }}</h4>
-                <div class="view-section__grid">
-                  <div class="view-field">
-                    <label>{{ 'client.companyNumber' | t }}</label>
-                    @if (isEditing()) {
-                      <input class="view-field__input" type="text" formControlName="companyNumber" />
-                      @if (editError('companyNumber', 'companyNumber'); as err) { <span class="view-field__error">{{ err }}</span> }
-                    } @else if (selectedClient()!.companyNumber) {
-                      <span>{{ selectedClient()!.companyNumber }}</span>
-                    } @else {
-                      <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                    }
-                  </div>
-                  <div class="view-field">
-                    <label>{{ 'client.vatNumber' | t }}</label>
-                    @if (isEditing()) {
-                      <input class="view-field__input" type="text" formControlName="vatNumber" />
-                      @if (editError('vatNumber', 'vatNumber'); as err) { <span class="view-field__error">{{ err }}</span> }
-                    } @else if (selectedClient()!.vatNumber) {
-                      <span>{{ selectedClient()!.vatNumber }}</span>
-                    } @else {
-                      <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                    }
-                  </div>
-                </div>
-                <div class="view-field">
-                  <label>{{ 'client.peppolId' | t }}</label>
-                  @if (isEditing()) {
-                    <input class="view-field__input" type="text" formControlName="peppolId" />
-                    @if (editError('peppolId', 'peppolId'); as err) { <span class="view-field__error">{{ err }}</span> }
-                  } @else if (selectedClient()!.peppolId) {
-                    <span>{{ selectedClient()!.peppolId }}</span>
-                  } @else {
-                    <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- NOTES -->
-            <div class="view-section">
-              <h4 class="view-section__title">{{ 'form.notes' | t }}</h4>
-              <div class="view-field">
-                @if (isEditing()) {
-                  <textarea class="view-field__input view-field__input--textarea" formControlName="notes" rows="4"></textarea>
-                } @else if (selectedClient()!.notes) {
-                  <p class="view-field__notes">{{ selectedClient()!.notes }}</p>
-                } @else {
-                  <span class="view-field__placeholder">{{ 'common.notDefined' | t }}</span>
-                }
-              </div>
-            </div>
-
-              </form>
-
-              <!-- CONTACTS (hors du form, mais dans le body scrollable) -->
-              <app-contact-list
-                [contacts]="contactStore.contacts()"
-                (add)="onContactAdd()"
-                (edit)="onContactEdit($event)"
-                (remove)="onContactRemove($event)" />
-
-              @if (showContactForm()) {
-                <app-contact-form
-                  [contact]="editingContact()"
-                  [clientId]="selectedClient()!.id"
-                  (submitted)="onContactSubmit($event)"
-                  (cancelled)="showContactForm.set(false)" />
-              }
-            </div>
-
-            <!-- Header sticky-like (en bas du DOM pour le tab order, en haut visuellement via order:-1) -->
-            <div class="inbox-detail__form-header">
-              <div class="inbox-detail__form-title">
-                <h3>{{ displayName(selectedClient()!) }}</h3>
-                <app-status-badge [status]="selectedClient()!.type" [i18nKey]="'client.type.' + selectedClient()!.type.toLowerCase()" />
-              </div>
-              <div class="inbox-detail__form-actions">
-                @if (isEditing()) {
-                  <app-button [variant]="ButtonVariant.GHOST" (clicked)="onEditCancel()" [tabindex]="-1">
-                    {{ 'common.cancel' | t }}
-                  </app-button>
-                  <app-button [variant]="ButtonVariant.PRIMARY" [loading]="clientStore.saving()" (clicked)="onEditSave()">
-                    {{ 'common.save' | t }}
-                  </app-button>
-                } @else {
-                  <app-button [variant]="ButtonVariant.DANGER" (clicked)="onRemoveRequest(selectedClient()!.id)" [tabindex]="-1">
-                    {{ 'common.delete' | t }}
-                  </app-button>
-                  <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="onEditStart()">
-                    {{ 'common.edit' | t }}
-                  </app-button>
-                }
-              </div>
-            </div>
-          </div>
-
-        } @else {
-          <div class="client-detail__placeholder">
-            <svg lucideUsers [size]="40" />
-            <p>{{ 'client.selectPrompt' | t }}</p>
-          </div>
-        }
+    @if (isCreating()) {
+      <app-client-create-panel
+        [initialType]="newClientType()"
+        [saving]="clientStore.saving()"
+        (submitted)="onCreateSubmit($event)"
+        (cancelled)="onCreateCancel()" />
+    } @else if (selectedClient(); as client) {
+      <app-client-detail-panel
+        [client]="client"
+        [contacts]="contactStore.contacts()"
+        [saving]="clientStore.saving()"
+        (save)="onEditSave($event)"
+        (deleted)="onRemoveRequest($event)"
+        (contactSubmit)="onContactSubmit($event)"
+        (contactRemove)="onContactRemove($event)" />
+    } @else {
+      <div class="client-detail__placeholder">
+        <svg lucideUsers [size]="40" />
+        <p>{{ 'client.selectPrompt' | t }}</p>
+      </div>
+    }
   </section>
 
   <app-confirm-dialog

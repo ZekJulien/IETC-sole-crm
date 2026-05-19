@@ -1,0 +1,64 @@
+.split-button {
+  position:    relative;
+  display:     inline-flex;
+  align-self:  stretch;
+  width:       100%;
+}
+
+.split-button__trigger {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             6px;
+  width:           100%;
+  padding:         10px 12px;
+  background:      transparent;
+  border:          1px solid var(--color-accent);
+  border-radius:   var(--radius);
+  color:           var(--color-accent);
+  font-size:       13px;
+  font-weight:     500;
+  font-family:     inherit;
+  cursor:          pointer;
+  transition:      background var(--transition), color var(--transition);
+}
+.split-button__trigger:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.split-button__menu {
+  position:       absolute;
+  left:           0;
+  right:          0;
+  background:     var(--color-bg-elevated);
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius);
+  padding:        4px;
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+  box-shadow:     0 6px 16px rgba(0, 0, 0, 0.4);
+  z-index:        50;
+}
+.split-button__menu--above { bottom: calc(100% + 6px); }
+.split-button__menu--below { top:    calc(100% + 6px); }
+
+.split-button__item {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       8px 12px;
+  background:    transparent;
+  border:        none;
+  color:         var(--color-text);
+  cursor:        pointer;
+  font-size:     13px;
+  font-family:   inherit;
+  border-radius: calc(var(--radius) - 2px);
+  text-align:    left;
+  transition:    background var(--transition), color var(--transition);
+}
+.split-button__item:hover {
+  background: var(--color-accent);
+  color:      var(--color-bg-deep);
+}

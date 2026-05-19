@@ -18,13 +18,11 @@
   --radius:                  6px;
   --radius-lg:               8px;
 
-  /* ── Tailles de contrôles (à utiliser dans les boutons, inputs, icon-btn, etc.) ── */
   --control-height:          36px;
   --toolbar-padding-y:       10px;
   --toolbar-padding-x:       12px;
   --toolbar-height:          calc(var(--control-height) + var(--toolbar-padding-y) * 2 + 1px);
 
-  /* Largeur de la scrollbar custom (cf. ::-webkit-scrollbar width plus bas) */
   --scrollbar-width:         10px;
 
   --transition: .2s ease;
@@ -50,7 +48,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Custom scrollbar (Chromium/Electron) ──────────────── */
+
 ::-webkit-scrollbar {
   width:  10px;
   height: 10px;
@@ -77,8 +75,108 @@ body {
   background: transparent;
 }
 
-/* Firefox fallback */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-bg-elevated) transparent;
+}
+
+.view-section {
+  display:        flex;
+  flex-direction: column;
+  gap:            12px;
+  padding:        16px;
+  background:     var(--color-bg-surface);
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-lg);
+}
+
+.view-section__title {
+  font-size:      11px;
+  font-weight:    600;
+  color:          var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.view-section__header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             8px;
+}
+
+.view-section__grid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap:                   12px;
+}
+
+.view-field {
+  display:        flex;
+  flex-direction: column;
+  gap:            4px;
+  min-width:      0;
+}
+.view-field > label {
+  font-size:      11px;
+  font-weight:    500;
+  color:          var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.view-field > span:not(.view-field__error):not(.view-field__placeholder),
+.view-field > a {
+  font-size:     13px;
+  color:         var(--color-text);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+.view-field > a {
+  text-decoration: none;
+  transition:      color var(--transition);
+}
+.view-field > a:hover { color: var(--color-accent); }
+
+.view-field__notes {
+  font-size:   13px;
+  color:       var(--color-text);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.view-field__placeholder {
+  font-size:  13px;
+  font-style: italic;
+  color:      var(--color-text-subtle);
+  opacity:    .7;
+}
+
+.view-field__input {
+  height:        var(--control-height);
+  padding:       0 10px;
+  background:    var(--color-bg-elevated);
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius);
+  color:         var(--color-text);
+  font-size:     13px;
+  font-family:   inherit;
+  outline:       none;
+  transition:    border-color var(--transition);
+  width:         100%;
+}
+.view-field__input:focus { border-color: var(--color-accent); }
+
+.view-field__error {
+  font-size:  11px;
+  color:      var(--color-danger);
+  margin-top: 2px;
+}
+
+.view-field__input--textarea {
+  height:      auto;
+  padding:     10px;
+  min-height:  80px;
+  line-height: 1.5;
+  resize:      vertical;
 }

@@ -1,0 +1,45 @@
+<header class="client-list-panel__header">
+  <div class="client-list-panel__search">
+    <app-search-bar [(value)]="searchTerm" [placeholder]="'client.searchPlaceholder' | t" (search)="search.emit($event)" />
+  </div>
+  <app-view-mode-switch [mode]="viewMode()" (modeChange)="viewMode.set($event)" />
+  @if (viewMode() === 'table') {
+    <app-split-button [items]="newItems" position="below" (selected)="onSplitSelected($event)">
+      <svg lucidePlus [size]="14" /> {{ 'client.new' | t }}
+    </app-split-button>
+  }
+</header>
+
+<div class="client-list-panel__content" [@viewSwitch]="viewMode()">
+  @if (viewMode() === 'inbox') {
+    <div class="client-list-panel__pane client-list-panel__pane--inbox">
+      <div class="client-list-panel__items">
+        @for (client of clients(); track client.id) {
+          <div
+            class="inbox-item"
+            [class.inbox-item--active]="selectedId() === client.id"
+            (click)="select.emit(client)">
+            <app-avatar [lastName]="displayName(client)" size="sm" />
+            <div class="inbox-item__info">
+              <span class="inbox-item__name">{{ displayName(client) }}</span>
+              <span class="inbox-item__city">{{ client.city || ('common.notDefined' | t) }}</span>
+            </div>
+            <app-status-badge [status]="client.type" [i18nKey]="'client.type.' + client.type.toLowerCase()" />
+          </div>
+        }
+      </div>
+      <div class="client-list-panel__new client-list-panel__new--bottom">
+        <app-split-button [items]="newItems" position="above" (selected)="onSplitSelected($event)">
+          <svg lucidePlus [size]="14" /> {{ 'client.new' | t }}
+        </app-split-button>
+      </div>
+    </div>
+  } @else {
+    <div class="client-list-panel__pane">
+      <app-client-table-view
+        [clients]="clients()"
+        [loading]="loading()"
+        (rowClick)="select.emit($event)" />
+    </div>
+  }
+</div>

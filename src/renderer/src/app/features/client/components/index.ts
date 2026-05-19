@@ -1,3 +1,7 @@
+export * from './client-create-panel/client-create-panel'
+export * from './client-detail-panel/client-detail-panel'
 export * from './client-form/client-form'
+export * from './client-list-panel/client-list-panel'
+export * from './client-table-view/client-table-view'
 export * from './contact-form/contact-form'
 export * from './contact-list/contact-list'

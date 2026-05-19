@@ -1,0 +1,25 @@
+<div class="view-field">
+  @if (label()) {
+    <label>{{ label() }}</label>
+  }
+
+  @if (editing()) {
+    @if (type() === 'textarea') {
+      <textarea class="view-field__input view-field__input--textarea" rows="4" [formControl]="$any(control())" (blur)="changed.emit()"></textarea>
+    } @else {
+      <input class="view-field__input" [type]="type()" [formControl]="$any(control())" (blur)="changed.emit()" />
+    }
+    @if (errorMessage(); as err) {
+      <span class="view-field__error">{{ err }}</span>
+    }
+  } @else if (hasValue()) {
+    @switch (type()) {
+      @case ('email')    { <a [href]="'mailto:' + value()">{{ value() }}</a> }
+      @case ('tel')      { <a [href]="'tel:' + value()">{{ value() }}</a> }
+      @case ('textarea') { <p class="view-field__notes">{{ value() }}</p> }
+      @default           { <span>{{ value() }}</span> }
+    }
+  } @else {
+    <span class="view-field__placeholder">{{ placeholderKey() | t }}</span>
+  }
+</div>

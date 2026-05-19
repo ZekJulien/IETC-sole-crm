@@ -1,20 +1,24 @@
 <form class="contact-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="client-form__section">
-    <h4 class="client-form__section-title">{{ 'form.identity' | t }}</h4>
-    <div class="client-form__row">
-      <app-form-field [label]="'contact.lastName'  | t" [control]="form.get('lastName')" />
-      <app-form-field [label]="'contact.firstName' | t" [control]="form.get('firstName')" />
-    </div>
+  <h5 class="contact-form__title">{{ titleKey | t }}</h5>
+
+  <div class="view-section__grid">
+    <app-view-field [editing]="true" [label]="'contact.lastName'  | t" [control]="form.get('lastName')" />
+    <app-view-field [editing]="true" [label]="'contact.firstName' | t" [control]="form.get('firstName')" />
   </div>
 
-  <div class="client-form__section">
-    <h4 class="client-form__section-title">{{ 'form.contact' | t }}</h4>
-    <div class="client-form__row">
-      <app-form-field [label]="'common.email' | t" type="email" [control]="form.get('email')" />
-      <app-form-field [label]="'common.phone' | t" type="tel"   [control]="form.get('phone')" />
-    </div>
-    <app-form-field [label]="'contact.role' | t" [control]="form.get('role')" />
+  <div class="view-section__grid">
+    <app-view-field [editing]="true" type="email" [label]="'common.email' | t" [control]="form.get('email')" />
+    <app-view-field [editing]="true" type="tel"   [label]="'common.phone' | t" [control]="form.get('phone')" />
   </div>
 
-  <app-form-actions [loading]="loading()" (cancelled)="cancelled.emit()" />
+  <app-view-field [editing]="true" [label]="'contact.role' | t" [control]="form.get('role')" />
+
+  <div class="contact-form__actions">
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()" [tabindex]="-1">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" type="submit" [loading]="loading()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </div>
 </form>

@@ -12,4 +12,7 @@ export default {
   'client.peppolId':           'PEPPOL ID',
   'client.searchPlaceholder':  'Search by name, email, city...',
   'client.selectPrompt':       'Select a client to view details',
+  'client.toast.created':      'Client created',
+  'client.toast.saved':        'Client saved',
+  'client.toast.deleted':      'Client deleted',
 } satisfies Record<string, string>

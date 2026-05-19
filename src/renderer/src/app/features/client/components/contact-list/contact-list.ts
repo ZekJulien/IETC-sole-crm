@@ -14,6 +14,7 @@ import { ButtonVariant } from '@app/enums'
 export class ContactList {
   readonly contacts = input.required<ContactDto[]>()
   readonly loading  = input<boolean>(false)
+  readonly embedded = input<boolean>(false)
   readonly add      = output<void>()
   readonly edit     = output<ContactDto>()
   readonly remove   = output<number>()

@@ -1,7 +1,13 @@
 import { Component, OnInit, inject, input, output } from '@angular/core'
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { ClientDto, CreateClientDto, UpdateClientDto, ClientType } from '@shared/dtos/client'
-import { applyStaticClientValidators, syncCountryValidators, syncFirstNameValidator } from '../../utils/client-form-validators'
+import {
+  clientValidators,
+  companyNumberValidator,
+  firstNameValidator,
+  vatNumberValidator,
+  zipCodeValidator,
+} from '../../utils/client-form-validators'
 import { FormField, FormActions } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 
@@ -21,39 +27,42 @@ export class ClientForm implements OnInit {
   readonly submitted   = output<CreateClientDto | UpdateClientDto>()
   readonly cancelled   = output<void>()
 
-  submit(): void { this.onSubmit() }
-  setType(type: ClientType): void { this.form.get('type')?.setValue(type) }
-
   readonly ClientType = ClientType
 
   readonly form = this.fb.group({
-    name:          [''],
-    firstName:     [''],
-    email:         [''],
-    phone:         [''],
+    name:          ['', clientValidators.name],
+    firstName:     ['', firstNameValidator],
+    email:         ['', clientValidators.email],
+    phone:         ['', clientValidators.phone],
     street:        [''],
-    zipCode:       [''],
+    zipCode:       ['', zipCodeValidator],
     city:          [''],
     country:       [''],
     type:          [ClientType.COMPANY as string],
-    companyNumber: [''],
-    vatNumber:     [''],
-    peppolId:      [''],
+    companyNumber: ['', companyNumberValidator],
+    vatNumber:     ['', vatNumberValidator],
+    peppolId:      ['', clientValidators.peppolId],
     notes:         [''],
   })
 
   ngOnInit(): void {
-    applyStaticClientValidators(this.form)
-
     const c = this.client()
     if (c) this.form.patchValue({ ...c })
     else   this.form.patchValue({ type: this.initialType() })
+  }
 
-    syncFirstNameValidator(this.form, this.form.get('type')!.value as ClientType)
-    this.form.get('type')!.valueChanges.subscribe(v => syncFirstNameValidator(this.form, v as ClientType))
+  onTypeChange(): void { this.form.get('firstName')!.updateValueAndValidity() }
 
-    syncCountryValidators(this.form, this.form.get('country')!.value ?? '')
-    this.form.get('country')!.valueChanges.subscribe(v => syncCountryValidators(this.form, v ?? ''))
+  onCountryChange(): void {
+    this.form.get('zipCode')!.updateValueAndValidity()
+    this.form.get('vatNumber')!.updateValueAndValidity()
+    this.form.get('companyNumber')!.updateValueAndValidity()
+  }
+
+  submit(): void { this.onSubmit() }
+  setType(type: ClientType): void {
+    this.form.get('type')?.setValue(type)
+    this.onTypeChange()
   }
 
   onSubmit(): void {
@@ -67,6 +76,6 @@ export class ClientForm implements OnInit {
     }
   }
 
-  get isEdit(): boolean { return !!this.client() }
+  get isEdit():    boolean { return !!this.client() }
   get isCompany(): boolean { return this.form.get('type')?.value === ClientType.COMPANY }
 }

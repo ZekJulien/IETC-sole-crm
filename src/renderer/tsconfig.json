@@ -7,6 +7,7 @@
     "paths": {
       "@shared/*":           ["../shared/*"],
       "@app/components":     ["src/app/shared/components"],
+      "@app/directives":     ["src/app/shared/directives"],
       "@app/pipes":          ["src/app/shared/pipes"],
       "@app/enums":          ["src/app/shared/enums"],
       "@app/interfaces":     ["src/app/shared/interfaces"],

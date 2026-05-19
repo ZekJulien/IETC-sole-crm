@@ -3,12 +3,14 @@ import { ContactDto, CreateContactDto, UpdateContactDto } from '@shared/dtos/cli
 import { ContactService } from '@app/services/client/contact'
 import { ToastService } from '@app/services/toast/toast.service'
 import { ErrorService } from '@app/services/error/error.service'
+import { I18nService } from '@app/services/i18n/i18n'
 
 @Injectable({ providedIn: 'root' })
 export class ContactStore {
   private readonly contactSvc = inject(ContactService)
   private readonly toast      = inject(ToastService)
   private readonly errors     = inject(ErrorService)
+  private readonly i18n       = inject(I18nService)
 
   private readonly _contacts = signal<ContactDto[]>([])
   private readonly _loading  = signal<boolean>(false)
@@ -29,7 +31,7 @@ export class ContactStore {
     try {
       const created = await this.contactSvc.add(data)
       this._contacts.update(list => [...list, created])
-      this.toast.success('Contact added')
+      this.toast.success(this.i18n.t('contact.toast.added'))
     } catch (e) { this.errors.handle(e) }
   }
 
@@ -37,7 +39,7 @@ export class ContactStore {
     try {
       const updated = await this.contactSvc.update(data)
       this._contacts.update(list => list.map(c => c.id === data.id ? updated : c))
-      this.toast.success('Contact updated')
+      this.toast.success(this.i18n.t('contact.toast.updated'))
     } catch (e) { this.errors.handle(e) }
   }
 
@@ -45,7 +47,7 @@ export class ContactStore {
     try {
       await this.contactSvc.remove(id)
       this._contacts.update(list => list.filter(c => c.id !== id))
-      this.toast.success('Contact removed')
+      this.toast.success(this.i18n.t('contact.toast.removed'))
     } catch (e) { this.errors.handle(e) }
   }
 }

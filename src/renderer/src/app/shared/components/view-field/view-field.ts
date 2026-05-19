@@ -1,28 +1,29 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core'
 import { AbstractControl, ReactiveFormsModule } from '@angular/forms'
 import { I18nService } from '../../../services/i18n/i18n'
+import { TranslatePipe } from '../../pipes/translate-pipe'
+
+export type ViewFieldType = 'text' | 'email' | 'tel' | 'textarea'
 
 @Component({
-  selector: 'app-form-field',
-  imports: [ReactiveFormsModule],
-  templateUrl: './form-field.html',
-  styleUrl: './form-field.css',
+  selector: 'app-view-field',
+  imports: [ReactiveFormsModule, TranslatePipe],
+  templateUrl: './view-field.html',
+  styleUrl: './view-field.css',
 })
-export class FormField {
+export class ViewField {
   private readonly i18n = inject(I18nService)
 
-  readonly label         = input.required<string>()
-  readonly type          = input<string>('text')
-  readonly placeholder   = input<string>('')
-  readonly control       = input<AbstractControl | null>(null)
+  readonly label           = input<string>('')
+  readonly editing         = input<boolean>(false)
+  readonly control         = input<AbstractControl | null>(null)
+  readonly value           = input<string | number | null>(null)
+  readonly type            = input<ViewFieldType>('text')
+  readonly placeholderKey  = input<string>('common.notDefined')
   readonly patternErrorKey = input<string>('pattern')
 
-  /** Émis au blur de l'input (event DOM natif). À utiliser quand un autre
-   *  champ doit se ré-évaluer en fonction de celui-ci (ex: pays → CP). */
   readonly changed = output<void>()
 
-  // Bump à chaque event du FormControl (value, status, touched, pristine).
-  // Sert de dépendance pour que errorMessage se ré-évalue après markAllAsTouched.
   private readonly tick = signal(0)
 
   constructor() {
@@ -34,7 +35,12 @@ export class FormField {
     })
   }
 
-  readonly errorMessage = computed(() => {
+  readonly hasValue = computed(() => {
+    const v = this.value()
+    return v !== null && v !== undefined && v !== ''
+  })
+
+  readonly errorMessage = computed<string | null>(() => {
     this.tick()
     const ctrl = this.control()
     if (!ctrl?.invalid || !ctrl.touched) return null

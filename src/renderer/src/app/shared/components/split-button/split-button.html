@@ -1,0 +1,16 @@
+<div class="split-button" (appClickOutside)="close()">
+  <button type="button" class="split-button__trigger" (click)="toggle()">
+    <ng-content />
+  </button>
+  @if (open()) {
+    <div class="split-button__menu"
+         [class.split-button__menu--above]="position() === 'above'"
+         [class.split-button__menu--below]="position() === 'below'">
+      @for (item of items(); track item.key) {
+        <button type="button" class="split-button__item" (click)="onSelect(item.key)">
+          {{ item.labelKey | t }}
+        </button>
+      }
+    </div>
+  }
+</div>

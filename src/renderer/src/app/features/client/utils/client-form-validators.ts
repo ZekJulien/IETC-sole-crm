@@ -1,50 +1,35 @@
-/**
- * Helpers de validation partagés entre le form de création (app-client-form)
- * et le form d'édition inline (editForm dans ClientList).
- *
- * Évite la duplication de la logique : validators dynamiques sur firstName
- * (selon le type) et sur zipCode/vatNumber/companyNumber (selon le pays UE).
- */
-
-import { FormGroup, Validators } from '@angular/forms'
+import { AbstractControl, ValidatorFn, Validators } from '@angular/forms'
 import { ClientType } from '@shared/dtos/client'
 import { getCountryFormat, PHONE_INTERNATIONAL_RE } from '@shared/validation/eu-formats'
 
-/** Format universel scheme:identifier — pas country-dependent. */
 export const PEPPOL_RE = /^\d{4}:[\w\-./:]+$/
 
-/** Valide téléphone international + bloc email/peppol/name (validators statiques communs). */
-export function applyStaticClientValidators(form: FormGroup): void {
-  form.get('name')?.setValidators([Validators.required, Validators.minLength(2)])
-  form.get('email')?.setValidators([Validators.required, Validators.email])
-  form.get('phone')?.setValidators([Validators.pattern(PHONE_INTERNATIONAL_RE)])
-  form.get('peppolId')?.setValidators([Validators.pattern(PEPPOL_RE)])
+export const clientValidators = {
+  name:     [Validators.required, Validators.minLength(2)],
+  email:    [Validators.required, Validators.email],
+  phone:    [Validators.pattern(PHONE_INTERNATIONAL_RE)],
+  peppolId: [Validators.pattern(PEPPOL_RE)],
 }
 
-/** firstName est requis quand le type est INDIVIDUAL, sinon optional. */
-export function syncFirstNameValidator(form: FormGroup, type: ClientType): void {
-  const firstName = form.get('firstName')
-  if (!firstName) return
-  if (type === ClientType.INDIVIDUAL) firstName.setValidators([Validators.required])
-  else                                firstName.clearValidators()
-  firstName.updateValueAndValidity({ emitEvent: false })
+export const firstNameValidator: ValidatorFn = (ctrl: AbstractControl) => {
+  const type = ctrl.parent?.get('type')?.value
+  return type === ClientType.INDIVIDUAL && !ctrl.value ? { required: true } : null
 }
 
-/**
- * Applique les regex spécifiques au pays sur zipCode/vatNumber/companyNumber.
- * Pays non reconnu (UE) → validators clear (lenient).
- */
-export function syncCountryValidators(form: FormGroup, country: string): void {
-  const format        = getCountryFormat(country)
-  const zipCode       = form.get('zipCode')
-  const vatNumber     = form.get('vatNumber')
-  const companyNumber = form.get('companyNumber')
+export const zipCodeValidator: ValidatorFn = (ctrl: AbstractControl) => {
+  const format = getCountryFormat(ctrl.parent?.get('country')?.value)
+  if (!format || !ctrl.value) return null
+  return format.postalCode.test(ctrl.value) ? null : { pattern: true }
+}
 
-  zipCode?.setValidators(format       ? [Validators.pattern(format.postalCode)] : [])
-  vatNumber?.setValidators(format     ? [Validators.pattern(format.vatNumber)]  : [])
-  companyNumber?.setValidators(format?.companyNumber ? [Validators.pattern(format.companyNumber)] : [])
+export const vatNumberValidator: ValidatorFn = (ctrl: AbstractControl) => {
+  const format = getCountryFormat(ctrl.parent?.get('country')?.value)
+  if (!format || !ctrl.value) return null
+  return format.vatNumber.test(ctrl.value) ? null : { pattern: true }
+}
 
-  zipCode?.updateValueAndValidity({ emitEvent: false })
-  vatNumber?.updateValueAndValidity({ emitEvent: false })
-  companyNumber?.updateValueAndValidity({ emitEvent: false })
+export const companyNumberValidator: ValidatorFn = (ctrl: AbstractControl) => {
+  const format = getCountryFormat(ctrl.parent?.get('country')?.value)
+  if (!format?.companyNumber || !ctrl.value) return null
+  return format.companyNumber.test(ctrl.value) ? null : { pattern: true }
 }

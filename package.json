@@ -5,8 +5,8 @@
   "description": "CRM desktop pour indépendants — Electron Forge, Angular, Prisma, SQLite. Projet bachelier 2 SGBD (IETC).",
   "main": ".vite/build/main.js",
   "scripts": {
-    "start": "npm run build:renderer && electron-forge start",
-    "dev": "concurrently -k -n NG,ELC -c blue,magenta \"cd src/renderer && npx ng serve --port 4200 --hmr --live-reload\" \"wait-on http://localhost:4200 && electron-forge start\"",
+    "start": "npm run build:renderer && electron-forge start -- --no-sandbox",
+    "dev": "concurrently -k -n NG,ELC -c blue,magenta \"cd src/renderer && npx ng serve --port 4200 --hmr --live-reload\" \"wait-on http://localhost:4200 && electron-forge start -- --no-sandbox\"",
     "build:renderer": "cd src/renderer && npx ng build --base-href ./",
     "package": "electron-forge package",
     "make": "electron-forge make",
