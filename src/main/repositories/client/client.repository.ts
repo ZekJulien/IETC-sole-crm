@@ -3,7 +3,7 @@ import { BaseRepository } from '../base.repository'
 
 export class ClientRepository extends BaseRepository<Client> {
   constructor(db: PrismaClient) {
-    super(db.client, { orderBy: { name: 'asc' } }, ['name', 'email', 'city'])
+    super(db.client, { orderBy: { name: 'asc' } }, ['name', 'firstName', 'email', 'city'])
   }
 
   findByIdWithRelation(id: number): Promise<Prisma.ClientGetPayload<{ include: { contacts: true } }> | null> {

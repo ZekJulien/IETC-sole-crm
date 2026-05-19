@@ -4,6 +4,7 @@
   [class.btn--loading]="loading()"
   [type]="type()"
   [disabled]="disabled() || loading()"
+  [attr.tabindex]="tabindex()"
   (click)="clicked.emit()">
   @if (loading()) {
     <span class="btn__spinner"></span>

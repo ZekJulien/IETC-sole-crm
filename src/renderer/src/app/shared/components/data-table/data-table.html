@@ -1,5 +1,5 @@
-<div class="table-wrap">
-  @if (loading()) {
+<div class="table-wrap" #tableWrap>
+  @if (loading() && !hasInitialized()) {
     <div class="table__skeleton">
       @for (_ of [1,2,3,4,5]; track $index) {
         <div class="skeleton-row"></div>
@@ -8,14 +8,17 @@
   } @else if (sortedData().length === 0) {
     <div class="table__empty">{{ 'common.empty' | t }}</div>
   } @else {
-    <table class="table">
+    <table class="table" #tableEl>
       <thead>
         <tr>
-          @for (col of columns(); track col.key) {
-            <app-data-table-header
+          @for (col of columns(); track col.key; let isLast = $last) {
+            <th app-data-table-header
               [column]="col"
               [sortState]="sortState()"
-              (sorted)="onSort($event)" />
+              [width]="getColumnWidth(col)"
+              [resizable]="!isLast"
+              (sorted)="onSort($event)"
+              (resizeStart)="onResizeStart($event)"></th>
           }
         </tr>
       </thead>
@@ -23,9 +26,11 @@
         @for (row of sortedData(); track $index) {
           <tr class="table__row" (click)="rowClick.emit(row)">
             @for (col of columns(); track col.key) {
-              <td class="td" [style.width]="col.width ?? 'auto'">
+              <td class="td" [style.width]="getColumnWidth(col)">
                 @if (col.type === 'badge') {
-                  <app-status-badge [status]="$any(getValue(row, col.key))" />
+                  <app-status-badge
+                    [status]="$any(getValue(row, col.key))"
+                    [i18nKey]="col.badgeI18nPrefix ? col.badgeI18nPrefix + (getValue(row, col.key) + '').toLowerCase() : null" />
                 } @else if (col.type === 'date') {
                   {{ getDateValue(row, col.key) | date:'dd/MM/yyyy' }}
                 } @else {

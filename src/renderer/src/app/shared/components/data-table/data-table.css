@@ -1,9 +1,16 @@
-.table-wrap  { overflow-x: auto; }
+:host { display: block; width: 100%; height: 100%; }
+.table-wrap {
+  width:      100%;
+  height:     100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
 
 .table {
   width:           100%;
   border-collapse: collapse;
   font-size:       13px;
+  table-layout:    fixed;
 }
 
 .table__row            { cursor: pointer; transition: background var(--transition); }
@@ -13,11 +20,12 @@
   padding:       10px 12px;
   color:         var(--color-text);
   border-bottom: 1px solid var(--color-border);
+  border-right:  1px solid var(--color-border);
   white-space:   nowrap;
   overflow:      hidden;
   text-overflow: ellipsis;
-  max-width:     200px;
 }
+.td:last-child { border-right: none; }
 
 .table__empty {
   padding:    40px;

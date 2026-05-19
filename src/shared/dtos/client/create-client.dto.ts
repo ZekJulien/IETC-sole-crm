@@ -2,6 +2,7 @@ import { ClientType } from './client-type.enum'
 
 export interface CreateClientDto {
   name:           string
+  firstName?:     string
   email?:         string
   phone?:         string
   street?:        string

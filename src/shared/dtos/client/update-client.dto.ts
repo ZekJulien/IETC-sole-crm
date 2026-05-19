@@ -3,6 +3,7 @@ import { ClientType } from './client-type.enum'
 export interface UpdateClientDto {
   id:             number
   name?:          string
+  firstName?:     string | null
   email?:         string | null
   phone?:         string | null
   street?:        string | null

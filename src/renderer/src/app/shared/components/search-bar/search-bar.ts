@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core'
+import { Component, input, model, output } from '@angular/core'
 import { LucideSearch, LucideX } from '@lucide/angular'
 
 @Component({
@@ -9,8 +9,8 @@ import { LucideSearch, LucideX } from '@lucide/angular'
 })
 export class SearchBar {
   readonly placeholder = input<string>('Search...')
+  readonly value       = model<string>('')
   readonly search      = output<string>()
-  readonly value       = signal<string>('')
 
   private _timer: ReturnType<typeof setTimeout> | null = null
 

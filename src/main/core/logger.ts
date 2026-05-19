@@ -62,6 +62,10 @@ class Logger {
     process.on('uncaughtException',  e => this.error('Uncaught exception', e))
     process.on('unhandledRejection', r => this.error('Unhandled rejection', r))
   }
+
+  flush(): Promise<void> {
+    return new Promise(resolve => this.stream.end(resolve))
+  }
 }
 
 export const log = new Logger()

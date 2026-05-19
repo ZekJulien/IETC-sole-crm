@@ -7,19 +7,26 @@
 }
 
 .field__input {
-  padding:       8px 10px;
+  height:        var(--control-height);
+  padding:       0 10px;
   background:    var(--color-bg-elevated);
   border:        1px solid var(--color-border);
   border-radius: var(--radius);
   color:         var(--color-text);
   font-size:     13px;
+  font-family:   inherit;
   outline:       none;
   transition:    border-color var(--transition);
 }
 
 .field__input:focus { border-color: var(--color-accent); }
 
-.field__input--textarea { resize: vertical; min-height: 80px; }
+.field__input--textarea {
+  height:     auto;
+  padding:    10px;
+  min-height: 120px;
+  resize:     vertical;
+}
 
 .field__error {
   font-size: 11px;

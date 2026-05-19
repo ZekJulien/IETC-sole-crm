@@ -1,7 +1,8 @@
 <div class="inbox" [class.inbox--has-detail]="hasDetail()">
-  <aside class="inbox__list">
+  <aside class="inbox__list" [style.width.px]="listWidth()" [style.min-width.px]="listWidth()">
     <ng-content select="[inbox-list]" />
   </aside>
+  <div class="inbox__resizer" (pointerdown)="startDrag()" aria-hidden="true"></div>
   <main class="inbox__detail">
     @if (hasDetail()) {
       <ng-content select="[inbox-detail]" />

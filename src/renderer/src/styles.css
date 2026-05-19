@@ -18,6 +18,15 @@
   --radius:                  6px;
   --radius-lg:               8px;
 
+  /* ── Tailles de contrôles (à utiliser dans les boutons, inputs, icon-btn, etc.) ── */
+  --control-height:          36px;
+  --toolbar-padding-y:       10px;
+  --toolbar-padding-x:       12px;
+  --toolbar-height:          calc(var(--control-height) + var(--toolbar-padding-y) * 2 + 1px);
+
+  /* Largeur de la scrollbar custom (cf. ::-webkit-scrollbar width plus bas) */
+  --scrollbar-width:         10px;
+
   --transition: .2s ease;
 }
 

@@ -1,5 +1,7 @@
 <div class="field">
-  <label class="field__label">{{ label() }}</label>
+  @if (label()) {
+    <label class="field__label">{{ label() }}</label>
+  }
 
   @if (type() === 'textarea') {
     <textarea

@@ -4,6 +4,7 @@ import { ContactDto } from './contact.dto'
 export interface ClientDto {
   id:            number
   name:          string
+  firstName:     string | null
   email:         string | null
   phone:         string | null
   street:        string | null

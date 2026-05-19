@@ -11,6 +11,7 @@ export class Button {
   readonly type     = input<'button' | 'submit' | 'reset'>('button')
   readonly loading  = input<boolean>(false)
   readonly disabled = input<boolean>(false)
+  readonly tabindex = input<number>(0)
   readonly clicked  = output<void>()
 
   readonly ButtonVariant = ButtonVariant

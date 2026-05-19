@@ -23,7 +23,7 @@ Ce projet est le travail de fin d'unité du cours SGBD. Il démontre la maîtris
 | Couche | Technologie |
 |---|---|
 | Runtime desktop | [Electron Forge](https://www.electronforge.io/) v7 |
-| Frontend | [Angular](https://angular.dev/) 19 — standalone components, signals |
+| Frontend | [Angular](https://angular.dev/) 21 — standalone components, signals, zoneless |
 | ORM | [Prisma](https://www.prisma.io/) v7 — schéma multi-fichiers |
 | Base de données | SQLite via `better-sqlite3` |
 | Bundler | Vite (plugin Electron Forge) |

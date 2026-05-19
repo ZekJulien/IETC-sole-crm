@@ -1,14 +1,19 @@
 import { app, BrowserWindow, session } from 'electron'
 import path from 'node:path'
+import { watch } from 'node:fs'
 import started from 'electron-squirrel-startup'
 import { log } from './core'
 import { bootstrap } from './bootstrap'
 
 if (started) app.quit()
 
+if (!app.isPackaged) {
+  app.commandLine.appendSwitch('disable-http-cache')
+}
+
 log.catchErrors()
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 900,
     height: 670,
@@ -20,27 +25,56 @@ function createWindow(): void {
     },
   })
 
-  win.loadFile(
-    path.join(__dirname, '../../src/renderer/dist/renderer/browser/index.html')
-  )
+  if (app.isPackaged) {
+    win.loadFile(
+      path.join(__dirname, '../../src/renderer/dist/renderer/browser/index.html')
+    )
+  } else {
+    win.loadURL('http://localhost:4200')
+    win.webContents.openDevTools({ mode: 'detach' })
+  }
+
+  return win
+}
+
+function watchRendererSources(win: BrowserWindow): void {
+  const dir = path.join(__dirname, '../../src/renderer/src')
+  let timer: NodeJS.Timeout | null = null
+
+  watch(dir, { recursive: true }, (_event, filename) => {
+    if (!filename || !/\.(ts|html|css)$/.test(filename)) return
+
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      if (!win.isDestroyed()) win.webContents.reloadIgnoringCache()
+    }, 1500)
+  })
 }
 
 app.whenReady().then(async () => {
+  const csp = app.isPackaged
+    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'"
+    : "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://localhost:* ws://localhost:* http://127.0.0.1:* ws://127.0.0.1:*"
+
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'",
-        ],
+        'Content-Security-Policy': [csp],
       },
     })
   })
 
   const prisma = await bootstrap()
-  createWindow()
+  const win = createWindow()
+
+  if (!app.isPackaged) watchRendererSources(win)
 
   app.on('before-quit', async () => {
     await prisma.$disconnect()
   })
+}).catch(async (err) => {
+  log.error('Boot failed', err)
+  await log.flush()
+  app.exit(1)
 })

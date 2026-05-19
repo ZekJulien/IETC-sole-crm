@@ -9,6 +9,42 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-05-18 — Refactor navigation
+
+Refonte du chrome de navigation : la sidebar + topbar fixes sont remplacées
+par une **navbar horizontale flottante** unique, et la zone de contenu vit
+désormais dans une carte arrondie sur `bg-base`. Transitions de route en
+fondu doux ajoutées en bonus.
+
+### Décisions d'architecture
+
+- **Navbar pill flottante unique** à la place du couple sidebar + topbar : brand à gauche, pill central avec boutons icon-only qui révèlent leur label au hover/active, actions settings + user à droite.
+- **Suppression de `LayoutService`** : `sidebarCollapsed` et `titlePage` n'ont plus de raison d'être avec une navbar horizontale sans état persistant. Les callers (`Dashboard`, `ClientList`) sont nettoyés.
+- **Shell flottant** : le contenu vit dans une seule carte arrondie posée sur `bg-base`, plus de chrome plein-écran.
+- **Cross-fade entre routes** via `@angular/animations` (200 ms out + 250 ms in, en parallèle), zéro setup par page.
+- **Preload de tous les lazy chunks** (`withPreloading`) : la première navigation reste fluide malgré le découpage en `loadComponent`.
+- **`inlineCritical` désactivé** dans `angular.json` : l'astuce par défaut d'Angular (`media="print"` + `onload` inline sur le `<link>`) est bloquée par notre CSP `script-src` stricte, ce qui cassait silencieusement les règles CSS externes.
+
+### Ajouté
+
+- `src/renderer/src/app/layout/navbar/` — composant `Navbar` standalone (HTML + CSS + TS)
+- `src/renderer/src/app/route.animations.ts` — trigger d'animation de routes partagé
+- Clé i18n `nav.dashboard` (FR + EN)
+
+### Modifié
+
+- `app.config.ts` — `provideRouter(..., withPreloading(PreloadAllModules))` + `provideAnimations()`
+- `app.html` / `app.ts` / `app.css` — shell réorganisé autour de la navbar + carte flottante, trigger d'animation câblé sur le `<router-outlet>`
+- `angular.json` — `optimization.styles.inlineCritical: false`
+
+### Supprimé
+
+- `src/renderer/src/app/layout/sidebar/` (HTML + CSS + TS)
+- `src/renderer/src/app/layout/topbar/` (HTML + CSS + TS)
+- `src/renderer/src/app/services/layout/` (`LayoutService` + spec + barrel)
+
+---
+
 ## [0.2.0] — 2026-05-18 — Phase 1 : Bundle Client
 
 ### Décisions d'architecture
@@ -162,6 +198,7 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ZekJulien/IETC-sole-crm/releases/tag/v0.1.0

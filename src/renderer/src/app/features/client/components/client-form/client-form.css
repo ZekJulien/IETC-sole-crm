@@ -1,4 +1,21 @@
-.client-form { display: flex; flex-direction: column; gap: 20px; }
+.client-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@container form-body (min-width: 900px) {
+  .client-form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* En mode particulier (pas de section FACTURATION), NOTES prend toute la largeur */
+  .client-form--individual > .client-form__section:last-child {
+    grid-column: 1 / -1;
+  }
+  .client-form--individual > .client-form__section:last-child .field__input--textarea {
+    min-height: 280px;
+  }
+}
 
 .client-form__section {
   display: flex; flex-direction: column; gap: 12px;
@@ -7,7 +24,7 @@
 }
 
 .client-form__section-title {
-  font-size: 11px; font-weight: 600; color: var(--color-text-subtle);
+  font-size: 11px; font-weight: 600; color: var(--color-text);
   text-transform: uppercase; letter-spacing: .4px;
 }
 
