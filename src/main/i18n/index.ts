@@ -18,6 +18,12 @@ export function setLocale(locale: string): void {
   _locale = locale in translations ? locale : 'en'
 }
 
-export function t(code: string): string {
-  return translations[_locale]?.[code] ?? translations['en'][code] ?? code
+export function t(code: string, params?: Record<string, string | number>): string {
+  let msg = translations[_locale]?.[code] ?? translations['en'][code] ?? code
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      msg = msg.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(value))
+    }
+  }
+  return msg
 }

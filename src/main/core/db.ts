@@ -1,12 +1,13 @@
 import { PrismaClient } from '@db/client'
+import { DbContext } from './db-context'
 
-let _prisma: PrismaClient | null = null
+let _dbContext: DbContext | null = null
 
-export function initDb(prisma: PrismaClient): void {
-  _prisma = prisma
+export function initDbContext(prisma: PrismaClient): void {
+  _dbContext = new DbContext(prisma)
 }
 
-export function getDb(): PrismaClient {
-  if (!_prisma) throw new Error('DB not initialized — call initDb() first')
-  return _prisma
+export function getDbContext(): DbContext {
+  if (!_dbContext) throw new Error('DbContext not initialized — call initDbContext() first')
+  return _dbContext
 }

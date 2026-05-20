@@ -1,5 +1,5 @@
 import { Contact } from '@db/client'
-import { ContactRepository } from '../../repositories/contact/contact.repository'
+import { ContactRepository } from '../../repositories/client/contact.repository'
 import { BaseService } from '../base.service'
 import { FindManyArgs, PaginatedResult } from '@shared/types'
 import { ContactDto, CreateContactDto, UpdateContactDto } from '@shared/dtos/client'

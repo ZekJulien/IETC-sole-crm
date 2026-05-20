@@ -1,2 +1,2 @@
 export * from './client.service'
-export * from '../contact/contact.service'
+export * from './contact.service'

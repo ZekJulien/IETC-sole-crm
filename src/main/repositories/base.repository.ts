@@ -1,12 +1,18 @@
 import { FindManyArgs, PaginatedResult } from '@shared/types'
+import { DbContext, DbClient } from '../core/db-context'
 import { UpdateInput } from './types/repository-inputs.type'
 
 export class BaseRepository<T extends { id: number }> {
   constructor(
-    protected readonly delegate: any,
+    protected readonly dbContext: DbContext,
+    protected readonly resolveDelegate: (db: DbClient) => any,
     protected readonly defaultArgs?: { include?: any; orderBy?: any },
     private readonly searchFields?: (keyof T & string)[]
   ) {}
+
+  protected get delegate(): any {
+    return this.resolveDelegate(this.dbContext.client)
+  }
 
   findById(id: number): Promise<T | null> {
     return this.delegate.findUnique({ where: { id }, include: this.defaultArgs?.include })

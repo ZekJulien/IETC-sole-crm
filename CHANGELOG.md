@@ -9,6 +9,61 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Phase 2 — Bundle Company (backend) + durcissement transversal
+
+#### Décisions d'architecture
+
+- **Company en singleton à PK String** (`id @default("default")`) plutôt qu'un `Int autoincrement` : SQLite auto-génère un rowid sur tout `Int` PK, ce qui ne garantit jamais l'unicité d'un singleton. Une PK `String` à valeur fixe fait échouer toute 2ᵉ insertion **au niveau DB** (violation de PK). Le repo singleton **n'étend pas `BaseRepository`** (son contrat CRUD `id: number` ne colle pas) — il est standalone avec `get()` + `upsert()`.
+- **Split `Company` / `CompanySettings` (1:1)** : identité légale immuable (nom, adresse, TVA, PEPPOL, IBAN, logo) séparée des préférences mutables (defaults facturation + compteurs). PK partagée (`companyId @id`).
+- **Format de numéro à tokens** (`invoiceNumberFormat` / `quoteNumberFormat`) : template type Odoo (`{YYYY}`, `{YY}`, `{MM}`, `{####}`…) avec reset annuel paramétrable. Le compteur reste un `Int`, le formatage est une fonction pure côté service. Validation : le format **doit** contenir un token compteur (`{#+}`).
+- **Transactions ambient via `DbContext` + AsyncLocalStorage** : chaque appel IPC est automatiquement enveloppé dans une transaction par `ipcHandle()`. Les repos lisent `dbContext.client` (la tx active ou le client de base), les services restent **ignorants de la transactionnalité**. Garantit l'atomicité "all-or-nothing" sans `$transaction` dans le code métier. Pattern DB-agnostique (SQLite local ou Postgres cloud).
+- **Règle service-to-service** : un service n'appelle que (1) son propre repo, (2) d'autres services — jamais le repo d'un autre domaine. Permet aux transactions ambient de composer à travers les services.
+- **Validation runtime à la frontière IPC via Zod** : les DTOs d'input sont des schémas Zod, les types TS sont dérivés (`z.infer`) — impossible de diverger. `ipcHandle()` valide l'input **avant** d'ouvrir la transaction. Ferme le trou "interface TS = compile-time only".
+- **Singleton DI orthogonal au scope transactionnel** : les services restent des singletons stateless ; le state par-requête (la tx) vit dans `DbContext`/AsyncLocalStorage, pas dans les instances → safe même en multi-user concurrent.
+
+#### Ajouté
+
+**Prisma**
+- `prisma/schema/company.prisma` — modèle `Company` (singleton String PK, identité légale, champs PEPPOL)
+- `prisma/schema/company-settings.prisma` — modèle `CompanySettings` (1:1, defaults facturation + compteurs facture/devis)
+- `prisma/migrations/20260519165140_add_company/` — tables `Company` + `CompanySettings`
+
+**Infra transactionnelle**
+- `src/main/core/db-context.ts` — `DbContext` (AsyncLocalStorage) : getter `client` + `transaction(fn)` avec réutilisation des tx imbriquées
+
+**Bundle Company (main)**
+- `CompanyRepository` (standalone) — `get()` + `upsert(company, settings?)`
+- `CompanySettingsRepository` — increment/reset des compteurs (logique reset annuel)
+- `CompanyService` — `getCompany`, `saveCompany`, `getNextInvoiceNumber`/`getNextQuoteNumber` (service-to-service, non exposés IPC), `resetInvoiceCounter`/`resetQuoteCounter`
+- `CompanySettingsService` — owns le settings repo
+- `src/main/services/company/format-number.ts` — formatage des tokens (fonction pure testée)
+- `CompanyHandler` — `GET` / `SAVE` (validé) / `RESET_*` (validé)
+- DI factories Company (2 repos + 2 services) + wire dans `AppDependencies`
+- Preload `company.api.ts` exposé via `window.api.company`
+
+**Shared layer**
+- DTOs Company dans `src/shared/dtos/company/` (read DTOs en interfaces + save inputs en schémas Zod)
+- `COMPANY_CHANNELS`, `CompanyAPI`, `SaveCompanyInputSchema` (nested company + settings)
+
+**Validation (Zod)**
+- Schémas Zod sur tous les DTOs d'input (Client, Contact, Company) — types dérivés via `z.infer`
+- `FindManyArgsSchema`, `IdSchema`, `CounterValueSchema`
+
+#### Modifié
+
+- `ipcHandle()` — 2 overloads : `(channel, schema, fn)` valide puis ouvre la tx / `(channel, fn)` variadique sans validation. Wrappe systématiquement dans `dbContext.transaction()`.
+- `toIpcError()` — `P2002` extrait dynamiquement le champ violé via `e.meta?.target` (plus de "email" hardcodé) + cas `ZodError`
+- `t()` i18n — supporte l'interpolation `{{param}}`
+- `BaseRepository` — prend un `DbContext` + un resolver de delegate (`db => db.client`) au lieu du `PrismaClient` direct ; accède à `dbContext.client[model]` à chaque appel
+- Repos + DI Client/Contact — migrés vers `DbContext`
+- `core/db.ts` — `initDbContext()` / `getDbContext()` remplacent `initDb()` / `getDb()`
+- DTOs Client/Contact d'input convertis en schémas Zod (validation email, etc.)
+- i18n : codes `UNIQUE_VIOLATION`, `VALIDATION_FAILED`, `COMPANY_NOT_CONFIGURED`
+
+#### Dépendances
+
+- Ajout de `zod` `^4.4.3`
+
 ## [0.2.1] — 2026-05-18 — Refactor navigation
 
 Refonte du chrome de navigation : la sidebar + topbar fixes sont remplacées
