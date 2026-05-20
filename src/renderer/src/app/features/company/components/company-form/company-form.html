@@ -1,0 +1,88 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="company-form__grid">
+
+  <section class="company-card">
+    <h2 class="company-card__legend">{{ 'company.section.identity' | t }}</h2>
+
+    <app-form-field [label]="'common.name' | t" [control]="form.controls.name" />
+    <app-form-field [label]="'company.legalForm' | t" [control]="form.controls.legalForm" />
+    <app-form-field [label]="'common.street' | t" [control]="form.controls.street" />
+    <div class="company-form__row">
+      <app-form-field [label]="'common.zipCode' | t" [control]="form.controls.zipCode" />
+      <app-form-field [label]="'common.city' | t" [control]="form.controls.city" />
+    </div>
+    <app-form-field
+      [label]="'common.country' | t"
+      [control]="form.controls.country"
+      (changed)="revalidateCountryDependent()" />
+    <app-form-field [label]="'common.email' | t" type="email" [control]="form.controls.email" />
+    <app-form-field [label]="'common.phone' | t" [control]="form.controls.phone" />
+    <app-form-field [label]="'company.website' | t" [control]="form.controls.website" />
+    <app-form-field [label]="'company.companyNumber' | t" [control]="form.controls.companyNumber" />
+    <app-form-field [label]="'company.vatNumber' | t" [control]="form.controls.vatNumber" />
+    <app-form-field [label]="'company.peppolId' | t" [control]="form.controls.peppolId" />
+    <div class="company-form__row">
+      <app-form-field [label]="'company.iban' | t" [control]="form.controls.iban" />
+      <app-form-field [label]="'company.bic' | t" [control]="form.controls.bic" />
+    </div>
+  </section>
+
+  <section class="company-card">
+    <h2 class="company-card__legend">{{ 'company.section.billing' | t }}</h2>
+
+    <div class="company-form__row">
+      <app-form-field [label]="'company.defaultVatRate' | t" type="number" [control]="form.controls.defaultVatRate" />
+      <app-form-field [label]="'company.paymentTermsDays' | t" type="number" [control]="form.controls.paymentTermsDays" />
+    </div>
+    <app-form-field [label]="'company.paymentConditions' | t" type="textarea" [control]="form.controls.paymentConditions" />
+
+    <app-form-field
+      [label]="'company.invoiceNumberFormat' | t"
+      [control]="form.controls.invoiceNumberFormat"
+      [patternErrorKey]="'company.error.numberFormat'" />
+    <p class="company-form__preview">{{ 'company.preview' | t }} : <code>{{ invoicePreview() }}</code></p>
+
+    <app-form-field
+      [label]="'company.quoteNumberFormat' | t"
+      [control]="form.controls.quoteNumberFormat"
+      [patternErrorKey]="'company.error.numberFormat'" />
+    <p class="company-form__preview">{{ 'company.preview' | t }} : <code>{{ quotePreview() }}</code></p>
+
+    <label class="company-form__check">
+      <input type="checkbox" [formControl]="form.controls.invoiceCounterResetYearly" />
+      <span>{{ 'company.resetYearly' | t }} ({{ 'company.invoiceNumberFormat' | t }})</span>
+    </label>
+    <label class="company-form__check">
+      <input type="checkbox" [formControl]="form.controls.quoteCounterResetYearly" />
+      <span>{{ 'company.resetYearly' | t }} ({{ 'company.quoteNumberFormat' | t }})</span>
+    </label>
+
+    @if (showCounters() && company(); as company) {
+      <div class="company-form__reset">
+        <span class="company-form__reset-label">
+          {{ 'company.currentCounter' | t }} ({{ 'company.invoiceNumberFormat' | t }}) : {{ company.settings.invoiceNumberCounter }}
+        </span>
+        <input
+          type="number"
+          class="company-form__reset-input"
+          [value]="invoiceResetValue()"
+          (input)="invoiceResetValue.set(+$any($event.target).value)" />
+        <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="resetInvoice.emit(invoiceResetValue())">
+          {{ 'company.resetCounter' | t }}
+        </app-button>
+      </div>
+      <div class="company-form__reset">
+        <span class="company-form__reset-label">
+          {{ 'company.currentCounter' | t }} ({{ 'company.quoteNumberFormat' | t }}) : {{ company.settings.quoteNumberCounter }}
+        </span>
+        <input
+          type="number"
+          class="company-form__reset-input"
+          [value]="quoteResetValue()"
+          (input)="quoteResetValue.set(+$any($event.target).value)" />
+        <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="resetQuote.emit(quoteResetValue())">
+          {{ 'company.resetCounter' | t }}
+        </app-button>
+      </div>
+    }
+  </section>
+</form>

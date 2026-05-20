@@ -7,10 +7,12 @@ import clientEn    from '../../i18n/ui/client/client.en'
 import clientFr    from '../../i18n/ui/client/client.fr'
 import contactEn   from '../../i18n/ui/client/contact.en'
 import contactFr   from '../../i18n/ui/client/contact.fr'
+import companyEn   from '../../i18n/ui/company/company.en'
+import companyFr   from '../../i18n/ui/company/company.fr'
 
 const translations: Record<string, Record<string, string>> = {
-  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn },
-  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr },
+  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn },
+  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr },
 }
 
 @Injectable({ providedIn: 'root' })

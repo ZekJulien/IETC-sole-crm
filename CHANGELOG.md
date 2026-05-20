@@ -9,9 +9,14 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
-### Phase 2 — Bundle Company (backend) + durcissement transversal
+## [0.3.0] — 2026-05-20 — Phase 2 : Bundle Company
 
-#### Décisions d'architecture
+Entité **Company** (singleton) end-to-end : identité légale + paramètres de
+facturation, page `/settings/company`. Accompagnée d'un durcissement transversal
+de l'archi backend (transactions ambient via `DbContext`, validation runtime Zod
+à la frontière IPC).
+
+### Décisions d'architecture
 
 - **Company en singleton à PK String** (`id @default("default")`) plutôt qu'un `Int autoincrement` : SQLite auto-génère un rowid sur tout `Int` PK, ce qui ne garantit jamais l'unicité d'un singleton. Une PK `String` à valeur fixe fait échouer toute 2ᵉ insertion **au niveau DB** (violation de PK). Le repo singleton **n'étend pas `BaseRepository`** (son contrat CRUD `id: number` ne colle pas) — il est standalone avec `get()` + `upsert()`.
 - **Split `Company` / `CompanySettings` (1:1)** : identité légale immuable (nom, adresse, TVA, PEPPOL, IBAN, logo) séparée des préférences mutables (defaults facturation + compteurs). PK partagée (`companyId @id`).
@@ -20,8 +25,11 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 - **Règle service-to-service** : un service n'appelle que (1) son propre repo, (2) d'autres services — jamais le repo d'un autre domaine. Permet aux transactions ambient de composer à travers les services.
 - **Validation runtime à la frontière IPC via Zod** : les DTOs d'input sont des schémas Zod, les types TS sont dérivés (`z.infer`) — impossible de diverger. `ipcHandle()` valide l'input **avant** d'ouvrir la transaction. Ferme le trou "interface TS = compile-time only".
 - **Singleton DI orthogonal au scope transactionnel** : les services restent des singletons stateless ; le state par-requête (la tx) vit dans `DbContext`/AsyncLocalStorage, pas dans les instances → safe même en multi-user concurrent.
+- **Front en 3 couches** (cohérent avec Client) : `CompanyService` (wrapper IPC + signals) → `CompanyStore` (façade métier : orchestration async + état + toast/erreur) → composants. La logique **métier/état** vit dans le store, la logique **de form** (FormGroup, validators, mapping form↔DTO, preview) vit dans le composant — jamais dans le store (qui ne doit pas connaître Angular Forms).
+- **Form extrait en composant réutilisable** (`CompanyForm`) : émet `submitted(SaveCompanyInput)`, expose `submit()`/`reset()`/`valid`, masque les compteurs via `showCounters`. La page reste thin (orchestration store + chrome). Anticipe la réutilisation par le Welcome Wizard (Phase 11).
+- **`formatNumber` déplacé en `shared/`** : utilisé côté main (numérotation réelle) ET renderer (preview live du format) → source unique, pattern DB-agnostique préservé.
 
-#### Ajouté
+### Ajouté
 
 **Prisma**
 - `prisma/schema/company.prisma` — modèle `Company` (singleton String PK, identité légale, champs PEPPOL)
@@ -36,7 +44,6 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 - `CompanySettingsRepository` — increment/reset des compteurs (logique reset annuel)
 - `CompanyService` — `getCompany`, `saveCompany`, `getNextInvoiceNumber`/`getNextQuoteNumber` (service-to-service, non exposés IPC), `resetInvoiceCounter`/`resetQuoteCounter`
 - `CompanySettingsService` — owns le settings repo
-- `src/main/services/company/format-number.ts` — formatage des tokens (fonction pure testée)
 - `CompanyHandler` — `GET` / `SAVE` (validé) / `RESET_*` (validé)
 - DI factories Company (2 repos + 2 services) + wire dans `AppDependencies`
 - Preload `company.api.ts` exposé via `window.api.company`
@@ -44,12 +51,23 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 **Shared layer**
 - DTOs Company dans `src/shared/dtos/company/` (read DTOs en interfaces + save inputs en schémas Zod)
 - `COMPANY_CHANNELS`, `CompanyAPI`, `SaveCompanyInputSchema` (nested company + settings)
+- `src/shared/utils/format-number.ts` — formatage des tokens (fonction pure testée, partagée main + renderer)
+
+**Frontend Angular**
+- `services/company/company.ts` — `CompanyService` (wrapper `window.api.company` + signal)
+- `stores/company/company-store.ts` — `CompanyStore` (load/save/reset + toast/erreur + état)
+- `features/company/components/company-form/` — `CompanyForm` réutilisable (form 2 zones Identité/Facturation, validators EU, preview live, mapping form↔DTO, compteurs conditionnels via `showCounters`)
+- `features/company/pages/company-settings/` — page thin `/settings/company` (chrome + orchestration store)
+- `features/company/utils/company-form-validators.ts` — validators (TVA, format numéro avec token compteur, vat/zip/companyNumber par pays)
+- i18n `i18n/ui/company/company.{fr,en}.ts`
+- Route `settings/company` (`app-routes.const.ts` + `app.routes.ts`)
+- Lien navbar ⚙️ câblé vers `/settings/company`
 
 **Validation (Zod)**
 - Schémas Zod sur tous les DTOs d'input (Client, Contact, Company) — types dérivés via `z.infer`
 - `FindManyArgsSchema`, `IdSchema`, `CounterValueSchema`
 
-#### Modifié
+### Modifié
 
 - `ipcHandle()` — 2 overloads : `(channel, schema, fn)` valide puis ouvre la tx / `(channel, fn)` variadique sans validation. Wrappe systématiquement dans `dbContext.transaction()`.
 - `toIpcError()` — `P2002` extrait dynamiquement le champ violé via `e.meta?.target` (plus de "email" hardcodé) + cas `ZodError`
@@ -60,7 +78,7 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 - DTOs Client/Contact d'input convertis en schémas Zod (validation email, etc.)
 - i18n : codes `UNIQUE_VIOLATION`, `VALIDATION_FAILED`, `COMPANY_NOT_CONFIGURED`
 
-#### Dépendances
+### Dépendances
 
 - Ajout de `zod` `^4.4.3`
 
@@ -253,7 +271,8 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ZekJulien/IETC-sole-crm/releases/tag/v0.1.0

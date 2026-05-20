@@ -1,0 +1,89 @@
+.company-form__grid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+  gap:                   20px;
+  align-items:           start;
+}
+
+.company-card {
+  display:        flex;
+  flex-direction: column;
+  gap:            12px;
+  padding:        20px;
+  margin:         0;
+  min-width:      0;
+  background:     var(--color-bg-base);
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-lg);
+}
+
+.company-card__legend {
+  width:          100%;
+  padding:        0 0 12px;
+  margin:         0 0 4px;
+  font-size:      13px;
+  font-weight:    600;
+  color:          var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom:  1px solid var(--color-border);
+}
+
+.company-form__row {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   12px;
+}
+
+.company-form__preview {
+  font-size: 12px;
+  color:     var(--color-text-muted);
+  margin:    -4px 0 4px;
+}
+
+.company-form__preview code {
+  padding:       2px 6px;
+  border-radius: var(--radius);
+  background:    var(--color-bg-elevated);
+  color:         var(--color-accent);
+  font-size:     12px;
+}
+
+.company-form__check {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  font-size:   13px;
+  color:       var(--color-text);
+  cursor:      pointer;
+}
+
+.company-form__reset {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  flex-wrap:   wrap;
+  padding-top: 8px;
+  border-top:  1px solid var(--color-border);
+}
+
+.company-form__reset-label {
+  font-size: 12px;
+  color:     var(--color-text-muted);
+  flex:      1 1 auto;
+}
+
+.company-form__reset-input {
+  width:         80px;
+  height:        var(--control-height);
+  padding:       0 8px;
+  background:    var(--color-bg-elevated);
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius);
+  color:         var(--color-text);
+  font-size:     13px;
+  font-family:   inherit;
+  outline:       none;
+}
+
+.company-form__reset-input:focus { border-color: var(--color-accent); }

@@ -19,9 +19,13 @@
   </nav>
 
   <div class="navbar__actions">
-    <button type="button" class="navbar__icon-btn" aria-label="Paramètres">
+    <a
+      class="navbar__icon-btn"
+      [routerLink]="settingsRoute"
+      routerLinkActive="navbar__icon-btn--active"
+      aria-label="Paramètres">
       <svg lucideSettings [size]="16" />
-    </button>
+    </a>
     <button type="button" class="navbar__icon-btn" aria-label="Compte utilisateur">
       <svg lucideUserCircle2 [size]="16" />
     </button>

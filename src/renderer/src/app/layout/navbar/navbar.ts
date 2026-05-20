@@ -13,6 +13,8 @@ import { AppRoutes } from '@app/core/routes/app-routes.const'
   styleUrl: './navbar.css',
 })
 export class Navbar {
+  readonly settingsRoute = AppRoutes.nav.settingsCompany
+
   readonly navItems: NavItem[] = [
     { labelKey: 'nav.dashboard', route: AppRoutes.nav.home,    icon: LucideLayoutDashboard, exact: true },
     { labelKey: 'nav.clients',   route: AppRoutes.nav.clients, icon: LucideUsers },

@@ -10,4 +10,8 @@ export const routes: Routes = [
     path: AppRoutes.paths.clients,
     loadComponent: () => import('./features/client/pages/client-list/client-list').then(c => c.ClientList)
   },
+  {
+    path: AppRoutes.paths.settingsCompany,
+    loadComponent: () => import('./features/company/pages/company-settings/company-settings').then(c => c.CompanySettings)
+  },
 ]

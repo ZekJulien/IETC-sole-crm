@@ -4,7 +4,7 @@ import { CompanyRepository } from '../../repositories/company/company.repository
 import { CompanySettingsService } from './company-settings.service'
 import { BaseService } from '../base.service'
 import { AppError } from '../../errors/app-error'
-import { formatNumber } from './format-number'
+import { formatNumber } from '@shared/utils/format-number'
 
 type CompanyWithSettings = Prisma.CompanyGetPayload<{ include: { settings: true } }>
 
