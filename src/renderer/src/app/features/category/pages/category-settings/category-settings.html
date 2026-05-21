@@ -1,0 +1,35 @@
+<section class="categories-page">
+  <app-settings-header [icon]="headerIcon" title="category.title" subtitle="category.subtitle">
+    <app-button actions [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+      <svg lucidePlus [size]="15" />
+      {{ 'category.new' | t }}
+    </app-button>
+  </app-settings-header>
+
+  <div class="categories-page__content">
+    <app-search-bar
+      [placeholder]="'category.searchPlaceholder' | t"
+      (search)="onSearch($event)" />
+
+    <div class="categories-page__table">
+      <app-data-table
+        [columns]="columns"
+        [data]="store.categories()"
+        [loading]="store.loading()"
+        (rowClick)="openEdit($event)" />
+    </div>
+  </div>
+
+  <app-category-form-modal
+    [open]="modalOpen()"
+    [category]="editing()"
+    [saving]="store.saving()"
+    (submitted)="onSubmit($event)"
+    (cancelled)="closeModal()"
+    (deleted)="confirmOpen.set(true)" />
+
+  <app-confirm-dialog
+    [visible]="confirmOpen()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmOpen.set(false)" />
+</section>

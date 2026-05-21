@@ -9,10 +9,14 @@ import contactEn   from '../../i18n/ui/client/contact.en'
 import contactFr   from '../../i18n/ui/client/contact.fr'
 import companyEn   from '../../i18n/ui/company/company.en'
 import companyFr   from '../../i18n/ui/company/company.fr'
+import categoryEn  from '../../i18n/ui/category/category.en'
+import categoryFr  from '../../i18n/ui/category/category.fr'
+import settingsEn  from '../../i18n/ui/settings/settings.en'
+import settingsFr  from '../../i18n/ui/settings/settings.fr'
 
 const translations: Record<string, Record<string, string>> = {
-  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn },
-  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr },
+  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...settingsEn },
+  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...settingsFr },
 }
 
 @Injectable({ providedIn: 'root' })

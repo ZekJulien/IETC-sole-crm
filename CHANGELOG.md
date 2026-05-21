@@ -9,6 +9,88 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-05-21 — Phase 3 : Bundle Category
+
+Entité **Category** (étiquettes colorées des projets) end-to-end. Premier
+bundle multi-rows depuis Client — retour au **template canonique** (extends
+`BaseRepository`) après le cas singleton de Company, désormais sur l'archi
+durcie (Zod à la frontière IPC + transactions ambient `DbContext`). Les
+Paramètres deviennent une **page unifiée à onglets**.
+
+### Décisions d'architecture
+
+- **Category = template canonique multi-rows** : `CategoryRepository` étend
+  `BaseRepository` (contrairement au repo singleton standalone de Company),
+  `searchFields: ['name']` pour la recherche serveur. Le bundle exerce la
+  réplication du pattern sur la nouvelle archi (Zod + `DbContext`) avant la
+  relation N:M de Projet (Phase 5).
+- **Nom unique en défense en profondeur** : contrainte DB (`@unique` → `P2002`
+  traduit en `UNIQUE_VIOLATION`) + garde service (`isExist('name')` sur `add` →
+  `CATEGORY_NAME_TAKEN`, calqué sur l'email de Client) + `Validators.required`
+  côté form.
+- **Picker de couleur curé** (palette d'accents Catppuccin Mocha) plutôt que
+  l'`input type="color"` natif de l'OS : cohérent avec le thème global, plus
+  rapide à l'oral, et le rendu correspond exactement au futur badge sur les
+  projets. Validation Zod `#RRGGBB`.
+- **En-tête Paramètres unifié sur une seule ligne** (`SettingsHeader`) : titre +
+  description de la page à gauche, onglets en **pills centrés**, actions
+  (Enregistrer / « + Nouvelle ») à droite — au lieu de deux lignes (titre global
+  « Paramètres » + en-tête de page). Gagne une ligne verticale. Pills cohérentes
+  avec la navbar flottante (sans réintroduire la sidebar retirée en 0.2.1).
+  `SettingsHeader` reçoit l'icône (via `ngComponentOutlet`, comme la navbar) + les
+  clés titre/sous-titre en inputs et projette les actions ; chaque page le compose.
+  Routes `/settings/*` à plat (redirect `settings → company`). Anticipe la Phase 4
+  (catégories de dépense = 3ᵉ onglet).
+- **`DataTable` étendu avec un type de colonne `'color'`** (additif, non-breaking) :
+  pastille + hex. Première couleur « first-class » dans une table générique,
+  réutilisable par les futurs statuts colorés.
+- **Coquille `Modal` partagée** : overlay + backdrop + fermeture Échap extraits
+  dans `app-modal` (slots titre / corps / actions). `CategoryFormModal` **et**
+  `ConfirmDialog` la composent → une seule implémentation d'overlay dans toute
+  l'app. La modale catégorie y ajoute l'aperçu live du chip + la palette ;
+  suppression déclenchée en mode édition, confirmée par `ConfirmDialog`.
+- **Front en 3 couches** (cohérent Client/Company) : `CategoryService` (IPC +
+  signals) → `CategoryStore` (orchestration + toast/erreur) → page/modale.
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/category.prisma` — modèle `Category` (`name` unique, `color`, timestamps)
+- `prisma/migrations/20260521160005_add_category/` — table `Category` + index unique `name`
+
+**Bundle Category (main)**
+- `CategoryRepository` (extends `BaseRepository`, `searchFields: ['name']`)
+- `CategoryService` — `get` / `add` (garde unicité) / `update` / `remove`
+- `CategoryHandler` — `GET` / `ADD` / `UPDATE` / `REMOVE` (validés Zod)
+- DI factories Category (repo + service) + wire dans `AppDependencies`
+- Preload `category.api.ts` exposé via `window.api.category`
+- Code d'erreur i18n `CATEGORY_NAME_TAKEN` (fr + en)
+
+**Shared layer**
+- DTOs Category dans `src/shared/dtos/category/` (read DTO en interface + create/update en schémas Zod, couleur `#RRGGBB`)
+- `CATEGORY_CHANNELS`, interface `CategoryAPI`
+
+**Frontend Angular**
+- `services/category/category.ts` — `CategoryService` (wrapper `window.api.category` + signals)
+- `stores/category/category-store.ts` — `CategoryStore` (load/add/update/remove + toast/erreur)
+- `features/category/pages/category-settings/` — page `SearchBar` + `DataTable` + bouton « Nouvelle »
+- `features/category/components/category-form-modal/` — modale création/édition (palette curée + aperçu chip)
+- `features/category/utils/category-colors.ts` — `CATEGORY_PALETTE` (14 accents Catppuccin)
+- `features/settings/settings-header/` — en-tête Paramètres partagé (titre/desc + onglets centrés + slot actions)
+- i18n `i18n/ui/category/category.{fr,en}.ts` + `i18n/ui/settings/settings.{fr,en}.ts`
+- `shared/components/modal/` — `Modal` réutilisable (overlay + backdrop + Échap, slots titre/corps/actions)
+- Type de colonne `'color'` sur le `DataTable` partagé (template + css)
+
+### Modifié
+
+- `app.routes.ts` — routes `/settings/*` à plat (`settings` redirige vers `company`, + `categories`)
+- `CompanySettings` — en-tête restructuré pour composer `SettingsHeader` (titre/desc à gauche, actions Annuler/Enregistrer à droite)
+- `app-routes.const.ts` — paths `settings` / `settingsCategories`
+- `navbar.ts` — l'icône Paramètres pointe vers `/settings` (hub) au lieu de `/settings/company`
+- `i18n.ts` — enregistrement des namespaces `category` + `settings`
+- `data-table` — union `TableColumnType` + branche `'color'` + styles `.cell-color`
+- `ConfirmDialog` — refactoré sur `app-modal` (API publique `visible`/`title`/`message`/`confirmed`/`cancelled` inchangée)
+
 ## [0.3.0] — 2026-05-20 — Phase 2 : Bundle Company
 
 Entité **Company** (singleton) end-to-end : identité légale + paramètres de
@@ -271,7 +353,8 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.1.0...v0.2.0

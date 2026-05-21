@@ -1,27 +1,20 @@
 <section class="company-page">
-  <header class="company-page__header">
-    <div class="company-page__heading">
-      <span class="company-page__icon"><svg lucideBuilding2 [size]="22" /></span>
-      <div>
-        <h1 class="company-page__title">{{ 'company.title' | t }}</h1>
-        <p class="company-page__subtitle">{{ 'company.subtitle' | t }}</p>
-      </div>
-    </div>
-    <div class="company-page__actions">
-      <app-button [variant]="ButtonVariant.GHOST" (clicked)="companyForm.reset()">
-        {{ 'common.cancel' | t }}
-      </app-button>
-      <app-button [variant]="ButtonVariant.PRIMARY" [loading]="store.saving()" (clicked)="companyForm.submit()">
-        {{ 'common.save' | t }}
-      </app-button>
-    </div>
-  </header>
+  <app-settings-header [icon]="headerIcon" title="company.title" subtitle="company.subtitle">
+    <app-button actions [variant]="ButtonVariant.GHOST" (clicked)="companyForm.reset()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button actions [variant]="ButtonVariant.PRIMARY" [loading]="store.saving()" (clicked)="companyForm.submit()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </app-settings-header>
 
-  <app-company-form
-    #companyForm
-    [company]="store.company()"
-    [showCounters]="store.isConfigured()"
-    (submitted)="onSubmit($event)"
-    (resetInvoice)="store.resetInvoiceCounter($event)"
-    (resetQuote)="store.resetQuoteCounter($event)" />
+  <div class="company-page__content">
+    <app-company-form
+      #companyForm
+      [company]="store.company()"
+      [showCounters]="store.isConfigured()"
+      (submitted)="onSubmit($event)"
+      (resetInvoice)="store.resetInvoiceCounter($event)"
+      (resetQuote)="store.resetQuoteCounter($event)" />
+  </div>
 </section>

@@ -13,7 +13,7 @@ import { AppRoutes } from '@app/core/routes/app-routes.const'
   styleUrl: './navbar.css',
 })
 export class Navbar {
-  readonly settingsRoute = AppRoutes.nav.settingsCompany
+  readonly settingsRoute = AppRoutes.nav.settings
 
   readonly navItems: NavItem[] = [
     { labelKey: 'nav.dashboard', route: AppRoutes.nav.home,    icon: LucideLayoutDashboard, exact: true },

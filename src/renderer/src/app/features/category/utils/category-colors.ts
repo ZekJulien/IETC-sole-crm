@@ -1,0 +1,16 @@
+export const CATEGORY_PALETTE: readonly string[] = [
+  '#cba6f7',
+  '#b4befe',
+  '#89b4fa',
+  '#74c7ec',
+  '#89dceb',
+  '#94e2d5',
+  '#a6e3a1',
+  '#f9e2af',
+  '#fab387',
+  '#eba0ac',
+  '#f38ba8',
+  '#f5c2e7',
+  '#f2cdcd',
+  '#f5e0dc',
+]

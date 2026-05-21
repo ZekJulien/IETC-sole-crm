@@ -33,6 +33,11 @@
                     [i18nKey]="col.badgeI18nPrefix ? col.badgeI18nPrefix + (getValue(row, col.key) + '').toLowerCase() : null" />
                 } @else if (col.type === 'date') {
                   {{ getDateValue(row, col.key) | date:'dd/MM/yyyy' }}
+                } @else if (col.type === 'color') {
+                  <span class="cell-color">
+                    <span class="cell-color__dot" [style.background-color]="$any(getValue(row, col.key))"></span>
+                    <span class="cell-color__hex">{{ getValue(row, col.key) }}</span>
+                  </span>
                 } @else {
                   {{ getValue(row, col.key) }}
                 }

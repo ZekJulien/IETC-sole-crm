@@ -1,0 +1,26 @@
+<header class="settings-header">
+  <div class="settings-header__heading">
+    <span class="settings-header__icon"><ng-container [ngComponentOutlet]="icon()" /></span>
+    <div>
+      <h2 class="settings-header__title">{{ title() | t }}</h2>
+      @if (subtitle()) {
+        <p class="settings-header__subtitle">{{ subtitle() | t }}</p>
+      }
+    </div>
+  </div>
+
+  <nav class="settings-header__tabs" aria-label="Sections des paramètres">
+    <a class="settings-header__tab" [routerLink]="companyRoute" routerLinkActive="settings-header__tab--active">
+      <svg lucideBuilding2 [size]="15" />
+      <span>{{ 'settings.tab.company' | t }}</span>
+    </a>
+    <a class="settings-header__tab" [routerLink]="categoriesRoute" routerLinkActive="settings-header__tab--active">
+      <svg lucideTags [size]="15" />
+      <span>{{ 'settings.tab.categories' | t }}</span>
+    </a>
+  </nav>
+
+  <div class="settings-header__actions">
+    <ng-content select="[actions]" />
+  </div>
+</header>

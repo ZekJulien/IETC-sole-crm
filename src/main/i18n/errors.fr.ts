@@ -1,5 +1,6 @@
 export const errorsFr: Record<string, string> = {
   EMAIL_ALREADY_IN_USE:  'Cet email est déjà utilisé',
+  CATEGORY_NAME_TAKEN:   'Une catégorie portant ce nom existe déjà',
   COMPANY_NOT_CONFIGURED:'Les informations de l\'entreprise ne sont pas encore configurées',
   UNIQUE_VIOLATION:      'Le champ {{field}} existe déjà',
   VALIDATION_FAILED:     'Données invalides : {{issues}}',

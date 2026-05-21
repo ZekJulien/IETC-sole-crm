@@ -11,7 +11,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/client/pages/client-list/client-list').then(c => c.ClientList)
   },
   {
+    path: AppRoutes.paths.settings,
+    pathMatch: 'full',
+    redirectTo: AppRoutes.paths.settingsCompany,
+  },
+  {
     path: AppRoutes.paths.settingsCompany,
     loadComponent: () => import('./features/company/pages/company-settings/company-settings').then(c => c.CompanySettings)
+  },
+  {
+    path: AppRoutes.paths.settingsCategories,
+    loadComponent: () => import('./features/category/pages/category-settings/category-settings').then(c => c.CategorySettings)
   },
 ]

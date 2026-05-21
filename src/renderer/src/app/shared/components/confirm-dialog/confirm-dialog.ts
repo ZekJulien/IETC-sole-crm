@@ -1,11 +1,12 @@
 import { Component, input, output } from '@angular/core'
 import { TranslatePipe } from '../../pipes/translate-pipe'
 import { Button } from '../button/button'
+import { Modal } from '../modal/modal'
 import { ButtonVariant } from '../../enums'
 
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [Button, TranslatePipe],
+  imports: [Modal, Button, TranslatePipe],
   templateUrl: './confirm-dialog.html',
   styleUrl: './confirm-dialog.css',
 })

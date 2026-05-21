@@ -1,0 +1,15 @@
+@if (open()) {
+  <div class="modal-overlay" (click)="closed.emit()">
+    <div class="modal" [style.width]="width()" (click)="$event.stopPropagation()">
+      @if (title(); as titleKey) {
+        <h3 class="modal__title">{{ titleKey | t }}</h3>
+      }
+      <div class="modal__body">
+        <ng-content />
+      </div>
+      <div class="modal__actions">
+        <ng-content select="[modal-actions]" />
+      </div>
+    </div>
+  </div>
+}

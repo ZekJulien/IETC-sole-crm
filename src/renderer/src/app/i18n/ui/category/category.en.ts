@@ -1,0 +1,15 @@
+export default {
+  'category.title':             'Project categories',
+  'category.subtitle':          'Colored labels to classify your projects',
+  'category.new':               'New category',
+  'category.name':              'Name',
+  'category.namePlaceholder':   'e.g. Web, Mobile, Consulting…',
+  'category.color':             'Color',
+  'category.preview':           'Preview',
+  'category.searchPlaceholder': 'Search a category…',
+  'category.modal.createTitle': 'New category',
+  'category.modal.editTitle':   'Edit category',
+  'category.toast.created':     'Category created',
+  'category.toast.saved':       'Category saved',
+  'category.toast.deleted':     'Category deleted',
+} satisfies Record<string, string>

@@ -1,0 +1,44 @@
+<app-modal [open]="open()" [title]="titleKey()" (closed)="cancelled.emit()">
+  <form class="category-form" [formGroup]="form" (ngSubmit)="submit()">
+    <app-form-field
+      [label]="'category.name' | t"
+      [control]="nameControl"
+      [placeholder]="'category.namePlaceholder' | t" />
+
+    <div class="field">
+      <label class="field__label">{{ 'category.color' | t }}</label>
+      <div class="palette">
+        @for (c of palette; track c) {
+          <button
+            type="button"
+            class="swatch"
+            [class.swatch--selected]="currentColor() === c"
+            [style.background-color]="c"
+            [attr.aria-label]="c"
+            (click)="selectColor(c)"></button>
+        }
+      </div>
+    </div>
+
+    <div class="preview">
+      <span class="preview__label">{{ 'category.preview' | t }}</span>
+      <span class="chip" [style.background-color]="chipBg()" [style.color]="currentColor()">
+        {{ currentName() || ('category.namePlaceholder' | t) }}
+      </span>
+    </div>
+  </form>
+
+  <div modal-actions class="cat-actions" [class.cat-actions--edit]="isEdit()">
+    @if (isEdit()) {
+      <app-button [variant]="ButtonVariant.DANGER" (clicked)="deleted.emit()">
+        {{ 'common.delete' | t }}
+      </app-button>
+    }
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="submit()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </div>
+</app-modal>

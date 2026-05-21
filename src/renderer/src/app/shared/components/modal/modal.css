@@ -1,0 +1,23 @@
+.modal-overlay {
+  position:        fixed;
+  inset:           0;
+  background:      rgba(0, 0, 0, .5);
+  backdrop-filter: blur(4px);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  z-index:         100;
+}
+
+.modal {
+  background:     var(--color-bg-surface);
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-lg);
+  padding:        24px;
+  max-width:      calc(100vw - 32px);
+  display:        flex;
+  flex-direction: column;
+  gap:            18px;
+}
+
+.modal__title { font-size: 15px; font-weight: 600; color: var(--color-text); margin: 0; }
