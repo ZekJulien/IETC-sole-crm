@@ -1,1 +1,1 @@
-export type TableColumnType = 'text' | 'badge' | 'date' | 'color' | 'actions'
+export type TableColumnType = 'text' | 'badge' | 'date' | 'color' | 'boolean' | 'actions'

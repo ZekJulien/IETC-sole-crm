@@ -3,6 +3,7 @@ import { registerLogHandlers } from './log.handler'
 import { registerClientHandlers, registerContactHandlers } from './client'
 import { registerCompanyHandlers } from './company'
 import { registerCategoryHandlers } from './category'
+import { registerExpenseCategoryHandlers } from './expense-category'
 
 export function registerAllHandlers(deps: AppDependencies): void {
   registerLogHandlers()
@@ -10,4 +11,5 @@ export function registerAllHandlers(deps: AppDependencies): void {
   registerContactHandlers(deps.contactService)
   registerCompanyHandlers(deps.companyService)
   registerCategoryHandlers(deps.categoryService)
+  registerExpenseCategoryHandlers(deps.expenseCategoryService)
 }

@@ -1,0 +1,9 @@
+model ExpenseCategory {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  deductible Boolean  @default(true)
+  color      String
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

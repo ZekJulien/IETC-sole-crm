@@ -18,6 +18,10 @@
       <svg lucideTags [size]="15" />
       <span>{{ 'settings.tab.categories' | t }}</span>
     </a>
+    <a class="settings-header__tab" [routerLink]="expenseCategoriesRoute" routerLinkActive="settings-header__tab--active">
+      <svg lucideReceipt [size]="15" />
+      <span>{{ 'settings.tab.expenseCategories' | t }}</span>
+    </a>
   </nav>
 
   <div class="settings-header__actions">

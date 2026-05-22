@@ -9,6 +9,81 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-21 — Phase 4 : Bundle ExpenseCategory
+
+Entité **ExpenseCategory** (catégories de note de frais, `CategorieDepense` dans
+la spec) end-to-end. **Quasi-jumeau de Category** sur l'archi durcie (Zod à la
+frontière IPC + transactions ambient `DbContext`), avec un champ booléen
+`deductible` en plus. Premier bundle « fondation » sans FK sortante, dernier
+avant la relation N:M de Projet (Phase 5).
+
+### Décisions d'architecture
+
+- **ExpenseCategory = duplication du template canonique Category** : `extends
+  BaseRepository`, `searchFields: ['name']`, garde d'unicité service
+  (`isExist('name')` → `EXPENSE_CATEGORY_NAME_TAKEN`) en miroir exact de Category.
+  Le seul ajout métier est `deductible: Boolean @default(true)`.
+- **Couleur obligatoire** (`color String`, miroir exact de Category) plutôt
+  qu'optionnelle (spec `couleur?`) ou absente (ERD README) : réutilise sans
+  adaptation toute la machinerie existante (palette curée, colonne `'color'`,
+  chip d'aperçu live) sans introduire d'état « pas de couleur ».
+- **Pattern HEX `#RRGGBB` extrait dans `src/shared/validators/`** : le regex
+  était dupliqué dans les DTOs Zod de Category **et** ExpenseCategory.
+  `HexColorSchema` (+ const `HEX_COLOR`) devient la source unique, importée par
+  les 4 DTOs (create/update × 2 entités). Nouveau dossier `validators/` partagé.
+- **`DataTable` étendue avec un type de colonne `'boolean'`** (additif,
+  non-breaking — même approche que `'color'` en Phase 3) : check vert
+  (`LucideCheck`) si vrai, tiret atténué sinon. Langage-agnostique (pas d'i18n
+  dans la table générique), réutilisable par les futurs flags (`facturable`,
+  `archived`…).
+- **Toggle « Déductible fiscalement »** : switch stylé **local à la modale**
+  (pas encore de composant Toggle partagé) lié au control reactive `deductible`,
+  cohérent avec les swatches de palette locaux.
+- **Palette partagée par re-export** : `EXPENSE_CATEGORY_PALETTE` ré-exporte
+  `CATEGORY_PALETTE` (14 accents Catppuccin) — zéro duplication du tableau.
+- **3ᵉ onglet « Dépenses » dans `SettingsHeader`** (anticipé en Phase 3) : route
+  `/settings/expense-categories` à plat, icône `LucideReceipt`.
+- **Front en 3 couches** (cohérent Client/Company/Category) :
+  `ExpenseCategoryService` (IPC + signals) → `ExpenseCategoryStore`
+  (orchestration + toast/erreur) → page/modale.
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/expense-category.prisma` — modèle `ExpenseCategory` (`name` unique, `deductible` Boolean default true, `color`, timestamps)
+- `prisma/migrations/20260521212719_add_expense_category/` — table `ExpenseCategory` + index unique `name`
+
+**Bundle ExpenseCategory (main)**
+- `ExpenseCategoryRepository` (extends `BaseRepository`, `searchFields: ['name']`)
+- `ExpenseCategoryService` — `get` / `add` (garde unicité) / `update` / `remove`
+- `ExpenseCategoryHandler` — `GET` / `ADD` / `UPDATE` / `REMOVE` (validés Zod)
+- DI factories ExpenseCategory (repo + service) + wire dans `AppDependencies`
+- Preload `expense-category.api.ts` exposé via `window.api.expenseCategory`
+- Code d'erreur i18n `EXPENSE_CATEGORY_NAME_TAKEN` (fr + en)
+
+**Shared layer**
+- DTOs ExpenseCategory dans `src/shared/dtos/expense-category/` (read DTO en interface + create/update en schémas Zod, `deductible` booléen + couleur `#RRGGBB`)
+- `EXPENSE_CATEGORY_CHANNELS`, interface `ExpenseCategoryAPI`
+- `src/shared/validators/` — `HexColorSchema` + `HEX_COLOR` (validateur couleur partagé)
+
+**Frontend Angular**
+- `services/expense-category/expense-category.ts` — `ExpenseCategoryService` (wrapper `window.api.expenseCategory` + signals)
+- `stores/expense-category/expense-category-store.ts` — `ExpenseCategoryStore` (load/add/update/remove + toast/erreur)
+- `features/expense-category/pages/expense-category-settings/` — page `SearchBar` + `DataTable` + bouton « Nouvelle »
+- `features/expense-category/components/expense-category-form-modal/` — modale création/édition (palette curée + aperçu chip + toggle déductible)
+- `features/expense-category/utils/expense-category-colors.ts` — `EXPENSE_CATEGORY_PALETTE` (re-export de `CATEGORY_PALETTE`)
+- i18n `i18n/ui/expense-category/expense-category.{fr,en}.ts`
+- Type de colonne `'boolean'` sur le `DataTable` partagé (template + css + `LucideCheck`)
+
+### Modifié
+
+- DTOs Category (`create`/`update`) — utilisent désormais `HexColorSchema` partagé au lieu du regex inline dupliqué
+- `data-table` — union `TableColumnType` + branche `'boolean'` + import `LucideCheck` + styles `.cell-bool`
+- `SettingsHeader` — 3ᵉ onglet « Dépenses » (`LucideReceipt` → `/settings/expense-categories`)
+- `app.routes.ts` + `app-routes.const.ts` — route et paths `settingsExpenseCategories`
+- `i18n.ts` — enregistrement du namespace `expenseCategory`
+- i18n `settings` — clé `settings.tab.expenseCategories` (fr + en)
+
 ## [0.4.0] — 2026-05-21 — Phase 3 : Bundle Category
 
 Entité **Category** (étiquettes colorées des projets) end-to-end. Premier
@@ -353,7 +428,8 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.0...v0.2.1

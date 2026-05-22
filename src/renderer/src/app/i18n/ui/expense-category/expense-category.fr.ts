@@ -1,0 +1,18 @@
+export default {
+  'expenseCategory.title':             'Catégories de dépense',
+  'expenseCategory.subtitle':          'Types de dépenses pour classer vos frais',
+  'expenseCategory.new':               'Nouvelle catégorie',
+  'expenseCategory.name':              'Nom',
+  'expenseCategory.namePlaceholder':   'Ex. Déplacement, Matériel, Logiciel…',
+  'expenseCategory.color':             'Couleur',
+  'expenseCategory.deductible':        'Déductible fiscalement',
+  'expenseCategory.deductibleShort':   'Déductible',
+  'expenseCategory.deductibleHint':    'Les dépenses de cette catégorie sont déductibles par défaut',
+  'expenseCategory.preview':           'Aperçu',
+  'expenseCategory.searchPlaceholder': 'Rechercher une catégorie…',
+  'expenseCategory.modal.createTitle': 'Nouvelle catégorie de dépense',
+  'expenseCategory.modal.editTitle':   'Modifier la catégorie de dépense',
+  'expenseCategory.toast.created':     'Catégorie de dépense créée',
+  'expenseCategory.toast.saved':       'Catégorie de dépense enregistrée',
+  'expenseCategory.toast.deleted':     'Catégorie de dépense supprimée',
+} satisfies Record<string, string>

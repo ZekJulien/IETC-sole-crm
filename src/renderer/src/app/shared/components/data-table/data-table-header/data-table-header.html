@@ -1,4 +1,4 @@
-{{ column().labelKey | t }}
+<span class="th__label">{{ column().labelKey | t }}</span>
 @if (column().sortable) {
   <span class="th__icon">
     @if      (dir() === 'asc')  { <svg lucideArrowUp   [size]="11" /> }

@@ -15,7 +15,7 @@
             <th app-data-table-header
               [column]="col"
               [sortState]="sortState()"
-              [width]="getColumnWidth(col)"
+              [width]="getColumnWidth(col, isLast)"
               [resizable]="!isLast"
               (sorted)="onSort($event)"
               (resizeStart)="onResizeStart($event)"></th>
@@ -25,8 +25,8 @@
       <tbody>
         @for (row of sortedData(); track $index) {
           <tr class="table__row" (click)="rowClick.emit(row)">
-            @for (col of columns(); track col.key) {
-              <td class="td" [style.width]="getColumnWidth(col)">
+            @for (col of columns(); track col.key; let isLast = $last) {
+              <td class="td" [style.width]="getColumnWidth(col, isLast)">
                 @if (col.type === 'badge') {
                   <app-status-badge
                     [status]="$any(getValue(row, col.key))"
@@ -38,6 +38,12 @@
                     <span class="cell-color__dot" [style.background-color]="$any(getValue(row, col.key))"></span>
                     <span class="cell-color__hex">{{ getValue(row, col.key) }}</span>
                   </span>
+                } @else if (col.type === 'boolean') {
+                  @if (getValue(row, col.key)) {
+                    <svg lucideCheck [size]="16" class="cell-bool cell-bool--yes" />
+                  } @else {
+                    <span class="cell-bool cell-bool--no">—</span>
+                  }
                 } @else {
                   {{ getValue(row, col.key) }}
                 }

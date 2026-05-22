@@ -1,0 +1,90 @@
+.category-form {
+  display:        flex;
+  flex-direction: column;
+  gap:            16px;
+}
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field__label { font-size: 12px; font-weight: 500; color: var(--color-text-muted); }
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap:     8px;
+}
+
+.swatch {
+  aspect-ratio:  1;
+  border-radius: 50%;
+  border:        2px solid transparent;
+  cursor:        pointer;
+  padding:       0;
+  transition:    transform var(--transition), border-color var(--transition);
+}
+.swatch:hover { transform: scale(1.12); }
+.swatch--selected {
+  border-color: var(--color-text);
+  box-shadow:   0 0 0 2px var(--color-bg-surface), 0 0 0 4px var(--color-border-soft);
+}
+
+.toggle-row {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             16px;
+  padding:         12px 14px;
+  border:          1px solid var(--color-border);
+  border-radius:   var(--radius);
+  background:      var(--color-bg-surface);
+}
+.toggle-row__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.toggle-row__hint { font-size: 12px; color: var(--color-text-subtle); margin: 0; }
+
+.switch {
+  position:      relative;
+  flex-shrink:   0;
+  width:         40px;
+  height:        22px;
+  border-radius: 99px;
+  border:        none;
+  cursor:        pointer;
+  background:    var(--color-border);
+  transition:    background var(--transition);
+}
+.switch--on { background: var(--color-accent); }
+.switch__thumb {
+  position:      absolute;
+  top:           2px;
+  left:          2px;
+  width:         18px;
+  height:        18px;
+  border-radius: 50%;
+  background:    var(--color-text);
+  transition:    transform var(--transition);
+}
+.switch--on .switch__thumb { transform: translateX(18px); background: var(--color-bg-base); }
+
+.preview {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+}
+.preview__label { font-size: 12px; color: var(--color-text-subtle); }
+
+.chip {
+  display:        inline-flex;
+  align-items:    center;
+  padding:        3px 12px;
+  border-radius:  99px;
+  font-size:      12px;
+  font-weight:    600;
+  letter-spacing: .3px;
+}
+
+.cat-actions {
+  display:         flex;
+  align-items:     center;
+  gap:             8px;
+  justify-content: flex-end;
+}
+.cat-actions--edit { justify-content: space-between; }

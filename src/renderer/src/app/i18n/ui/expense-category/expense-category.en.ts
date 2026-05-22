@@ -1,0 +1,18 @@
+export default {
+  'expenseCategory.title':             'Expense categories',
+  'expenseCategory.subtitle':          'Types of expenses to classify your spending',
+  'expenseCategory.new':               'New category',
+  'expenseCategory.name':              'Name',
+  'expenseCategory.namePlaceholder':   'e.g. Travel, Hardware, Software…',
+  'expenseCategory.color':             'Color',
+  'expenseCategory.deductible':        'Tax deductible',
+  'expenseCategory.deductibleShort':   'Deductible',
+  'expenseCategory.deductibleHint':    'Expenses in this category are deductible by default',
+  'expenseCategory.preview':           'Preview',
+  'expenseCategory.searchPlaceholder': 'Search a category…',
+  'expenseCategory.modal.createTitle': 'New expense category',
+  'expenseCategory.modal.editTitle':   'Edit expense category',
+  'expenseCategory.toast.created':     'Expense category created',
+  'expenseCategory.toast.saved':       'Expense category saved',
+  'expenseCategory.toast.deleted':     'Expense category deleted',
+} satisfies Record<string, string>

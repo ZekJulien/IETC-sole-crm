@@ -1,5 +1,6 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChild, computed, effect, input, output, signal } from '@angular/core'
+import { Component, ElementRef, HostListener, computed, effect, input, output, signal, viewChild } from '@angular/core'
 import { DatePipe } from '@angular/common'
+import { LucideCheck } from '@lucide/angular'
 import { TranslatePipe } from '../../pipes/translate-pipe'
 import { StatusBadge } from '../status-badge/status-badge'
 import { DataTableHeader, ResizeStartEvent } from './data-table-header/data-table-header'
@@ -9,39 +10,31 @@ const MIN_COL_WIDTH = 60
 
 @Component({
   selector: 'app-data-table',
-  imports: [DataTableHeader, StatusBadge, TranslatePipe, DatePipe],
+  imports: [DataTableHeader, StatusBadge, TranslatePipe, DatePipe, LucideCheck],
   templateUrl: './data-table.html',
   styleUrl: './data-table.css',
 })
-export class DataTable<T extends object> implements AfterViewInit, OnDestroy {
+export class DataTable<T extends object> {
   readonly columns  = input.required<TableColumn<T>[]>()
   readonly data     = input.required<T[]>()
   readonly loading  = input<boolean>(false)
   readonly rowClick = output<T>()
 
-  @ViewChild('tableWrap') tableWrap?: ElementRef<HTMLElement>
-  @ViewChild('tableEl')   tableEl?:   ElementRef<HTMLTableElement>
+  private readonly tableWrap = viewChild<ElementRef<HTMLElement>>('tableWrap')
+  private readonly tableEl   = viewChild<ElementRef<HTMLTableElement>>('tableEl')
 
   private readonly _sort = signal<SortState | null>(null)
   readonly sortState     = this._sort.asReadonly()
 
-  // Skeleton uniquement au tout premier chargement (latché à true dès qu'on a vu des data)
   readonly hasInitialized = signal<boolean>(false)
 
-  constructor() {
-    effect(() => {
-      if (!this.loading() && this.data().length > 0 && !this.hasInitialized()) {
-        this.hasInitialized.set(true)
-      }
-    })
-  }
-
-  // ── Resize des colonnes ──────────────────────────────
   readonly columnWidths = signal<Record<string, number>>({})
-  private resizingKey: string | null = null
-  private resizeStartX = 0
-  private resizeStartW = 0
-  private tableObserver?: ResizeObserver
+  private resizingKey:    string | null = null
+  private neighborKey:    string | null = null
+  private neighborIsLast = false
+  private resizeStartX   = 0
+  private resizeStartW   = 0
+  private neighborStartW = 0
 
   readonly sortedData = computed(() => {
     const sort = this._sort()
@@ -55,6 +48,26 @@ export class DataTable<T extends object> implements AfterViewInit, OnDestroy {
       return sort.dir === 'asc' ? cmp : -cmp
     })
   })
+
+  constructor() {
+    effect(() => {
+      if (!this.loading() && this.data().length > 0 && !this.hasInitialized()) {
+        this.hasInitialized.set(true)
+      }
+    })
+
+    effect((onCleanup) => {
+      const table = this.tableEl()?.nativeElement
+      const wrap  = this.tableWrap()?.nativeElement
+      if (!table || !wrap) return
+
+      const sync = () => wrap.style.setProperty('--table-height', table.offsetHeight + 'px')
+      const observer = new ResizeObserver(sync)
+      observer.observe(table)
+      sync()
+      onCleanup(() => observer.disconnect())
+    })
+  }
 
   onSort(key: string): void {
     const current = this._sort()
@@ -74,58 +87,55 @@ export class DataTable<T extends object> implements AfterViewInit, OnDestroy {
     return null
   }
 
-  getColumnWidth(col: TableColumn<T>): string {
+  getColumnWidth(col: TableColumn<T>, isLast: boolean): string {
+    if (isLast && Object.keys(this.columnWidths()).length > 0) return 'auto'
     const stored = this.columnWidths()[col.key]
     if (stored) return stored + 'px'
     return col.width ?? 'auto'
   }
 
   onResizeStart(e: ResizeStartEvent): void {
-    this.resizingKey  = e.key
-    this.resizeStartX = e.clientX
-    this.resizeStartW = e.currentWidth
+    const table = this.tableEl()?.nativeElement
+    if (!table) return
+
+    const cols = this.columns()
+    const lastIndex = cols.length - 1
+    const rects = Array.from(table.querySelectorAll<HTMLElement>('thead th'))
+      .map(th => th.getBoundingClientRect().width)
+
+    const widths: Record<string, number> = {}
+    cols.forEach((c, i) => { if (i < lastIndex) widths[c.key] = rects[i] })
+    this.columnWidths.set(widths)
+
+    const idx = cols.findIndex(c => c.key === e.key)
+    this.resizingKey    = e.key
+    this.neighborKey    = cols[idx + 1]?.key ?? null
+    this.neighborIsLast = idx + 1 === lastIndex
+    this.resizeStartX   = e.clientX
+    this.resizeStartW   = rects[idx] ?? e.currentWidth
+    this.neighborStartW = rects[idx + 1] ?? 0
   }
 
   @HostListener('window:pointermove', ['$event'])
   onResizeMove(e: PointerEvent): void {
-    if (!this.resizingKey) return
+    if (!this.resizingKey || !this.neighborKey) return
     e.preventDefault()
-    const delta = e.clientX - this.resizeStartX
 
-    // Clamp pour empêcher le crushing des autres colonnes
-    // (max = largeur totale - place minimum requise par les autres colonnes)
-    let maxWidth = Number.POSITIVE_INFINITY
-    if (this.tableEl) {
-      const tableWidth = this.tableEl.nativeElement.offsetWidth
-      const otherCount = this.columns().length - 1
-      maxWidth = Math.max(MIN_COL_WIDTH, tableWidth - otherCount * MIN_COL_WIDTH)
-    }
+    const maxGrow   = this.neighborStartW - MIN_COL_WIDTH
+    const maxShrink = this.resizeStartW   - MIN_COL_WIDTH
+    const delta = Math.max(-maxShrink, Math.min(maxGrow, e.clientX - this.resizeStartX))
 
-    const next = Math.max(MIN_COL_WIDTH, Math.min(maxWidth, this.resizeStartW + delta))
-    this.columnWidths.update(w => ({ ...w, [this.resizingKey!]: next }))
+    const key = this.resizingKey, nKey = this.neighborKey
+    this.columnWidths.update(w => {
+      const next = { ...w, [key]: this.resizeStartW + delta }
+      if (!this.neighborIsLast) next[nKey] = this.neighborStartW - delta
+      return next
+    })
   }
 
   @HostListener('window:pointerup')
-  onResizeEnd(): void { this.resizingKey = null }
-
-  // ── Synchronise --table-height pour que les poignées de resize s'étendent
-  //    sur toute la hauteur du tableau (visible et cliquable jusqu'en bas) ──
-  ngAfterViewInit(): void {
-    if (!this.tableEl || !this.tableWrap) return
-    this.tableObserver = new ResizeObserver(() => this.syncTableHeight())
-    this.tableObserver.observe(this.tableEl.nativeElement)
-    this.syncTableHeight()
-  }
-
-  ngOnDestroy(): void {
-    this.tableObserver?.disconnect()
-  }
-
-  private syncTableHeight(): void {
-    if (!this.tableEl || !this.tableWrap) return
-    this.tableWrap.nativeElement.style.setProperty(
-      '--table-height',
-      this.tableEl.nativeElement.offsetHeight + 'px',
-    )
+  onResizeEnd(): void {
+    this.resizingKey = null
+    this.neighborKey = null
   }
 }

@@ -1,0 +1,60 @@
+<app-modal [open]="open()" [title]="titleKey()" (closed)="cancelled.emit()">
+  <form class="category-form" [formGroup]="form" (ngSubmit)="submit()">
+    <app-form-field
+      [label]="'expenseCategory.name' | t"
+      [control]="nameControl"
+      [placeholder]="'expenseCategory.namePlaceholder' | t" />
+
+    <div class="field">
+      <label class="field__label">{{ 'expenseCategory.color' | t }}</label>
+      <div class="palette">
+        @for (c of palette; track c) {
+          <button
+            type="button"
+            class="swatch"
+            [class.swatch--selected]="currentColor() === c"
+            [style.background-color]="c"
+            [attr.aria-label]="c"
+            (click)="selectColor(c)"></button>
+        }
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-row__text">
+        <span class="field__label">{{ 'expenseCategory.deductible' | t }}</span>
+        <p class="toggle-row__hint">{{ 'expenseCategory.deductibleHint' | t }}</p>
+      </div>
+      <button
+        type="button"
+        class="switch"
+        role="switch"
+        [class.switch--on]="isDeductible()"
+        [attr.aria-checked]="isDeductible()"
+        (click)="toggleDeductible()">
+        <span class="switch__thumb"></span>
+      </button>
+    </div>
+
+    <div class="preview">
+      <span class="preview__label">{{ 'expenseCategory.preview' | t }}</span>
+      <span class="chip" [style.background-color]="chipBg()" [style.color]="currentColor()">
+        {{ currentName() || ('expenseCategory.namePlaceholder' | t) }}
+      </span>
+    </div>
+  </form>
+
+  <div modal-actions class="cat-actions" [class.cat-actions--edit]="isEdit()">
+    @if (isEdit()) {
+      <app-button [variant]="ButtonVariant.DANGER" (clicked)="deleted.emit()">
+        {{ 'common.delete' | t }}
+      </app-button>
+    }
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="submit()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </div>
+</app-modal>

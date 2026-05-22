@@ -46,4 +46,13 @@
 :host(.th--sortable):hover { color: var(--color-text-muted); }
 :host(.th--active)         { color: var(--color-accent); }
 
+.th__label {
+  display:       inline-block;
+  max-width:     100%;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+  vertical-align: middle;
+}
+
 .th__icon { margin-left: 4px; font-size: 10px; opacity: .7; }

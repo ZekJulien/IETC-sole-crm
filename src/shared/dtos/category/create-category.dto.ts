@@ -1,10 +1,9 @@
 import { z } from 'zod'
-
-const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
+import { HexColorSchema } from '../../validators'
 
 export const CreateCategorySchema = z.object({
   name:  z.string().min(1),
-  color: z.string().regex(HEX_COLOR),
+  color: HexColorSchema,
 })
 
 export type CreateCategoryDto = z.infer<typeof CreateCategorySchema>

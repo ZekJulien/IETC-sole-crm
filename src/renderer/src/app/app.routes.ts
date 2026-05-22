@@ -23,4 +23,8 @@ export const routes: Routes = [
     path: AppRoutes.paths.settingsCategories,
     loadComponent: () => import('./features/category/pages/category-settings/category-settings').then(c => c.CategorySettings)
   },
+  {
+    path: AppRoutes.paths.settingsExpenseCategories,
+    loadComponent: () => import('./features/expense-category/pages/expense-category-settings/expense-category-settings').then(c => c.ExpenseCategorySettings)
+  },
 ]
