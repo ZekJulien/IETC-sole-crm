@@ -1,8 +1,0 @@
-<div class="view-mode-switch">
-  <button type="button" class="view-mode-switch__btn" [class.view-mode-switch__btn--active]="mode() === 'inbox'" (click)="set('inbox')" [title]="'common.viewInbox' | t">
-    <svg lucideLayoutList [size]="16" />
-  </button>
-  <button type="button" class="view-mode-switch__btn" [class.view-mode-switch__btn--active]="mode() === 'table'" (click)="set('table')" [title]="'common.viewTable' | t">
-    <svg lucideTable2 [size]="16" />
-  </button>
-</div>

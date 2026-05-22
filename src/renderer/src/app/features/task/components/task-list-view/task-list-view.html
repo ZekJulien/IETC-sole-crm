@@ -1,0 +1,43 @@
+<ul class="task-rows">
+  @for (task of tasks(); track task.id) {
+    <li class="task-row" [class.task-row--done]="task.status === TaskStatus.DONE">
+      <button
+        type="button"
+        class="task-toggle task-toggle--{{ task.status }}"
+        [title]="toggleTitle(task)"
+        (click)="toggled.emit(task)">
+        @switch (task.status) {
+          @case (TaskStatus.DONE)        { <svg lucideCircleCheck [size]="20" /> }
+          @case (TaskStatus.IN_PROGRESS) { <svg lucideCircleDot   [size]="20" /> }
+          @case (TaskStatus.BLOCKED)     { <svg lucideBan         [size]="20" /> }
+          @default                       { <svg lucideCircle      [size]="20" /> }
+        }
+      </button>
+
+      <button type="button" class="task-row__main" (click)="editTask.emit(task)">
+        <span class="task-row__title">{{ task.title }}</span>
+        @if (task.dueDate) {
+          <span class="task-row__due" [class.task-row__due--overdue]="isOverdue(task)">
+            <svg lucideCalendar [size]="13" />
+            {{ formatDate(task.dueDate) }}
+            @if (isOverdue(task)) { <span class="overdue-tag">{{ 'task.overdue' | t }}</span> }
+          </span>
+        }
+      </button>
+
+      <app-status-badge
+        class="task-row__prio"
+        [status]="task.priority"
+        [i18nKey]="priorityKey(task.priority)" />
+
+      <div class="task-row__actions">
+        <app-icon-button [title]="'common.edit' | t" (clicked)="editTask.emit(task)">
+          <svg lucidePencil [size]="15" />
+        </app-icon-button>
+        <app-icon-button variant="danger" [title]="'common.delete' | t" (clicked)="deleteTask.emit(task)">
+          <svg lucideTrash2 [size]="15" />
+        </app-icon-button>
+      </div>
+    </li>
+  }
+</ul>

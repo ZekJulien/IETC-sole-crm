@@ -9,6 +9,103 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-05-22 — Phase 6 : Bundle Task
+
+Entité **Task** (`Tache` dans la spec) end-to-end, avec une **page dédiée `/tasks`**
+(lien navbar « Tâches ») : sélecteur de projet en haut, **bascule de vue Kanban /
+Liste**, board à 4 colonnes (À faire / En cours / Terminée / Bloquée) en **glisser-
+déposer** (`@angular/cdk/drag-drop`) qui change le statut, badge de priorité coloré,
+date limite (rouge si dépassée), et **résumé d'agrégat** (compteurs par statut via
+`GROUP BY`). La page travaille toujours dans le contexte d'**un** projet sélectionné.
+
+### Décisions d'architecture
+
+- **Page dédiée `/tasks` plutôt qu'inline dans la page projet** : itéré après un
+  premier jet (tâches enterrées dans `/projects/:id`, jugé peu pratique). Les tâches
+  deviennent first-class via un **sélecteur de projet** en tête de page ; l'IPC reste
+  scopé projet (`getByProject` / `countByStatus`).
+- **Vue Kanban en glisser-déposer (`@angular/cdk/drag-drop`)** : 4 `cdkDropList`
+  connectés (un par statut) dans un `cdkDropListGroup` ; déposer une carte appelle
+  `TaskStore.move(id, status)` (mise à jour **optimiste** + rollback en cas d'erreur,
+  silencieuse — pas de toast par déplacement). Bascule **Kanban / Liste** (la liste
+  compacte réutilise les lignes : pastille de statut cyclable + priorité + échéance).
+- **Deux `TEXT + CHECK` dans un même modèle** : `status` (`TODO` / `IN_PROGRESS` /
+  `DONE` / `BLOCKED`) et `priority` (`LOW` / `MEDIUM` / `HIGH` / `URGENT`), CHECK
+  ajoutés à la main dans la migration (miroir du `status` de Project). Valeurs typées
+  dans `TaskStatus` / `TaskPriority` (TS).
+- **FK `Project` en `onDelete: Cascade`** : supprimer un projet supprime ses tâches —
+  complète le panel Restrict (Client) / Cascade (ProjectCategory) de la Phase 5.
+  Vérifié sur une copie de `dev.db` (`node:sqlite`) : CHECK ×2, defaults, et Cascade.
+- **Agrégat DB réel `countByStatus`** : `prisma.task.groupBy({ by: ['status'],
+  _count })` par projet — exerce la notion SGBD « Agrégat ». Exposé en IPC et rendu
+  en chips de comptage ; le store **rafraîchit l'agrégat après chaque mutation**.
+- **`toggleStatus(id)`** : avance rapidement le statut `TODO → IN_PROGRESS → DONE →
+  TODO` (et `BLOCKED → TODO`), via une table de cycle pure côté service. Surfacé par
+  le bouton-pastille rond de chaque ligne en vue Liste.
+- **IPC scopé par projet** : `getByProject(projectId)` + `countByStatus(projectId)`
+  plutôt qu'un `get` paginé global. `IdSchema` réutilisé pour valider le `projectId`.
+- **`StatusBadge` réutilisé** pour le statut **et** la priorité (classes
+  `badge--TODO/DONE/BLOCKED` + `badge--LOW/MEDIUM/HIGH/URGENT` ajoutées ;
+  `IN_PROGRESS` existait déjà depuis Project).
+- **Composants présentationnels « dumb »** (`TaskKanban`, `TaskListView`) pilotés par
+  la page smart `TaskBoard` (sélecteur projet + bascule de vue + modale + agrégat) —
+  cohérent avec le découpage 3 couches. La logique de form vit dans `TaskFormModal`
+  (compose `app-modal`).
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/task.prisma` — modèle `Task` (FK `Project` Cascade, `status`/`priority` TEXT, `dueDate`/`description` optionnels)
+- Relation inverse `tasks` sur `Project` (`Task[]`)
+- `prisma/migrations/20260522162207_add_task/` — table `Task` + CHECK `status IN (...)` et `priority IN (...)` ajoutés manuellement
+
+**Bundle Task (main)**
+- `TaskRepository` (extends `BaseRepository`, `searchFields: ['title']`, `findByProjectId`, `countByStatus` via `groupBy`)
+- `TaskService` — `getByProject` / `countByStatus` / `add` / `update` / `toggleStatus` (table de cycle) / `remove`, mapping Prisma→DTO
+- `TaskHandler` — `GET_BY_PROJECT` / `COUNT_BY_STATUS` / `ADD` / `UPDATE` / `TOGGLE_STATUS` / `REMOVE` (validés Zod)
+- DI factories Task (repo + service) + wire dans `AppDependencies`
+- Preload `task.api.ts` exposé via `window.api.task`
+
+**Shared layer**
+- DTOs Task dans `src/shared/dtos/task/` (read DTO en interface + `TaskStatus`/`TaskPriority` enums + `TaskStatusCount` + create/update en schémas Zod, dates coercées)
+- `TASK_CHANNELS`, interface `TaskAPI`
+
+**Frontend Angular**
+- `services/task/task.ts` — `TaskService` (wrapper `window.api.task`)
+- `stores/task/task-store.ts` — `TaskStore` (liste + compteurs par statut + add/update/toggle/`move` optimiste/remove, rafraîchit l'agrégat)
+- `features/task/pages/task-board/` — page `/tasks` (sélecteur projet + bascule Kanban/Liste + agrégat + modale), lazy-loadée
+- `features/task/components/task-kanban/` — board 4 colonnes en glisser-déposer (`@angular/cdk/drag-drop`)
+- `features/task/components/task-list-view/` — liste compacte « dumb » (pastille statut + priorité + échéance + actions)
+- `features/task/components/task-form-modal/` — modale création/édition (titre, statut, priorité, date limite, description)
+- `features/task/utils/` — `TASK_STATUSES`/`taskStatusKey` + `TASK_PRIORITIES`/`taskPriorityKey`
+- i18n `i18n/ui/task/task.{fr,en}.ts`
+- Lien navbar « Tâches » (`LucideListTodo` → `/tasks`) + route `tasks`
+
+### Modifié
+
+- `project.prisma` — relation inverse `tasks Task[]`
+- `status-badge.css` — classes de badge statut (`TODO`/`DONE`/`BLOCKED`) + priorité (`LOW`/`MEDIUM`/`HIGH`/`URGENT`)
+- `app.routes.ts` + `app-routes.const.ts` — route et path `tasks`
+- `navbar.ts` — 4ᵉ item de navigation « Tâches »
+- `i18n.ts` — enregistrement du namespace `task` ; `common` — clé `nav.tasks` (fr + en)
+- `preload/index.ts` + `renderer/.../types/electron/index.d.ts` — exposition de `window.api.task`
+- Barrels `channels`, `interfaces`, `stores` — export du domaine `task`
+
+### Mutualisation (revue qualité)
+
+- **`shared/components/segmented-toggle/`** — toggle segmenté **générique** (`options` + icônes via `ngComponentOutlet`, `value`/`valueChange`). Remplace l'ancien `ViewModeSwitch` figé (`inbox`/`table`) : **migré côté Client** aussi, puis `ViewModeSwitch` supprimé.
+- **`shared/utils/format-date.ts`** (+ alias `@app/utils`) — `formatDate` partagé ; `isTaskOverdue` regroupé dans les utils Task. Supprime le copier-coller `formatDate`/`isOverdue` entre `TaskKanban` et `TaskListView`.
+- **Classe globale `.app-select`** (`styles.css`) — style unique des `<select>` (chevron + focus). Dédup `task-board`, `task-form-modal` et `project-detail` (chevron data-uri retiré de chaque CSS).
+- **`shared/components/icon-button/`** — bouton-icône partagé (`variant` default/danger, `title`, `clicked`, `stopPropagation` intégré). Remplace le `.icon-btn` local des actions edit/supprimer de `TaskListView` ; réutilisable pour les futures actions de ligne.
+
+### Supprimé
+
+- `shared/components/view-mode-switch/` — remplacé par le `SegmentedToggle` générique
+
+### Dépendances
+
+- Ajout de `@angular/cdk` `^21.2.12` (renderer) — `@angular/cdk/drag-drop` pour le Kanban
+
 ## [0.6.0] — 2026-05-22 — Phase 5 : Bundle Project
 
 Entité **Project** (`Projet` dans la spec) end-to-end — **premier bundle avec une
@@ -516,7 +613,8 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.3.0...v0.4.0

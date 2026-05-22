@@ -33,4 +33,5 @@ export default {
   'nav.dashboard':               'Dashboard',
   'nav.clients':                 'Clients',
   'nav.projects':                'Projects',
+  'nav.tasks':                   'Tasks',
 } satisfies Record<string, string>

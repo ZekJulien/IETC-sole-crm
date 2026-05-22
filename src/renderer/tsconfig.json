@@ -11,6 +11,7 @@
       "@app/pipes":          ["src/app/shared/pipes"],
       "@app/enums":          ["src/app/shared/enums"],
       "@app/interfaces":     ["src/app/shared/interfaces"],
+      "@app/utils":          ["src/app/shared/utils"],
       "@app/stores":         ["src/app/stores"],
       "@app/stores/*":       ["src/app/stores/*"],
       "@app/services/*":     ["src/app/services/*"],

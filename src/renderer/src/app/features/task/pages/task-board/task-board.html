@@ -1,0 +1,77 @@
+<section class="tasks-page">
+  <header class="tasks-page__header">
+    <div class="tasks-page__heading">
+      <svg lucideListTodo [size]="22" class="tasks-page__icon" />
+      <div>
+        <h1 class="tasks-page__title">{{ 'task.pageTitle' | t }}</h1>
+        <p class="tasks-page__subtitle">{{ 'task.pageSubtitle' | t }}</p>
+      </div>
+    </div>
+    @if (hasProjects()) {
+      <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+        <svg lucidePlus [size]="15" />
+        {{ 'task.new' | t }}
+      </app-button>
+    }
+  </header>
+
+  @if (!hasProjects()) {
+    <div class="tasks-page__empty">
+      <p>{{ 'task.noProjects' | t }}</p>
+      <a class="tasks-page__cta" [routerLink]="newProjectRoute">{{ 'task.createProject' | t }}</a>
+    </div>
+  } @else {
+    <div class="tasks-page__toolbar">
+      <label class="proj-select">
+        <span class="proj-select__label">{{ 'task.project' | t }}</span>
+        <select class="app-select proj-select__input" (change)="onProjectChange($any($event.target).value)">
+          @for (p of projects.projects(); track p.id) {
+            <option [value]="p.id" [selected]="p.id === selectedProjectId()">{{ p.name }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="tasks-page__counts">
+        @for (s of statuses; track s) {
+          <span class="count-chip count-chip--{{ s }}">
+            <span class="count-chip__dot"></span>
+            {{ statusKey(s) | t }}
+            <strong>{{ store.counts()[s] }}</strong>
+          </span>
+        }
+      </div>
+
+      <app-segmented-toggle [value]="view()" [options]="viewOptions" (valueChange)="onView($event)" />
+    </div>
+
+    <div class="tasks-page__content" [class.tasks-page__content--scroll]="view() === 'list'">
+      @if (view() === 'kanban') {
+        <app-task-kanban
+          [tasks]="store.tasks()"
+          (moved)="onMoved($event)"
+          (editTask)="openEdit($event)" />
+      } @else if (store.tasks().length === 0) {
+        <p class="tasks-page__list-empty">{{ 'task.empty' | t }}</p>
+      } @else {
+        <app-task-list-view
+          [tasks]="store.tasks()"
+          (toggled)="toggle($event)"
+          (editTask)="openEdit($event)"
+          (deleteTask)="requestDeleteRow($event)" />
+      }
+    </div>
+  }
+
+  <app-task-form-modal
+    [open]="modalOpen()"
+    [task]="editing()"
+    [saving]="store.saving()"
+    (submitted)="submit($event)"
+    (cancelled)="modalOpen.set(false)"
+    (deleted)="requestDelete()" />
+
+  <app-confirm-dialog
+    [visible]="confirmId() !== null"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmId.set(null)" />
+</section>

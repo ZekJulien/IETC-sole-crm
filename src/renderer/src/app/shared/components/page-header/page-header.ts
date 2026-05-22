@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core'
 import { LucideLayoutList, LucideTable2 } from '@lucide/angular'
-import { ViewMode } from '../view-mode-switch/view-mode-switch'
+
+type ViewMode = 'inbox' | 'table'
 
 @Component({
   selector: 'app-page-header',

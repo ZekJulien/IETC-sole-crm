@@ -1,0 +1,33 @@
+<div class="kanban" cdkDropListGroup>
+  @for (column of columns(); track column.status) {
+    <section class="kanban-col">
+      <header class="kanban-col__head kanban-col__head--{{ column.status }}">
+        <span class="kanban-col__dot"></span>
+        <span class="kanban-col__label">{{ statusKey(column.status) | t }}</span>
+        <span class="kanban-col__count">{{ column.tasks.length }}</span>
+      </header>
+
+      <div
+        class="kanban-col__body"
+        cdkDropList
+        [cdkDropListData]="column"
+        (cdkDropListDropped)="onDrop($event)">
+        @for (task of column.tasks; track task.id) {
+          <article class="kanban-card" cdkDrag [cdkDragData]="task" (click)="editTask.emit(task)">
+            <app-status-badge [status]="task.priority" [i18nKey]="priorityKey(task.priority)" />
+            <p class="kanban-card__title">{{ task.title }}</p>
+            @if (task.dueDate) {
+              <span class="kanban-card__due" [class.kanban-card__due--overdue]="isOverdue(task)">
+                <svg lucideCalendar [size]="12" />
+                {{ formatDate(task.dueDate) }}
+              </span>
+            }
+          </article>
+        }
+        @if (column.tasks.length === 0) {
+          <p class="kanban-col__empty">{{ 'task.dropHere' | t }}</p>
+        }
+      </div>
+    </section>
+  }
+</div>

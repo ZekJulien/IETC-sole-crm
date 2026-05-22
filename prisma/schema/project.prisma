@@ -13,6 +13,7 @@ model Project {
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
 
   categories  ProjectCategory[]
+  tasks       Task[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -15,12 +15,14 @@ import expenseCategoryEn from '../../i18n/ui/expense-category/expense-category.e
 import expenseCategoryFr from '../../i18n/ui/expense-category/expense-category.fr'
 import projectEn   from '../../i18n/ui/project/project.en'
 import projectFr   from '../../i18n/ui/project/project.fr'
+import taskEn      from '../../i18n/ui/task/task.en'
+import taskFr      from '../../i18n/ui/task/task.fr'
 import settingsEn  from '../../i18n/ui/settings/settings.en'
 import settingsFr  from '../../i18n/ui/settings/settings.fr'
 
 const translations: Record<string, Record<string, string>> = {
-  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...settingsEn },
-  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...settingsFr },
+  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...taskEn, ...settingsEn },
+  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...taskFr, ...settingsFr },
 }
 
 @Injectable({ providedIn: 'root' })

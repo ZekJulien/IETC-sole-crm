@@ -1,0 +1,52 @@
+<app-modal [open]="open()" [title]="titleKey()" [width]="'460px'" (closed)="cancelled.emit()">
+  <form class="task-form" [formGroup]="form" (ngSubmit)="submit()">
+    <app-form-field
+      [label]="('task.title' | t) + ' *'"
+      [control]="titleControl"
+      [placeholder]="'task.titlePlaceholder' | t" />
+
+    <div class="grid">
+      <div class="field">
+        <label class="field__label">{{ 'task.statusLabel' | t }}</label>
+        <select class="app-select" formControlName="status">
+          @for (s of statuses; track s) {
+            <option [ngValue]="s">{{ statusKey(s) | t }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label">{{ 'task.priorityLabel' | t }}</label>
+        <select class="app-select" formControlName="priority">
+          @for (p of priorities; track p) {
+            <option [ngValue]="p">{{ priorityKey(p) | t }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label">{{ 'task.dueDate' | t }}</label>
+      <input class="field__input" type="date" formControlName="dueDate" />
+    </div>
+
+    <app-form-field
+      [label]="'task.description' | t"
+      type="textarea"
+      [control]="descriptionControl"
+      [placeholder]="'task.descriptionPlaceholder' | t" />
+  </form>
+
+  <div modal-actions class="task-actions" [class.task-actions--edit]="isEdit()">
+    @if (isEdit()) {
+      <app-button [variant]="ButtonVariant.DANGER" (clicked)="deleted.emit()">
+        {{ 'common.delete' | t }}
+      </app-button>
+    }
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="submit()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </div>
+</app-modal>

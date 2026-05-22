@@ -1,15 +1,17 @@
 import { Component, input, model, output } from '@angular/core'
-import { LucidePlus } from '@lucide/angular'
+import { LucidePlus, LucideLayoutList, LucideTable2 } from '@lucide/angular'
 import { ClientDto, ClientType } from '@shared/dtos/client'
-import { Avatar, SearchBar, StatusBadge, SplitButton, SplitButtonItem, ViewModeSwitch, ViewMode } from '@app/components'
+import { Avatar, SearchBar, StatusBadge, SplitButton, SplitButtonItem, SegmentedToggle, SegmentedOption } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ClientTableView } from '../client-table-view/client-table-view'
 import { displayClientName } from '../../utils/client-display'
 import { viewSwitchAnim } from './view-switch.animations'
 
+export type ViewMode = 'inbox' | 'table'
+
 @Component({
   selector: 'app-client-list-panel',
-  imports: [LucidePlus, Avatar, SearchBar, StatusBadge, SplitButton, ViewModeSwitch, ClientTableView, TranslatePipe],
+  imports: [LucidePlus, Avatar, SearchBar, StatusBadge, SplitButton, SegmentedToggle, ClientTableView, TranslatePipe],
   templateUrl: './client-list-panel.html',
   styleUrl: './client-list-panel.css',
   animations: [viewSwitchAnim],
@@ -29,6 +31,11 @@ export class ClientListPanel {
   readonly newItems: SplitButtonItem[] = [
     { key: ClientType.COMPANY,    labelKey: 'client.type.company' },
     { key: ClientType.INDIVIDUAL, labelKey: 'client.type.individual' },
+  ]
+
+  readonly viewOptions: SegmentedOption[] = [
+    { value: 'inbox', icon: LucideLayoutList, titleKey: 'common.viewInbox' },
+    { value: 'table', icon: LucideTable2,     titleKey: 'common.viewTable' },
   ]
 
   readonly displayName = displayClientName

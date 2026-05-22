@@ -19,3 +19,12 @@
 .badge--ON_HOLD     { background: color-mix(in srgb, var(--color-warning)     15%, transparent); color: var(--color-warning); }
 .badge--COMPLETED   { background: color-mix(in srgb, var(--color-success)     15%, transparent); color: var(--color-success); }
 .badge--CANCELLED   { background: color-mix(in srgb, var(--color-text-subtle) 15%, transparent); color: var(--color-text-subtle); }
+
+.badge--TODO    { background: color-mix(in srgb, var(--color-info)        15%, transparent); color: var(--color-info); }
+.badge--DONE    { background: color-mix(in srgb, var(--color-success)     15%, transparent); color: var(--color-success); }
+.badge--BLOCKED { background: color-mix(in srgb, var(--color-danger)      15%, transparent); color: var(--color-danger); }
+
+.badge--LOW    { background: color-mix(in srgb, var(--color-text-subtle) 15%, transparent); color: var(--color-text-subtle); }
+.badge--MEDIUM { background: color-mix(in srgb, var(--color-info)        15%, transparent); color: var(--color-info); }
+.badge--HIGH   { background: color-mix(in srgb, var(--color-warning)     15%, transparent); color: var(--color-warning); }
+.badge--URGENT { background: color-mix(in srgb, var(--color-danger)      15%, transparent); color: var(--color-danger); }

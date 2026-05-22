@@ -24,6 +24,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/project/pages/project-detail/project-detail').then(c => c.ProjectDetail)
   },
   {
+    path: AppRoutes.paths.tasks,
+    loadComponent: () => import('./features/task/pages/task-board/task-board').then(c => c.TaskBoard)
+  },
+  {
     path: AppRoutes.paths.settings,
     pathMatch: 'full',
     redirectTo: AppRoutes.paths.settingsCompany,

@@ -1,0 +1,9 @@
+<button
+  type="button"
+  class="icon-button"
+  [class.icon-button--danger]="variant() === 'danger'"
+  [disabled]="disabled()"
+  [title]="title()"
+  (click)="onClick($event)">
+  <ng-content />
+</button>

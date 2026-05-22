@@ -3,10 +3,10 @@ import { LucideUsers } from '@lucide/angular'
 import { ClientDto, CreateClientDto, UpdateClientDto, ClientType, CreateContactDto, UpdateContactDto } from '@shared/dtos/client'
 import { ClientStore } from '@app/stores/client/client-store'
 import { ContactStore } from '@app/stores/client/contact-store'
-import { ConfirmDialog, ViewMode } from '@app/components'
+import { ConfirmDialog } from '@app/components'
 import { ResizableSplitter } from '@app/directives'
 import { TranslatePipe } from '@app/pipes'
-import { ClientCreatePanel, ClientDetailPanel, ClientListPanel } from '../../components'
+import { ClientCreatePanel, ClientDetailPanel, ClientListPanel, ViewMode } from '../../components'
 
 const MAIN_WIDTH_KEY     = 'client-list:main-width'
 const MAIN_WIDTH_MIN     = 200

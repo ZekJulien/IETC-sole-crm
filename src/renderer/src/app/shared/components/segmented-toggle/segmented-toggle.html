@@ -1,0 +1,12 @@
+<div class="segmented">
+  @for (opt of options(); track opt.value) {
+    <button
+      type="button"
+      class="segmented__btn"
+      [class.segmented__btn--active]="value() === opt.value"
+      [title]="opt.titleKey ? (opt.titleKey | t) : ''"
+      (click)="select(opt.value)">
+      <ng-container [ngComponentOutlet]="opt.icon" />
+    </button>
+  }
+</div>

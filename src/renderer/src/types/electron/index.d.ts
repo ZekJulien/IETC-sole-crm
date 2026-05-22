@@ -4,6 +4,7 @@ import { CompanyAPI } from '@shared/interfaces/company'
 import { CategoryAPI } from '@shared/interfaces/category'
 import { ExpenseCategoryAPI } from '@shared/interfaces/expense-category'
 import { ProjectAPI } from '@shared/interfaces/project'
+import { TaskAPI } from '@shared/interfaces/task'
 
 declare global {
   interface Window {
@@ -15,6 +16,7 @@ declare global {
       category: CategoryAPI
       expenseCategory: ExpenseCategoryAPI
       project:  ProjectAPI
+      task:     TaskAPI
     }
   }
 }

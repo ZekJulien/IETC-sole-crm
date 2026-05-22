@@ -30,7 +30,7 @@
 
           <div class="field">
             <label class="field__label">{{ ('project.client' | t) + ' *' }}</label>
-            <select class="field__input field__select" formControlName="clientId">
+            <select class="app-select" formControlName="clientId">
               <option [ngValue]="null" disabled>{{ 'project.selectClient' | t }}</option>
               @for (c of clients.clients(); track c.id) {
                 <option [ngValue]="c.id">{{ displayName(c) }}</option>
@@ -40,7 +40,7 @@
 
           <div class="field">
             <label class="field__label">{{ 'project.statusLabel' | t }}</label>
-            <select class="field__input field__select" formControlName="status">
+            <select class="app-select" formControlName="status">
               @for (s of statuses; track s) {
                 <option [ngValue]="s">{{ statusKey(s) | t }}</option>
               }

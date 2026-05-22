@@ -2,7 +2,7 @@
   <div class="client-list-panel__search">
     <app-search-bar [(value)]="searchTerm" [placeholder]="'client.searchPlaceholder' | t" (search)="search.emit($event)" />
   </div>
-  <app-view-mode-switch [mode]="viewMode()" (modeChange)="viewMode.set($event)" />
+  <app-segmented-toggle [value]="viewMode()" [options]="viewOptions" (valueChange)="viewMode.set($any($event))" />
   @if (viewMode() === 'table') {
     <app-split-button [items]="newItems" position="below" (selected)="onSplitSelected($event)">
       <svg lucidePlus [size]="14" /> {{ 'client.new' | t }}
