@@ -3,6 +3,7 @@ import { ClientAPI, ContactAPI } from '@shared/interfaces/client'
 import { CompanyAPI } from '@shared/interfaces/company'
 import { CategoryAPI } from '@shared/interfaces/category'
 import { ExpenseCategoryAPI } from '@shared/interfaces/expense-category'
+import { ProjectAPI } from '@shared/interfaces/project'
 
 declare global {
   interface Window {
@@ -13,6 +14,7 @@ declare global {
       company:  CompanyAPI
       category: CategoryAPI
       expenseCategory: ExpenseCategoryAPI
+      project:  ProjectAPI
     }
   }
 }

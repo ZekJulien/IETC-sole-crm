@@ -5,6 +5,7 @@ import { contactApi } from './apis/contact.api'
 import { companyApi } from './apis/company.api'
 import { categoryApi } from './apis/category.api'
 import { expenseCategoryApi } from './apis/expense-category.api'
+import { projectApi } from './apis/project.api'
 
 contextBridge.exposeInMainWorld('logService', logApi)
 contextBridge.exposeInMainWorld('api', {
@@ -13,4 +14,5 @@ contextBridge.exposeInMainWorld('api', {
   company:  companyApi,
   category: categoryApi,
   expenseCategory: expenseCategoryApi,
+  project:  projectApi,
 })

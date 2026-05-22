@@ -4,7 +4,7 @@ import { LucideCheck } from '@lucide/angular'
 import { TranslatePipe } from '../../pipes/translate-pipe'
 import { StatusBadge } from '../status-badge/status-badge'
 import { DataTableHeader, ResizeStartEvent } from './data-table-header/data-table-header'
-import { TableColumn, SortState } from '../../interfaces/data-table'
+import { TableColumn, SortState, TableTag } from '../../interfaces/data-table'
 
 const MIN_COL_WIDTH = 60
 
@@ -85,6 +85,11 @@ export class DataTable<T extends object> {
     const val = (row as Record<string, unknown>)[key]
     if (val instanceof Date || typeof val === 'string' || typeof val === 'number') return val
     return null
+  }
+
+  getTags(row: T, key: string): TableTag[] {
+    const val = (row as Record<string, unknown>)[key]
+    return Array.isArray(val) ? val as TableTag[] : []
   }
 
   getColumnWidth(col: TableColumn<T>, isLast: boolean): string {

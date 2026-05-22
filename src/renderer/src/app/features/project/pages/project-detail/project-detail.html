@@ -1,0 +1,143 @@
+<section class="project-detail">
+  <header class="project-detail__header">
+    <button type="button" class="back-btn" (click)="cancel()" [attr.aria-label]="'common.back' | t">
+      <svg lucideArrowLeft [size]="18" />
+    </button>
+    <h1 class="project-detail__title">{{ titleKey() | t }}</h1>
+    <div class="project-detail__actions">
+      @if (isEdit()) {
+        <app-button [variant]="ButtonVariant.DANGER" (clicked)="confirmOpen.set(true)">
+          {{ 'common.delete' | t }}
+        </app-button>
+      }
+      <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancel()">{{ 'common.cancel' | t }}</app-button>
+      <app-button [variant]="ButtonVariant.PRIMARY" [loading]="store.saving()" (clicked)="submit()">
+        {{ 'common.save' | t }}
+      </app-button>
+    </div>
+  </header>
+
+  <div class="project-detail__scroll">
+    <form class="project-form" [formGroup]="form" (ngSubmit)="submit()">
+
+      <section class="card">
+        <h2 class="card__title">{{ 'project.section.info' | t }}</h2>
+        <div class="grid">
+          <app-form-field class="span-2"
+            [label]="('project.name' | t) + ' *'"
+            [control]="nameControl"
+            [placeholder]="'project.namePlaceholder' | t" />
+
+          <div class="field">
+            <label class="field__label">{{ ('project.client' | t) + ' *' }}</label>
+            <select class="field__input field__select" formControlName="clientId">
+              <option [ngValue]="null" disabled>{{ 'project.selectClient' | t }}</option>
+              @for (c of clients.clients(); track c.id) {
+                <option [ngValue]="c.id">{{ displayName(c) }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field__label">{{ 'project.statusLabel' | t }}</label>
+            <select class="field__input field__select" formControlName="status">
+              @for (s of statuses; track s) {
+                <option [ngValue]="s">{{ statusKey(s) | t }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">{{ 'project.section.planning' | t }}</h2>
+        <div class="grid">
+          <div class="field">
+            <label class="field__label">{{ 'project.startDate' | t }}</label>
+            <input class="field__input" type="date" formControlName="startDate" />
+          </div>
+          <div class="field">
+            <label class="field__label">{{ 'project.endDate' | t }}</label>
+            <input class="field__input" type="date" formControlName="endDate" />
+          </div>
+
+          <div class="field">
+            <label class="field__label">{{ 'project.hourlyRate' | t }}</label>
+            <div class="input-affix">
+              <input class="field__input" type="number" min="0" step="0.01" formControlName="hourlyRate" placeholder="0" />
+              <span class="input-affix__unit">€</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label">{{ 'project.dailyRate' | t }}</label>
+            <div class="input-affix">
+              <input class="field__input" type="number" min="0" step="0.01" formControlName="dailyRate" placeholder="0" />
+              <span class="input-affix__unit">€</span>
+            </div>
+          </div>
+          <div class="field span-2">
+            <label class="field__label">{{ 'project.budget' | t }}</label>
+            <div class="input-affix">
+              <input class="field__input" type="number" min="0" step="0.01" formControlName="budget" placeholder="0" />
+              <span class="input-affix__unit">€</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2 class="card__title">{{ 'project.categories' | t }}</h2>
+          @if (selectedCount() > 0) {
+            <span class="card__count">{{ selectedCount() }}</span>
+          }
+        </div>
+        <p class="card__hint">{{ 'project.categoriesHint' | t }}</p>
+        <div class="cat-picker">
+          @for (cat of categories.categories(); track cat.id) {
+            <button
+              type="button"
+              class="cat-chip"
+              [class.cat-chip--on]="isCategorySelected(cat.id)"
+              [style.background-color]="isCategorySelected(cat.id) ? chipBg(cat.color) : null"
+              [style.border-color]="isCategorySelected(cat.id) ? cat.color : null"
+              [style.color]="isCategorySelected(cat.id) ? cat.color : null"
+              (click)="toggleCategory(cat.id)">
+              @if (isCategorySelected(cat.id)) {
+                <svg lucideCheck [size]="14" />
+              } @else {
+                <span class="cat-chip__dot" [style.background-color]="cat.color"></span>
+              }
+              {{ cat.name }}
+            </button>
+          }
+          <button type="button" class="cat-chip cat-chip--add" (click)="catModalOpen.set(true)">
+            <svg lucidePlus [size]="14" />
+            {{ 'project.addCategory' | t }}
+          </button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">{{ 'project.description' | t }}</h2>
+        <app-form-field
+          [label]="''"
+          type="textarea"
+          [control]="descriptionControl"
+          [placeholder]="'project.descriptionPlaceholder' | t" />
+      </section>
+    </form>
+  </div>
+
+  <app-confirm-dialog
+    [visible]="confirmOpen()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmOpen.set(false)" />
+
+  <app-category-form-modal
+    [open]="catModalOpen()"
+    [category]="null"
+    [saving]="categories.saving()"
+    (submitted)="createCategory($event)"
+    (cancelled)="catModalOpen.set(false)" />
+</section>

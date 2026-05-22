@@ -32,4 +32,5 @@ export default {
   'form.contact':  'Contact info',
   'nav.dashboard':               'Dashboard',
   'nav.clients':                 'Clients',
+  'nav.projects':                'Projects',
 } satisfies Record<string, string>

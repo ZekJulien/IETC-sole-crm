@@ -13,3 +13,9 @@
 .badge--COMPANY    { background: color-mix(in srgb, var(--color-info)    15%, transparent); color: var(--color-info); }
 .badge--INDIVIDUAL { background: color-mix(in srgb, var(--color-accent)  15%, transparent); color: var(--color-accent); }
 .badge--archived   { background: color-mix(in srgb, var(--color-text-subtle) 15%, transparent); color: var(--color-text-subtle); }
+
+.badge--PROSPECT    { background: color-mix(in srgb, var(--color-info)        15%, transparent); color: var(--color-info); }
+.badge--IN_PROGRESS { background: color-mix(in srgb, var(--color-accent)      15%, transparent); color: var(--color-accent); }
+.badge--ON_HOLD     { background: color-mix(in srgb, var(--color-warning)     15%, transparent); color: var(--color-warning); }
+.badge--COMPLETED   { background: color-mix(in srgb, var(--color-success)     15%, transparent); color: var(--color-success); }
+.badge--CANCELLED   { background: color-mix(in srgb, var(--color-text-subtle) 15%, transparent); color: var(--color-text-subtle); }

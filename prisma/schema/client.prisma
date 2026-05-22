@@ -18,4 +18,5 @@ model Client {
   updatedAt     DateTime @updatedAt
 
   contacts      Contact[]
+  projects      Project[]
 }

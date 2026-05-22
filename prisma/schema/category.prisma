@@ -3,6 +3,8 @@ model Category {
   name      String   @unique
   color     String
 
+  projects  ProjectCategory[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

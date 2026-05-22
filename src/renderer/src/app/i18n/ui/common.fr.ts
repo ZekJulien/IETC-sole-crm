@@ -32,4 +32,5 @@ export default {
   'form.contact':  'Coordonnées',
   'nav.dashboard':               'Tableau de bord',
   'nav.clients':                 'Clients',
+  'nav.projects':                'Projets',
 } satisfies Record<string, string>

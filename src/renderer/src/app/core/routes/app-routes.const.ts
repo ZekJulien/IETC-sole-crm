@@ -1,6 +1,9 @@
 const PATHS = {
   home:                      '',
   clients:                   'clients',
+  projects:                  'projects',
+  projectNew:                'projects/new',
+  projectDetail:             'projects/:id',
   settings:                  'settings',
   settingsCompany:           'settings/company',
   settingsCategories:        'settings/categories',
@@ -12,6 +15,7 @@ export const AppRoutes = {
   nav: {
     home:                      `/${PATHS.home}`,
     clients:                   `/${PATHS.clients}`,
+    projects:                  `/${PATHS.projects}`,
     settings:                  `/${PATHS.settings}`,
     settingsCompany:           `/${PATHS.settingsCompany}`,
     settingsCategories:        `/${PATHS.settingsCategories}`,

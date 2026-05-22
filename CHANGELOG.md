@@ -9,6 +9,94 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-05-22 — Phase 5 : Bundle Project
+
+Entité **Project** (`Projet` dans la spec) end-to-end — **premier bundle avec une
+relation N:M explicite** (`ProjectCategory`) et un aggregate root portant une FK
+sortante (`Client`, `onDelete: Restrict`). Page liste filtrable `/projects` +
+page détail dédiée `/projects/:id` (et `/projects/new`), avec sélection client
+(single-select), catégories (multi-select de chips colorés), statut, dates,
+taux horaire/journalier et budget.
+
+### Décisions d'architecture
+
+- **Jonction N:M explicite `ProjectCategory`** (`@@id([projectId, categoryId])`,
+  `onDelete: Cascade` des deux côtés) — modélisée avec `Project` dans
+  `project.prisma`, **sans bundle propre** : manipulée via `ProjectService`
+  (`linkCategory` / `unlinkCategory` au niveau repo, `syncCategories` au niveau
+  service). L'UI envoie un simple `categoryIds: number[]` ; le service **diffe**
+  l'existant (add/remove) à la frontière, le tout enveloppé dans la **transaction
+  ambient** (`ipcHandle` → `DbContext`) → liaison atomique create/update + liens.
+- **`status` en TEXT+CHECK** (valeurs anglaises `PROSPECT` / `IN_PROGRESS` /
+  `ON_HOLD` / `COMPLETED` / `CANCELLED`) plutôt qu'un enum Prisma — miroir exact
+  du `type` de Client (cohérence multi-DB SQLite/PG, CHECK ajouté à la main dans
+  la migration). Les valeurs typées vivent dans `ProjectStatus` (TS).
+- **FK `Client` en `onDelete: Restrict`** : démontre la contrainte Restrict du
+  cours (supprimer un client qui a des projets échoue au niveau DB → `P2003` déjà
+  traduit en `FK_VIOLATION`). Complète le `Cascade` (Contact, ProjectCategory).
+- **Dates coercées à la frontière IPC** (`z.coerce.date()`, `.nullable()` sur
+  update pour pouvoir effacer une date) : le renderer envoie des objets `Date`
+  (préservés par le structured clone d'Electron), Prisma les stocke directement.
+- **Canal IPC `GET_BY_ID`** ajouté (en plus de GET/ADD/UPDATE/REMOVE) : la page
+  détail est **deep-linkable** (`/projects/:id`) et recharge le projet + ses
+  relations (`include: { client, categories: { include: { category } } }`).
+- **Filtrage serveur via Prisma `where`** sur la page liste (statut = `where.status`,
+  client = `where.clientId`, catégorie = `where.categories.some.categoryId`)
+  combiné à la recherche `searchFields: ['name']` — exerce le **filtrage sur
+  relation** (N:M) en plus du JOIN `include`.
+- **Page détail dédiée** (`/projects/:id` + `/projects/new`) plutôt que l'inbox
+  inline de Client : conforme à la spec (Phase 5) et adapté à un formulaire riche
+  (client, multi-catégories, dates, taux, budget).
+- **`DataTable` étendu avec un type de colonne `'tags'`** (additif, non-breaking —
+  même approche que `'color'` en Phase 3 et `'boolean'` en Phase 4) : rend une
+  liste de chips colorés (`TableTag { label, color? }`), réutilisé ici pour les
+  catégories N:M.
+- **Front en 3 couches** (cohérent Client/Company/Category) : `ProjectService`
+  (IPC + signals) → `ProjectStore` (orchestration + toast/erreur) → pages
+  liste/détail. La logique de form vit dans le composant détail.
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/project.prisma` — modèles `Project` (FK `Client` Restrict, `status` TEXT, dates/taux/budget optionnels) + `ProjectCategory` (jonction N:M `@@id` composite, Cascade)
+- Relations inverses `projects` sur `Client` (`Project[]`) et `Category` (`ProjectCategory[]`)
+- `prisma/migrations/20260522120852_add_project/` — tables `Project` + `ProjectCategory` + CHECK `status IN (...)` ajouté manuellement
+
+**Bundle Project (main)**
+- `ProjectRepository` (extends `BaseRepository`, include client+catégories, `searchFields: ['name']`, `findByIdWithRelation`, `findCategoryIds`, `linkCategory`, `unlinkCategory`)
+- `ProjectService` — `get` / `getById` / `add` / `update` (sync catégories) / `remove`, mapping Prisma→DTO (flatten jonction → `CategoryDto[]`, client → `ClientDto`)
+- `ProjectHandler` — `GET` / `GET_BY_ID` / `ADD` / `UPDATE` / `REMOVE` (validés Zod)
+- DI factories Project (repo + service) + wire dans `AppDependencies`
+- Preload `project.api.ts` exposé via `window.api.project`
+
+**Shared layer**
+- DTOs Project dans `src/shared/dtos/project/` (read DTO en interface + `ProjectStatus` enum + create/update en schémas Zod avec `categoryIds` + dates coercées)
+- `PROJECT_CHANNELS`, interface `ProjectAPI`
+
+**Frontend Angular**
+- `services/project/project.ts` — `ProjectService` (wrapper `window.api.project` + signals)
+- `stores/project/project-store.ts` — `ProjectStore` (load/getById/add/update/remove + toast/erreur)
+- `features/project/pages/project-list/` — page `/projects` (recherche + filtres statut/client/catégorie + `DataTable`)
+- `features/project/pages/project-detail/` — page `/projects/:id` & `/projects/new` (form client/statut/dates/taux/budget + multi-select catégories en chips)
+- `features/project/utils/project-status.ts` — `PROJECT_STATUSES` + `projectStatusKey`
+- i18n `i18n/ui/project/project.{fr,en}.ts`
+- Type de colonne `'tags'` sur le `DataTable` partagé (+ `TableTag`)
+- Lien navbar « Projets » (`LucideFolderKanban` → `/projects`)
+
+### Modifié
+
+- `data-table` — union `TableColumnType` + branche `'tags'` + helper `getTags()` + styles `.cell-tags`
+- `status-badge` — classes de couleur des statuts projet (`badge--PROSPECT` … `badge--CANCELLED`)
+- **`FormField`** — affordance des inputs revue (bordure `--color-border-soft` désormais *visible*, hover, halo de focus accent) : la bordure était jusque-là `--color-border` = `--color-bg-elevated`, donc invisible → les champs « ressemblaient à des champs non éditables ». Bénéficie à **tous** les formulaires (Client/Company/Category/Project).
+- `styles.css` — `color-scheme: dark` sur `body` (le `<input type="date">` natif et les contrôles OS s'affichent en thème sombre)
+- Page détail Projet redesignée : sections-cartes centrées (`Informations` / `Planning & budget` / `Catégories` / `Description`, langage `.view-section`, reveal échelonné), inputs/selects/dates harmonisés (chevron custom, suffixe `€`), **sélecteur de catégories explicite** (chips à pastille/coche + compteur + hint « cliquez pour sélectionner »)
+- **Création de catégorie à la volée** depuis la section Catégories de la page Projet (chip « + Nouvelle catégorie » → réutilise `CategoryFormModal` ; la catégorie créée est auto-sélectionnée) — évite l'aller-retour vers les Paramètres
+- `app.routes.ts` + `app-routes.const.ts` — routes/paths `projects`, `projectNew`, `projectDetail`
+- `navbar.ts` — 3ᵉ item de navigation « Projets »
+- `i18n.ts` — enregistrement du namespace `project`
+- i18n `common` — clé `nav.projects` (fr + en)
+- Barrels `channels`, `interfaces`, `stores` — export du domaine `project`
+
 ## [0.5.0] — 2026-05-21 — Phase 4 : Bundle ExpenseCategory
 
 Entité **ExpenseCategory** (catégories de note de frais, `CategorieDepense` dans
@@ -428,7 +516,8 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.2.1...v0.3.0

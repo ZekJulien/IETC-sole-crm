@@ -44,6 +44,16 @@
                   } @else {
                     <span class="cell-bool cell-bool--no">—</span>
                   }
+                } @else if (col.type === 'tags') {
+                  <span class="cell-tags">
+                    @for (tag of getTags(row, col.key); track tag.label) {
+                      <span class="cell-tags__chip"
+                        [style.background-color]="'color-mix(in srgb, ' + (tag.color ?? 'var(--color-accent)') + ' 18%, transparent)'"
+                        [style.color]="tag.color ?? 'var(--color-accent)'">{{ tag.label }}</span>
+                    } @empty {
+                      <span class="cell-bool cell-bool--no">—</span>
+                    }
+                  </span>
                 } @else {
                   {{ getValue(row, col.key) }}
                 }
