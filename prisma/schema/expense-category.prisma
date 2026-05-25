@@ -4,6 +4,8 @@ model ExpenseCategory {
   deductible Boolean  @default(true)
   color      String
 
+  expenses   Expense[]
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

@@ -32,6 +32,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/time-entry/pages/time-journal/time-journal').then(c => c.TimeJournal)
   },
   {
+    path: AppRoutes.paths.expenses,
+    loadComponent: () => import('./features/expense/pages/expense-list/expense-list').then(c => c.ExpenseList)
+  },
+  {
     path: AppRoutes.paths.settings,
     pathMatch: 'full',
     redirectTo: AppRoutes.paths.settingsCompany,

@@ -9,6 +9,141 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-05-25 — Phase 8 : Bundle Expense
+
+Entité **Expense** (`Depense` dans la spec) end-to-end, avec une **page dédiée
+`/expenses`** (lien navbar « Dépenses ») en **liste globale filtrable** : toutes les
+dépenses, filtrables par **catégorie** (« Toutes » + par catégorie) et par **plage
+de dates**, avec un en-tête d'agrégat phare — le **total déductible de l'année
+courante**. Saisie via une modale (libellé → montant → date → catégorie → projet
+optionnel → **justificatifs multiples** (dialogue natif + ouverture) → notes).
+**Deuxième agrégat visible** — exigence du PDF (le 1ᵉʳ étant la durée du mois en Phase 7).
+
+### Décisions d'architecture
+
+- **FK `ExpenseCategory` en `onDelete: Restrict` + FK `Project?` en `onDelete:
+  SetNull`** : un même modèle exerce les **deux** contraintes restantes. Restrict
+  (2ᵉ occurrence, après Client) empêche de supprimer une catégorie de dépense
+  utilisée (`P2003` → `FK_VIOLATION`) ; SetNull (2ᵉ occurrence, après Task→TimeEntry)
+  conserve les dépenses d'un projet supprimé (`projectId → NULL`). Vérifié sur une
+  copie de `dev.db` (`node:sqlite`) : Restrict bloque, SetNull nullifie + conserve,
+  `date` par défaut, et l'agrégat déductible (scénario spec : 5 dépenses, 3+1
+  déductibles). **Pas de `TEXT + CHECK`** ici (aucun champ à valeurs contraintes) →
+  migration `add_expense` sans édition SQL manuelle (les `onDelete` suffisent).
+- **Deux agrégats de dépense réels** (notion SGBD « Agrégat ») : `sumDeductible(year)`
+  via `aggregate({ _sum: { amount }, where: { date: [année], expenseCategory: {
+  deductible: true } } })` — **filtre sur la relation** (le flag `deductible` vit sur
+  la catégorie) combiné à un agrégat ; et `sumByCategory()` via `groupBy({ by:
+  ['expenseCategoryId'], _sum: { amount } })`. Le store **rafraîchit les deux après
+  chaque mutation** (comme TimeEntry).
+- **Justificatif = dialogue de fichier Electron natif → `ipcHandleNoTx`** : le
+  wrapping transactionnel est **global** (`ipcHandle` enveloppe chaque appel dans une
+  transaction interactive Prisma, timeout 5 s). Or `dialog.showOpenDialog` peut rester
+  ouvert plus longtemps → la transaction expirerait. Plutôt qu'un `ipcMain.handle`
+  brut hors-pattern, on **factorise** l'infra IPC et on expose `ipcHandleNoTx` :
+  **même enveloppe `{ data, error }` + même `toIpcError`** (Zod inclus), mais **sans
+  transaction**. `PICK_RECEIPT` (aucune écriture DB) l'utilise ; le **dialogue** vit
+  dans le **handler** (concern Electron UI). Réutilisable pour les futures opérations
+  main sans DB (export PDF Phase 9/10, notifications natives Phase 11).
+- **Justificatifs multiples = relation 1:N + copie gérée + ouverture native** : une
+  dépense porte **plusieurs** justificatifs via **`ExpenseReceipt`** (`Expense 1:N
+  ExpenseReceipt`, `onDelete: Cascade` — **3ᵉ Cascade** après ProjectCategory et Task,
+  vérifiée `node:sqlite`). Sous-entité sans bundle propre (manipulée par
+  `ExpenseService`, comme Contact/ProjetCategorie). À l'enregistrement, chaque fichier
+  choisi est **copié** dans un dossier de l'app (`userData/storage/<scope>/<année>/
+  <uuid>_<nom_original>.<ext>`, scope `expenses`) ; chemin + nom d'origine stockés en DB
+  → le justificatif survit même si l'original est déplacé/supprimé. Module
+  **`core/file-storage`** **générique et scopé** (`storeFile(path, scope, date)` /
+  `deleteManagedFile` / `isManagedFile`, `fs/promises` async) — réutilisable hors Expense
+  (PDF Devis/Facture…). La modale gère une **liste** : ajouter (dialogue natif) /
+  **ouvrir** (`shell.openPath` → canal `OPEN_RECEIPT`) / retirer. À la sauvegarde, le
+  **diff** se fait par `keepReceiptIds` (lignes gardées) + `newReceiptPaths` (nouvelles) —
+  même esprit que `syncCategories` de Project ; le service élague/ajoute les **lignes**,
+  le handler copie/supprime les **fichiers** (cf. décision suivante sur l'I/O hors tx).
+- **Aucune I/O fichier dans la transaction DB**, orchestrée **à la frontière** (sinon
+  corruption silencieuse) : avec l'adapter **`better-sqlite3` synchrone**, une
+  transaction interactive Prisma **ne survit pas** à un `await` non-DB au milieu (la
+  copie de fichier) → dépense enregistrée mais ses justificatifs **perdus, sans erreur**
+  (l'INSERT après l'`await` était silencieusement abandonné). Correctif **respectant les
+  couches** (principe « les services ignorent la transactionnalité ») : le pattern
+  **copie AVANT → transaction DB pure → cleanup APRÈS / compensation** est extrait dans
+  un helper réutilisable **`core/persist-with-files`** (`persistWithFiles({ scope,
+  incoming, obsolete, run })` : copie les fichiers entrants hors tx → `getDbContext().
+  transaction(run)` → supprime les fichiers obsolètes après commit, ou les copies
+  fraîches si la tx échoue). Le **handler reste mince** (`ipcHandleNoTx`, câble juste les
+  spécificités Expense) ; le **service reste pur** (repos + DTO, zéro `DbContext`, zéro
+  fichier) ; le helper resservira à Devis/Facture (PDF) **sans duplication**. C'est la
+  reco standard (effets de bord/I/O hors transaction ; orchestration tx + side-effects
+  dans une couche applicative, domaine pur). Résultat : DB atomique + erreurs qui
+  remontent, plus d'état partiel silencieux. (Le timeout de 5 s n'était PAS en cause : la
+  sélection a lieu hors tx, la copie est sub-seconde.)
+- **`DataTable` étendue avec un type de colonne `'currency'`** (additif, non-breaking —
+  même approche que `'color'` en P3, `'boolean'` en P4, `'tags'` en P5) : rend un
+  nombre formaté en € (`Intl.NumberFormat`), aligné à droite, chiffres tabulaires.
+  Le **tri devient numérique** quand les deux valeurs sont des nombres (corrige aussi
+  le tri du budget projet). Réutilisable pour Devis/Facture (Phases 9-10, riches en
+  montants). Helper `formatCurrency` partagé via `@app/utils`.
+- **DTO read aplati + JOIN `include`** : `findAll(filter)` joint `expenseCategory` +
+  `project` + `receipts` ; le service aplatit `expenseCategoryName` /
+  `expenseCategoryColor` / `deductible` (depuis la catégorie) et `projectName` (nullable)
+  dans `ExpenseDto`, et expose `receipts: ExpenseReceiptDto[]`, si bien que la table
+  affiche catégorie colorée + flag déductible + projet sans charger les DTO complets.
+  `create`/`update` relisent via `findByIdWithRelations`.
+- **Liste globale plutôt que page scopée projet** (cohérent avec `/time`) : une seule
+  page liste toutes les dépenses avec filtre catégorie + plage de dates, ce qui rend
+  l'agrégat déductible annuel lisible. Page smart `ExpenseList` → `DataTable` partagé +
+  `ExpenseFormModal` (compose `app-modal`). La logique de form vit dans la modale.
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/expense.prisma` — modèle `Expense` (FK `ExpenseCategory` Restrict, FK `Project?` SetNull, `amount` Float, `date` `@default(now())`, `notes` optionnel, relation `receipts ExpenseReceipt[]`)
+- `prisma/schema/expense-receipt.prisma` — sous-entité `ExpenseReceipt` (`name`, `path`, FK `Expense` **Cascade**)
+- Relations inverses `expenses` sur `ExpenseCategory` (`Expense[]`) et `Project` (`Expense[]`)
+- `prisma/migrations/20260525000000_add_expense/` — table `Expense` (FK Restrict + SetNull, aucun CHECK)
+- `prisma/migrations/20260525201938_add_expense_receipt/` — table `ExpenseReceipt` (FK Cascade) + retrait de la colonne `receiptPath` sur `Expense`
+
+**Bundle Expense (main)**
+- `ExpenseRepository` (extends `BaseRepository`, `searchFields: ['label']`, `findAll` filtré catégorie+dates, `findByIdWithRelations`, agrégats `sumByCategory` via `groupBy` / `sumDeductible` via `aggregate _sum` filtré sur la relation)
+- `ExpenseService` — **pur (tx-ignorant)** : `getAll` / `sumByCategory` / `sumDeductible` / `getReceipts` / `add(scalar, receipts)` / `update(scalar, keepIds, newReceipts)` / `remove` (lignes `ExpenseReceipt` ajoutées/élaguées), mapping Prisma→DTO (aplatit `expenseCategoryName`/`expenseCategoryColor`/`deductible` + `projectName`, expose `receipts`)
+- `ExpenseRepository` — + méthodes sous-entité `findReceipts` / `addReceipt` / `removeReceipt`
+- `ExpenseHandler` — `GET_ALL` / `SUM_BY_CATEGORY` / `SUM_DEDUCTIBLE` (via `ipcHandle`) ; `ADD` / `UPDATE` / `REMOVE` **minces** via `ipcHandleNoTx` déléguant à `persistWithFiles` (copie hors tx + tx DB + cleanup) ; `PICK_RECEIPT` (dialogue natif) et `OPEN_RECEIPT` (`shell.openPath`)
+- DI factories Expense (repo + service) + wire dans `AppDependencies`
+- Preload `expense.api.ts` exposé via `window.api.expense`
+
+**Infra main (core)**
+- `ipcHandleNoTx` (`src/main/core/ipc.handle.ts`) — variante non-transactionnelle du wrapper IPC (même enveloppe + `toIpcError` + Zod, sans `DbContext.transaction()`) ; logique commune factorisée dans un `register(channel, schema, fn, transactional)` privé
+- `src/main/core/file-storage.ts` — stockage de fichiers **global et scopé** (`storeFile(path, scope, date)` / `deleteManagedFile` / `isManagedFile`) : copie sous `userData/storage/<scope>/<année>/<uuid>_<nom>`, `fs/promises` async + `randomUUID` ; réutilisable hors Expense
+- `src/main/core/persist-with-files.ts` — `persistWithFiles({ scope, incoming, obsolete, run })` : orchestration réutilisable **copie fichiers (hors tx) → `DbContext.transaction(run)` → cleanup obsolètes (post-commit) / compensation (échec)** ; garde l'I/O fichier hors de la transaction DB, handlers minces, services purs
+
+**Shared layer**
+- DTOs Expense dans `src/shared/dtos/expense/` (read DTO + `ExpenseReceiptDto` ; create avec `receiptPaths`, update avec `keepReceiptIds`/`newReceiptPaths` ; `ExpenseFilter` + `SumDeductibleDto` + `CategoryAmountCount`, dates coercées)
+- `EXPENSE_CHANNELS`, interface `ExpenseAPI`
+
+**Frontend Angular**
+- `services/expense/expense.ts` — `ExpenseService` (wrapper `window.api.expense`, dont `pickReceipt` / `openReceipt`)
+- `stores/expense/expense-store.ts` — `ExpenseStore` (dépenses + agrégats catégorie/déductible année + add/update/remove + pickReceipt/openReceipt, recharge liste + agrégats après mutation)
+- `features/expense/pages/expense-list/` — page `/expenses` (filtre catégorie + plage de dates + en-tête total déductible + `DataTable` bordé + modale), lazy-loadée
+- `features/expense/components/expense-form-modal/` — modale (libellé, montant €, date, catégorie, projet optionnel, **liste de justificatifs** : ajouter / ouvrir / retirer, notes) + **création de catégorie à la volée** (« + Nouvelle catégorie » → réutilise `ExpenseCategoryFormModal` en modale imbriquée, auto-sélection de la catégorie créée — comme la page Projet en P5)
+- `shared/utils/format-currency.ts` (+ alias `@app/utils`) — `formatCurrency` (€ via `Intl.NumberFormat`)
+- i18n `i18n/ui/expense/expense.{fr,en}.ts`
+- Type de colonne `'currency'` sur le `DataTable` partagé (+ tri numérique)
+- Lien navbar « Dépenses » (`LucideReceiptText` → `/expenses`) + route `expenses`
+
+### Modifié
+
+- `expense.prisma` — retrait de `receiptPath` (remplacé par la relation 1:N `receipts ExpenseReceipt[]`)
+- `expense-category.prisma` — relation inverse `expenses Expense[]`
+- `project.prisma` — relation inverse `expenses Expense[]`
+- `core/ipc.handle.ts` — factorisation `register(...)` + ajout de `ipcHandleNoTx` (`ipcHandle` inchangé : transactionnel par défaut)
+- `shared/components/modal/` — **gestion des modales empilées** : Échap ne ferme désormais que la modale **du dessus** (pile de modales partagée), au lieu de toutes les modales ouvertes. Permet d'imbriquer la modale catégorie dans la modale dépense sans fermer le formulaire parent ; réutilisable pour les éditeurs de lignes Devis/Facture (P9-10)
+- `data-table` — union `TableColumnType` + branche `'currency'` + `formatCurrency` + tri numérique quand les deux valeurs sont des nombres + style `.cell-currency`
+- `app.routes.ts` + `app-routes.const.ts` — route et path `expenses`
+- `navbar.ts` — 6ᵉ item de navigation « Dépenses »
+- `i18n.ts` — enregistrement du namespace `expense` ; `common` — clé `nav.expenses` (fr + en)
+- `preload/index.ts` + `renderer/.../types/electron/index.d.ts` — exposition de `window.api.expense`
+- Barrels `channels`, `interfaces`, `stores` — export du domaine `expense`
+
 ## [0.8.0] — 2026-05-25 — Phase 7 : Bundle TimeEntry
 
 Entité **TimeEntry** (`TempsPasse` dans la spec) end-to-end, avec une **page dédiée
@@ -698,7 +833,8 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.5.0...v0.6.0

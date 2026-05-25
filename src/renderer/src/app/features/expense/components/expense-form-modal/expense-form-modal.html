@@ -1,0 +1,99 @@
+<app-modal [open]="open()" [title]="titleKey()" [width]="'520px'" (closed)="onClose()">
+  <form class="expense-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label class="field__label">{{ 'expense.labelField' | t }} *</label>
+      <input class="field__input" type="text" formControlName="label" [placeholder]="'expense.labelPlaceholder' | t" />
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label class="field__label">{{ 'expense.amount' | t }} *</label>
+        <div class="amount">
+          <input class="field__input amount__num" type="number" min="0" step="0.01" formControlName="amount" />
+          <span class="amount__unit">€</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label">{{ 'expense.dateLabel' | t }}</label>
+        <input class="field__input" type="date" formControlName="date" />
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <div class="field__head">
+          <label class="field__label">{{ 'expense.categoryLabel' | t }} *</label>
+          <button type="button" class="link-add" (click)="catModalOpen.set(true)">
+            <svg lucidePlus [size]="12" />
+            {{ 'expense.newCategory' | t }}
+          </button>
+        </div>
+        <select class="app-select" formControlName="expenseCategoryId">
+          @for (c of categories(); track c.id) {
+            <option [ngValue]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label">{{ 'expense.projectLabel' | t }}</label>
+        <select class="app-select" formControlName="projectId">
+          <option [ngValue]="null">{{ 'expense.noProject' | t }}</option>
+          @for (p of projects(); track p.id) {
+            <option [ngValue]="p.id">{{ p.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label">{{ 'expense.receiptLabel' | t }}</label>
+      @if (receipts().length) {
+        <ul class="receipts">
+          @for (r of receipts(); track $index) {
+            <li class="receipt">
+              <svg lucideFileText [size]="15" class="receipt__icon" />
+              <span class="receipt__name" [title]="r.path">{{ r.name }}</span>
+              <button type="button" class="receipt__btn" (click)="openReceipt(r)" [title]="'expense.openReceipt' | t">
+                <svg lucideExternalLink [size]="14" />
+              </button>
+              <button type="button" class="receipt__btn receipt__btn--danger" (click)="removeReceipt($index)" [title]="'common.delete' | t">
+                <svg lucideX [size]="14" />
+              </button>
+            </li>
+          }
+        </ul>
+      }
+      <app-button type="button" [variant]="ButtonVariant.GHOST" [loading]="pickingReceipt()" (clicked)="onAddReceipt()">
+        <svg lucidePaperclip [size]="15" />
+        {{ 'expense.addReceipt' | t }}
+      </app-button>
+    </div>
+
+    <app-form-field
+      [label]="'expense.notes' | t"
+      type="textarea"
+      [control]="notesControl"
+      [placeholder]="'expense.notesPlaceholder' | t" />
+  </form>
+
+  <div modal-actions class="expense-actions" [class.expense-actions--edit]="isEdit()">
+    @if (isEdit()) {
+      <app-button [variant]="ButtonVariant.DANGER" (clicked)="deleted.emit()">
+        {{ 'common.delete' | t }}
+      </app-button>
+    }
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="submit()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </div>
+</app-modal>
+
+<app-expense-category-form-modal
+  [open]="catModalOpen()"
+  [category]="null"
+  [saving]="categoryStore.saving()"
+  (submitted)="createCategory($event)"
+  (cancelled)="catModalOpen.set(false)" />

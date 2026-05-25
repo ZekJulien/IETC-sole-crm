@@ -1,0 +1,66 @@
+<section class="expenses-page">
+  <header class="expenses-page__header">
+    <div class="expenses-page__heading">
+      <svg lucideReceiptText [size]="22" class="expenses-page__icon" />
+      <div>
+        <h1 class="expenses-page__title">{{ 'expense.pageTitle' | t }}</h1>
+        <p class="expenses-page__subtitle">{{ 'expense.pageSubtitle' | t }}</p>
+      </div>
+    </div>
+    <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+      <svg lucidePlus [size]="15" />
+      {{ 'expense.new' | t }}
+    </app-button>
+  </header>
+
+  <div class="expenses-page__toolbar">
+    <label class="filter">
+      <span class="filter__label">{{ 'expense.categoryLabel' | t }}</span>
+      <select class="app-select filter__select" (change)="onCategoryChange($any($event.target).value)">
+        <option value="">{{ 'expense.allCategories' | t }}</option>
+        @for (c of categories.categories(); track c.id) {
+          <option [value]="c.id" [selected]="c.id === categoryFilter()">{{ c.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="filter">
+      <span class="filter__label">{{ 'expense.from' | t }}</span>
+      <input class="filter__date" type="date" [value]="fromDate()" (change)="onFrom($any($event.target).value)" />
+    </label>
+    <label class="filter">
+      <span class="filter__label">{{ 'expense.to' | t }}</span>
+      <input class="filter__date" type="date" [value]="toDate()" (change)="onTo($any($event.target).value)" />
+    </label>
+
+    <div class="deductible">
+      <span class="deductible__label">{{ 'expense.deductibleTotal' | t }} {{ currentYear }}</span>
+      <strong class="deductible__value">{{ formatCurrency(store.deductibleTotal()) }}</strong>
+    </div>
+  </div>
+
+  <div class="expenses-page__content">
+    <div class="expenses-page__table">
+      <app-data-table
+        [columns]="columns"
+        [data]="rows()"
+        [loading]="store.loading()"
+        (rowClick)="onRowClick($event)" />
+    </div>
+  </div>
+
+  <app-expense-form-modal
+    [open]="modalOpen()"
+    [entry]="editing()"
+    [categories]="categories.categories()"
+    [projects]="projects.projects()"
+    [saving]="store.saving()"
+    (submitted)="submit($event)"
+    (cancelled)="modalOpen.set(false)"
+    (deleted)="requestDelete()" />
+
+  <app-confirm-dialog
+    [visible]="confirmId() !== null"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmId.set(null)" />
+</section>

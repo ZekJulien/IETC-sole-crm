@@ -5,6 +5,7 @@ import { TranslatePipe } from '../../pipes/translate-pipe'
 import { StatusBadge } from '../status-badge/status-badge'
 import { DataTableHeader, ResizeStartEvent } from './data-table-header/data-table-header'
 import { TableColumn, SortState, TableTag } from '../../interfaces/data-table'
+import { formatCurrency } from '../../utils'
 
 const MIN_COL_WIDTH = 60
 
@@ -44,10 +45,14 @@ export class DataTable<T extends object> {
     return rows.sort((a, b) => {
       const av = (a as Record<string, unknown>)[key]
       const bv = (b as Record<string, unknown>)[key]
-      const cmp = String(av ?? '').localeCompare(String(bv ?? ''))
+      const cmp = typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av ?? '').localeCompare(String(bv ?? ''))
       return sort.dir === 'asc' ? cmp : -cmp
     })
   })
+
+  readonly formatCurrency = formatCurrency
 
   constructor() {
     effect(() => {

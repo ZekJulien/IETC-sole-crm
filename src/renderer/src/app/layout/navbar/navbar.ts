@@ -1,7 +1,7 @@
 import { Component } from '@angular/core'
 import { NgComponentOutlet } from '@angular/common'
 import { RouterLink, RouterLinkActive } from '@angular/router'
-import { LucideLayoutDashboard, LucideUsers, LucideFolderKanban, LucideListTodo, LucideClock, LucideSettings, LucideUserCircle2 } from '@lucide/angular'
+import { LucideLayoutDashboard, LucideUsers, LucideFolderKanban, LucideListTodo, LucideClock, LucideReceiptText, LucideSettings, LucideUserCircle2 } from '@lucide/angular'
 import { TranslatePipe } from '@app/pipes'
 import { NavItem } from '@app/interfaces'
 import { AppRoutes } from '@app/core/routes/app-routes.const'
@@ -21,5 +21,6 @@ export class Navbar {
     { labelKey: 'nav.projects',  route: AppRoutes.nav.projects, icon: LucideFolderKanban },
     { labelKey: 'nav.tasks',     route: AppRoutes.nav.tasks,    icon: LucideListTodo },
     { labelKey: 'nav.time',      route: AppRoutes.nav.time,     icon: LucideClock },
+    { labelKey: 'nav.expenses',  route: AppRoutes.nav.expenses, icon: LucideReceiptText },
   ]
 }

@@ -15,6 +15,7 @@ model Project {
   categories  ProjectCategory[]
   tasks       Task[]
   timeEntries TimeEntry[]
+  expenses    Expense[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

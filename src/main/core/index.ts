@@ -1,3 +1,5 @@
 export * from './db'
 export * from './db-context'
 export * from './logger'
+export * from './file-storage'
+export * from './persist-with-files'

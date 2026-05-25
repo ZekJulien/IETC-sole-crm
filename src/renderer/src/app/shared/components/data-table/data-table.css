@@ -55,6 +55,8 @@
 .cell-bool--yes { color: var(--color-success); vertical-align: middle; }
 .cell-bool--no  { color: var(--color-text-subtle); }
 
+.cell-currency { font-variant-numeric: tabular-nums; font-weight: 600; }
+
 .cell-tags { display: inline-flex; align-items: center; gap: 5px; overflow: hidden; }
 .cell-tags__chip {
   display:        inline-flex;

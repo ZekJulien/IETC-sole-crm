@@ -30,6 +30,26 @@ function toIpcError(e: unknown): { message: string } {
   return { message: t('UNKNOWN') }
 }
 
+function register(
+  channel: string,
+  schema: z.ZodType | null,
+  fn: (...args: any[]) => unknown,
+  transactional: boolean,
+): void {
+  ipcMain.handle(channel, async (_, ...args): Promise<IpcResponse<unknown>> => {
+    try {
+      const input = schema ? schema.parse(args[0]) : undefined
+      const run = () => (schema ? fn(input) : fn(...args))
+      const result = transactional
+        ? await getDbContext().transaction(async () => run())
+        : await run()
+      return { data: (result ?? null), error: null }
+    } catch (e) {
+      return { data: null, error: toIpcError(e) }
+    }
+  })
+}
+
 export function ipcHandle<TOutput>(
   channel: string,
   fn: (...args: any[]) => Promise<TOutput> | TOutput | void
@@ -43,16 +63,21 @@ export function ipcHandle(channel: string, schemaOrFn: unknown, maybeFn?: unknow
   const hasSchema = typeof schemaOrFn !== 'function'
   const schema = (hasSchema ? schemaOrFn : null) as z.ZodType | null
   const fn = (hasSchema ? maybeFn : schemaOrFn) as (...args: any[]) => unknown
+  register(channel, schema, fn, true)
+}
 
-  ipcMain.handle(channel, async (_, ...args): Promise<IpcResponse<unknown>> => {
-    try {
-      const input = schema ? schema.parse(args[0]) : undefined
-      const result = await getDbContext().transaction(async () =>
-        schema ? fn(input) : fn(...args)
-      )
-      return { data: (result ?? null), error: null }
-    } catch (e) {
-      return { data: null, error: toIpcError(e) }
-    }
-  })
+export function ipcHandleNoTx<TOutput>(
+  channel: string,
+  fn: (...args: any[]) => Promise<TOutput> | TOutput | void
+): void
+export function ipcHandleNoTx<TSchema extends z.ZodType, TOutput>(
+  channel: string,
+  schema: TSchema,
+  fn: (input: z.infer<TSchema>) => Promise<TOutput> | TOutput | void
+): void
+export function ipcHandleNoTx(channel: string, schemaOrFn: unknown, maybeFn?: unknown): void {
+  const hasSchema = typeof schemaOrFn !== 'function'
+  const schema = (hasSchema ? schemaOrFn : null) as z.ZodType | null
+  const fn = (hasSchema ? maybeFn : schemaOrFn) as (...args: any[]) => unknown
+  register(channel, schema, fn, false)
 }
