@@ -6,6 +6,7 @@ import { registerCategoryHandlers } from './category'
 import { registerExpenseCategoryHandlers } from './expense-category'
 import { registerProjectHandlers } from './project'
 import { registerTaskHandlers } from './task'
+import { registerTimeEntryHandlers } from './time-entry'
 
 export function registerAllHandlers(deps: AppDependencies): void {
   registerLogHandlers()
@@ -16,4 +17,5 @@ export function registerAllHandlers(deps: AppDependencies): void {
   registerExpenseCategoryHandlers(deps.expenseCategoryService)
   registerProjectHandlers(deps.projectService)
   registerTaskHandlers(deps.taskService)
+  registerTimeEntryHandlers(deps.timeEntryService)
 }

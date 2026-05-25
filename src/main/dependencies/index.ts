@@ -4,12 +4,14 @@ import { CategoryService } from '../services/category'
 import { ExpenseCategoryService } from '../services/expense-category'
 import { ProjectService } from '../services/project'
 import { TaskService } from '../services/task'
+import { TimeEntryService } from '../services/time-entry'
 import { getClientService, getContactService } from './client'
 import { getCompanyService } from './company'
 import { getCategoryService } from './category'
 import { getExpenseCategoryService } from './expense-category'
 import { getProjectService } from './project'
 import { getTaskService } from './task'
+import { getTimeEntryService } from './time-entry'
 
 export interface AppDependencies {
   clientService:  ClientService
@@ -19,6 +21,7 @@ export interface AppDependencies {
   expenseCategoryService: ExpenseCategoryService
   projectService: ProjectService
   taskService: TaskService
+  timeEntryService: TimeEntryService
 }
 
 export function buildDependencies(): AppDependencies {
@@ -30,5 +33,6 @@ export function buildDependencies(): AppDependencies {
     expenseCategoryService: getExpenseCategoryService(),
     projectService: getProjectService(),
     taskService: getTaskService(),
+    timeEntryService: getTimeEntryService(),
   }
 }

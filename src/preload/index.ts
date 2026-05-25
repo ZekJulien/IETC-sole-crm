@@ -7,6 +7,7 @@ import { categoryApi } from './apis/category.api'
 import { expenseCategoryApi } from './apis/expense-category.api'
 import { projectApi } from './apis/project.api'
 import { taskApi } from './apis/task.api'
+import { timeEntryApi } from './apis/time-entry.api'
 
 contextBridge.exposeInMainWorld('logService', logApi)
 contextBridge.exposeInMainWorld('api', {
@@ -17,4 +18,5 @@ contextBridge.exposeInMainWorld('api', {
   expenseCategory: expenseCategoryApi,
   project:  projectApi,
   task:     taskApi,
+  timeEntry: timeEntryApi,
 })

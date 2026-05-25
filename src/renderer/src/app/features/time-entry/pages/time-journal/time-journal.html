@@ -1,0 +1,85 @@
+<section class="time-page">
+  <header class="time-page__header">
+    <div class="time-page__heading">
+      <svg lucideClock [size]="22" class="time-page__icon" />
+      <div>
+        <h1 class="time-page__title">{{ 'time.pageTitle' | t }}</h1>
+        <p class="time-page__subtitle">{{ 'time.pageSubtitle' | t }}</p>
+      </div>
+    </div>
+    @if (hasProjects()) {
+      <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+        <svg lucidePlus [size]="15" />
+        {{ 'time.new' | t }}
+      </app-button>
+    }
+  </header>
+
+  @if (!hasProjects()) {
+    <div class="time-page__empty">
+      <p>{{ 'time.noProjects' | t }}</p>
+      <a class="time-page__cta" [routerLink]="newProjectRoute">{{ 'time.createProject' | t }}</a>
+    </div>
+  } @else {
+    <div class="time-page__toolbar">
+      <label class="filter">
+        <span class="filter__label">{{ 'time.projectLabel' | t }}</span>
+        <select class="app-select filter__select" (change)="onProjectFilter($any($event.target).value)">
+          <option value="">{{ 'time.allProjects' | t }}</option>
+          @for (p of projects.projects(); track p.id) {
+            <option [value]="p.id" [selected]="p.id === filterProjectId()">{{ p.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="filter">
+        <span class="filter__label">{{ 'time.from' | t }}</span>
+        <input class="filter__date" type="date" [value]="fromDate()" (change)="onFrom($any($event.target).value)" />
+      </label>
+      <label class="filter">
+        <span class="filter__label">{{ 'time.to' | t }}</span>
+        <input class="filter__date" type="date" [value]="toDate()" (change)="onTo($any($event.target).value)" />
+      </label>
+
+      <div class="time-page__stats">
+        <span class="stat stat--month">
+          <svg lucideClock [size]="14" />
+          {{ 'time.thisMonth' | t }}
+          <strong>{{ formatDuration(store.monthMinutes()) }}</strong>
+        </span>
+        @if (selectedProjectName()) {
+          <span class="stat stat--project">
+            <svg lucideFolderKanban [size]="14" />
+            {{ selectedProjectName() }}
+            <strong>{{ formatDuration(selectedProjectMinutes()) }}</strong>
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="time-page__content">
+      @if (store.entries().length === 0) {
+        <p class="time-page__list-empty">{{ 'time.empty' | t }}</p>
+      } @else {
+        <app-time-entry-list
+          [entries]="store.entries()"
+          (editEntry)="openEdit($event)"
+          (deleteEntry)="requestDeleteRow($event)" />
+      }
+    </div>
+  }
+
+  <app-time-entry-form-modal
+    [open]="modalOpen()"
+    [entry]="editing()"
+    [projects]="projects.projects()"
+    [saving]="store.saving()"
+    (submitted)="submit($event)"
+    (cancelled)="modalOpen.set(false)"
+    (deleted)="requestDelete()" />
+
+  <app-confirm-dialog
+    [visible]="confirmId() !== null"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmId.set(null)" />
+</section>

@@ -9,6 +9,91 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-05-25 — Phase 7 : Bundle TimeEntry
+
+Entité **TimeEntry** (`TempsPasse` dans la spec) end-to-end, avec une **page dédiée
+`/time`** (lien navbar « Temps ») conçue comme un **journal global** : toutes les
+entrées de temps, filtrables par **projet** (« Tous » + par projet) et par **plage
+de dates**, avec un en-tête d'**agrégats de durée** — total du **mois en cours** et
+total du **projet sélectionné**. Saisie manuelle via une modale (projet → tâche
+optionnelle → durée en **heures + minutes** → date → bascule **facturable** →
+description). **Premier agrégat de durée visible** — exigence du PDF.
+
+### Décisions d'architecture
+
+- **Journal global plutôt que page scopée projet** : à la différence de `/tasks`
+  (un projet à la fois), `/time` liste **toutes** les entrées avec un filtre projet
+  (« Tous » par défaut) + une plage de dates, ce qui rend l'**agrégat mensuel
+  multi-projets** lisible. IPC : `getAll(filter?)` (projet + dates) au lieu d'un
+  `getByProject` strict.
+- **Deux agrégats de durée réels** (notion SGBD « Agrégat ») :
+  `sumByMonth(year, month)` via `prisma.timeEntry.aggregate({ _sum: { duration },
+  where: { date: [début, fin du mois] } })` (l'exemple verbatim du cours), et
+  `sumByProject()` via `groupBy({ by: ['projectId'], _sum: { duration } })`. Le
+  store **rafraîchit les deux après chaque mutation**.
+- **FK `Task` optionnelle en `onDelete: SetNull`** : supprimer une tâche **conserve**
+  ses entrées de temps (`taskId → NULL`) — **premier `SetNull` du projet**, complète
+  le panel Cascade (Project, ProjectCategory, Contact, Task) / Restrict (Client).
+  FK `Project` en `onDelete: Cascade`. Vérifié sur une copie de `dev.db`
+  (`node:sqlite`) : SetNull, Cascade, defaults (`billable`/`pomodoro`/`date`) et
+  `projectId` NOT NULL.
+- **Durée stockée en minutes (Int)**, saisie en **heures + minutes** : conversion
+  `toMinutes()` à la soumission, `splitDuration()` au pré-remplissage, rendu via
+  `formatDuration()` (`1h30` / `45m`). Pas de `TEXT+CHECK` ici (aucun champ à
+  valeurs contraintes).
+- **Flag `pomodoro` présent dès maintenant** (`Boolean @default(false)`, miroir de
+  `methodePomodoro`) mais **non éditable** : la saisie manuelle l'écrit toujours à
+  `false` ; il est affiché en lecture (icône) et sera alimenté par le timer Pomodoro
+  de la Phase 11. Pastille **facturable** également rendue par ligne.
+- **Re-fetch avec relations après mutation** : `create`/`update` du `BaseRepository`
+  ne joignent pas ; le service relit via `findByIdWithRelations` (include
+  `project` + `task`) pour aplatir `projectName` / `taskTitle` dans le DTO de lecture
+  (le journal affiche « Projet · Tâche » sans charger les DTO complets).
+- **Bornes de date robustes** : le filtre `to` est étendu à la **fin de journée**
+  côté repo (`endOfDay`) ; les dates `YYYY-MM-DD` sont parsées en **local**
+  (`new Date(y, m-1, d)`) côté renderer pour éviter les décalages de fuseau.
+- **Composants présentationnels « dumb »** (`TimeEntryList`) pilotés par la page
+  smart `TimeJournal` (filtres + agrégats + modale) — cohérent avec le découpage
+  3 couches ; la logique de form vit dans `TimeEntryFormModal` (compose `app-modal`).
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/time-entry.prisma` — modèle `TimeEntry` (FK `Project` Cascade, FK `Task?` SetNull, `duration` Int minutes, `billable`/`pomodoro` Boolean, `date`/`description` optionnels)
+- Relations inverses `timeEntries` sur `Project` (`TimeEntry[]`) et `Task` (`TimeEntry[]`)
+- `prisma/migrations/20260522175651_add_time_entry/` — table `TimeEntry` (FK SetNull + Cascade)
+
+**Bundle TimeEntry (main)**
+- `TimeEntryRepository` (extends `BaseRepository`, `searchFields: ['description']`, `findAll` filtré projet+dates, `findByIdWithRelations`, agrégats `sumByProject` via `groupBy` / `sumByMonth` via `aggregate _sum`)
+- `TimeEntryService` — `getAll` / `sumByProject` / `sumByMonth` / `add` / `update` / `remove`, mapping Prisma→DTO (aplatit `projectName` / `taskTitle`)
+- `TimeEntryHandler` — `GET_ALL` / `SUM_BY_PROJECT` / `SUM_BY_MONTH` / `ADD` / `UPDATE` / `REMOVE` (validés Zod)
+- DI factories TimeEntry (repo + service) + wire dans `AppDependencies`
+- Preload `time-entry.api.ts` exposé via `window.api.timeEntry`
+
+**Shared layer**
+- DTOs TimeEntry dans `src/shared/dtos/time-entry/` (read DTO en interface avec `projectName`/`taskTitle` + create/update en schémas Zod + `TimeEntryFilter` + `SumByMonthDto` + `ProjectDurationCount`, dates coercées)
+- `TIME_ENTRY_CHANNELS`, interface `TimeEntryAPI`
+
+**Frontend Angular**
+- `services/time-entry/time-entry.ts` — `TimeEntryService` (wrapper `window.api.timeEntry`)
+- `stores/time-entry/time-entry-store.ts` — `TimeEntryStore` (entrées + agrégats mois/projet + add/update/remove, recharge liste + agrégats après mutation)
+- `features/time-entry/pages/time-journal/` — page `/time` (filtre projet + plage de dates + agrégats + modale), lazy-loadée
+- `features/time-entry/components/time-entry-list/` — liste « dumb » (date, projet · tâche, durée, pastilles facturable/pomodoro, actions)
+- `features/time-entry/components/time-entry-form-modal/` — modale (projet, tâche optionnelle chargée à la volée, durée h+m, date, toggle facturable, description)
+- `features/time-entry/utils/format-duration.ts` — `formatDuration` / `toMinutes` / `splitDuration`
+- i18n `i18n/ui/time-entry/time.{fr,en}.ts`
+- Lien navbar « Temps » (`LucideClock` → `/time`) + route `time`
+
+### Modifié
+
+- `project.prisma` — relation inverse `timeEntries TimeEntry[]`
+- `task.prisma` — relation inverse `timeEntries TimeEntry[]`
+- `app.routes.ts` + `app-routes.const.ts` — route et path `time`
+- `navbar.ts` — 5ᵉ item de navigation « Temps »
+- `i18n.ts` — enregistrement du namespace `time` ; `common` — clé `nav.time` (fr + en)
+- `preload/index.ts` + `renderer/.../types/electron/index.d.ts` — exposition de `window.api.timeEntry`
+- Barrels `channels`, `interfaces`, `stores` — export du domaine `time-entry`
+
 ## [0.7.0] — 2026-05-22 — Phase 6 : Bundle Task
 
 Entité **Task** (`Tache` dans la spec) end-to-end, avec une **page dédiée `/tasks`**
@@ -613,7 +698,8 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.4.0...v0.5.0

@@ -34,4 +34,5 @@ export default {
   'nav.clients':                 'Clients',
   'nav.projects':                'Projects',
   'nav.tasks':                   'Tasks',
+  'nav.time':                    'Time',
 } satisfies Record<string, string>

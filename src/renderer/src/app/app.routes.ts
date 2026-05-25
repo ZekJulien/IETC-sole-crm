@@ -28,6 +28,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/task/pages/task-board/task-board').then(c => c.TaskBoard)
   },
   {
+    path: AppRoutes.paths.time,
+    loadComponent: () => import('./features/time-entry/pages/time-journal/time-journal').then(c => c.TimeJournal)
+  },
+  {
     path: AppRoutes.paths.settings,
     pathMatch: 'full',
     redirectTo: AppRoutes.paths.settingsCompany,

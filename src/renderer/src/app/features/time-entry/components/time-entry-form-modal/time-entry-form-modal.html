@@ -1,0 +1,68 @@
+<app-modal [open]="open()" [title]="titleKey()" [width]="'480px'" (closed)="cancelled.emit()">
+  <form class="time-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid">
+      <div class="field">
+        <label class="field__label">{{ 'time.projectLabel' | t }} *</label>
+        <select class="app-select" formControlName="projectId" (change)="onProjectChange()">
+          @for (p of projects(); track p.id) {
+            <option [ngValue]="p.id">{{ p.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label">{{ 'time.taskLabel' | t }}</label>
+        <select class="app-select" formControlName="taskId">
+          <option [ngValue]="null">{{ 'time.noTask' | t }}</option>
+          @for (t of tasks(); track t.id) {
+            <option [ngValue]="t.id">{{ t.title }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label class="field__label">{{ 'time.durationLabel' | t }} *</label>
+        <div class="duration">
+          <input class="field__input duration__num" type="number" min="0" formControlName="hours" />
+          <span class="duration__unit">h</span>
+          <input class="field__input duration__num" type="number" min="0" max="59" formControlName="minutes" />
+          <span class="duration__unit">m</span>
+        </div>
+        @if (showDurationError()) {
+          <span class="field__error">{{ 'time.durationRequired' | t }}</span>
+        }
+      </div>
+      <div class="field">
+        <label class="field__label">{{ 'time.dateLabel' | t }}</label>
+        <input class="field__input" type="date" formControlName="date" />
+      </div>
+    </div>
+
+    <label class="switch">
+      <input type="checkbox" formControlName="billable" />
+      <span class="switch__track"><span class="switch__thumb"></span></span>
+      <span class="switch__label">{{ 'time.billable' | t }}</span>
+    </label>
+
+    <app-form-field
+      [label]="'time.description' | t"
+      type="textarea"
+      [control]="descriptionControl"
+      [placeholder]="'time.descriptionPlaceholder' | t" />
+  </form>
+
+  <div modal-actions class="time-actions" [class.time-actions--edit]="isEdit()">
+    @if (isEdit()) {
+      <app-button [variant]="ButtonVariant.DANGER" (clicked)="deleted.emit()">
+        {{ 'common.delete' | t }}
+      </app-button>
+    }
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="submit()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </div>
+</app-modal>

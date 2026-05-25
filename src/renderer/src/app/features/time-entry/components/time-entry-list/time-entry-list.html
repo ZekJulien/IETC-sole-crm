@@ -1,0 +1,47 @@
+<ul class="entry-rows">
+  @for (entry of entries(); track entry.id) {
+    <li class="entry-row">
+      <span class="entry-row__date">
+        <svg lucideCalendar [size]="13" />
+        {{ formatDate(entry.date) }}
+      </span>
+
+      <button type="button" class="entry-row__main" (click)="editEntry.emit(entry)">
+        <span class="entry-row__title">
+          {{ entry.projectName }}
+          @if (entry.taskTitle) {
+            <span class="entry-row__sep">·</span>
+            <span class="entry-row__task">{{ entry.taskTitle }}</span>
+          }
+        </span>
+        @if (entry.description) {
+          <span class="entry-row__desc">{{ entry.description }}</span>
+        }
+      </button>
+
+      <span class="entry-row__flags">
+        @if (entry.pomodoro) {
+          <span class="flag flag--pomodoro" [title]="'time.pomodoro' | t">
+            <svg lucideTimer [size]="14" />
+          </span>
+        }
+        @if (entry.billable) {
+          <span class="flag flag--billable" [title]="'time.billable' | t">
+            <svg lucideBanknote [size]="14" />
+          </span>
+        }
+      </span>
+
+      <span class="entry-row__duration">{{ formatDuration(entry.duration) }}</span>
+
+      <div class="entry-row__actions">
+        <app-icon-button [title]="'common.edit' | t" (clicked)="editEntry.emit(entry)">
+          <svg lucidePencil [size]="15" />
+        </app-icon-button>
+        <app-icon-button variant="danger" [title]="'common.delete' | t" (clicked)="deleteEntry.emit(entry)">
+          <svg lucideTrash2 [size]="15" />
+        </app-icon-button>
+      </div>
+    </li>
+  }
+</ul>

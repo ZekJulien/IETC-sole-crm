@@ -17,12 +17,14 @@ import projectEn   from '../../i18n/ui/project/project.en'
 import projectFr   from '../../i18n/ui/project/project.fr'
 import taskEn      from '../../i18n/ui/task/task.en'
 import taskFr      from '../../i18n/ui/task/task.fr'
+import timeEn      from '../../i18n/ui/time-entry/time.en'
+import timeFr      from '../../i18n/ui/time-entry/time.fr'
 import settingsEn  from '../../i18n/ui/settings/settings.en'
 import settingsFr  from '../../i18n/ui/settings/settings.fr'
 
 const translations: Record<string, Record<string, string>> = {
-  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...taskEn, ...settingsEn },
-  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...taskFr, ...settingsFr },
+  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...taskEn, ...timeEn, ...settingsEn },
+  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...taskFr, ...timeFr, ...settingsFr },
 }
 
 @Injectable({ providedIn: 'root' })
