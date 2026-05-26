@@ -1,10 +1,14 @@
 import { app } from 'electron'
 import { errorsEn } from './errors.en'
 import { errorsFr } from './errors.fr'
+import { errorsNl } from './errors.nl'
+import { errorsDe } from './errors.de'
 
 const translations: Record<string, Record<string, string>> = {
   fr: errorsFr,
   en: errorsEn,
+  nl: errorsNl,
+  de: errorsDe,
 }
 
 let _locale: string = 'en'

@@ -1,0 +1,18 @@
+export default {
+  'client.title':              'Klanten',
+  'client.new':                'Nieuwe klant',
+  'client.type':               'Type',
+  'client.type.company':       'Onderneming',
+  'client.type.individual':    'Particulier',
+  'client.firstName':          'Voornaam',
+  'client.lastName':           'Achternaam',
+  'client.companyName':        'Bedrijfsnaam',
+  'client.companyNumber':      'Ondernemingsnummer',
+  'client.vatNumber':          'Btw-nummer',
+  'client.peppolId':           'PEPPOL-id',
+  'client.searchPlaceholder':  'Zoek op naam, e-mail, stad...',
+  'client.selectPrompt':       'Selecteer een klant om de details te bekijken',
+  'client.toast.created':      'Klant aangemaakt',
+  'client.toast.saved':        'Klant opgeslagen',
+  'client.toast.deleted':      'Klant verwijderd',
+} satisfies Record<string, string>

@@ -1,0 +1,18 @@
+export default {
+  'expenseCategory.title':             'Uitgavecategorieën',
+  'expenseCategory.subtitle':          'Soorten uitgaven om je kosten te ordenen',
+  'expenseCategory.new':               'Nieuwe categorie',
+  'expenseCategory.name':              'Naam',
+  'expenseCategory.namePlaceholder':   'bijv. Reizen, Materiaal, Software…',
+  'expenseCategory.color':             'Kleur',
+  'expenseCategory.deductible':        'Fiscaal aftrekbaar',
+  'expenseCategory.deductibleShort':   'Aftrekbaar',
+  'expenseCategory.deductibleHint':    'Uitgaven in deze categorie zijn standaard aftrekbaar',
+  'expenseCategory.preview':           'Voorbeeld',
+  'expenseCategory.searchPlaceholder': 'Zoek een categorie…',
+  'expenseCategory.modal.createTitle': 'Nieuwe uitgavecategorie',
+  'expenseCategory.modal.editTitle':   'Uitgavecategorie bewerken',
+  'expenseCategory.toast.created':     'Uitgavecategorie aangemaakt',
+  'expenseCategory.toast.saved':       'Uitgavecategorie opgeslagen',
+  'expenseCategory.toast.deleted':     'Uitgavecategorie verwijderd',
+} satisfies Record<string, string>

@@ -1,0 +1,52 @@
+.wizard {
+  position:        fixed;
+  inset:           0;
+  z-index:         900;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         24px;
+  overflow:        auto;
+  background:      var(--color-bg-base);
+}
+
+.wizard__card {
+  display:         flex;
+  flex-direction:  column;
+  gap:             28px;
+  width:           100%;
+  max-width:       720px;
+  max-height:      100%;
+  padding:         32px;
+  box-sizing:      border-box;
+  background:      var(--color-bg-surface);
+  border:          1px solid var(--color-border);
+  border-radius:   var(--radius-lg);
+}
+
+.wizard__steps {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             8px;
+}
+
+.wizard__dot {
+  width:         10px;
+  height:        10px;
+  border-radius: 50%;
+  background:    var(--color-border);
+  transition:    var(--transition);
+}
+
+.wizard__bar {
+  width:      48px;
+  height:     2px;
+  background: var(--color-border);
+  transition: var(--transition);
+}
+
+.wizard__dot.is-done,
+.wizard__bar.is-done {
+  background: var(--color-accent);
+}

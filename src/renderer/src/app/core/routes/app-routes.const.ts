@@ -19,6 +19,7 @@ const PATHS = {
   settingsExpenseCategories: 'settings/expense-categories',
   settingsVatRates:          'settings/vat-rates',
   settingsProducts:          'settings/products',
+  settingsPreferences:       'settings/preferences',
 } as const
 
 export const AppRoutes = {
@@ -38,5 +39,6 @@ export const AppRoutes = {
     settingsExpenseCategories: `/${PATHS.settingsExpenseCategories}`,
     settingsVatRates:          `/${PATHS.settingsVatRates}`,
     settingsProducts:          `/${PATHS.settingsProducts}`,
+    settingsPreferences:       `/${PATHS.settingsPreferences}`,
   },
 } as const

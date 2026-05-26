@@ -23,3 +23,7 @@ export async function deleteManagedFile(filePath: string | null): Promise<void> 
   if (!filePath || !isManagedFile(filePath)) return
   await rm(filePath, { force: true })
 }
+
+export async function clearAllStorage(): Promise<void> {
+  await rm(storageRoot(), { recursive: true, force: true })
+}

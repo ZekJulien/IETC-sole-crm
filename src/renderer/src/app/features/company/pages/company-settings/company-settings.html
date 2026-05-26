@@ -16,5 +16,24 @@
       (submitted)="onSubmit($event)"
       (resetInvoice)="store.resetInvoiceCounter($event)"
       (resetQuote)="store.resetQuoteCounter($event)" />
+
+    @if (store.isConfigured()) {
+      <section class="danger-zone">
+        <div class="danger-zone__info">
+          <h3 class="danger-zone__title">{{ 'settings.reset.zone' | t }}</h3>
+          <p class="danger-zone__text">{{ 'settings.reset.hint' | t }}</p>
+        </div>
+        <app-button [variant]="ButtonVariant.DANGER" (clicked)="resetConfirmOpen.set(true)">
+          {{ 'settings.reset.action' | t }}
+        </app-button>
+      </section>
+    }
   </div>
+
+  <app-confirm-dialog
+    [visible]="resetConfirmOpen()"
+    title="settings.reset.title"
+    message="settings.reset.message"
+    (confirmed)="confirmReset()"
+    (cancelled)="resetConfirmOpen.set(false)" />
 </section>

@@ -1,0 +1,18 @@
+export default {
+  'expenseCategory.title':             'Ausgabenkategorien',
+  'expenseCategory.subtitle':          'Ausgabenarten zur Einordnung Ihrer Kosten',
+  'expenseCategory.new':               'Neue Kategorie',
+  'expenseCategory.name':              'Name',
+  'expenseCategory.namePlaceholder':   'z. B. Reisen, Hardware, Software…',
+  'expenseCategory.color':             'Farbe',
+  'expenseCategory.deductible':        'Steuerlich absetzbar',
+  'expenseCategory.deductibleShort':   'Absetzbar',
+  'expenseCategory.deductibleHint':    'Ausgaben dieser Kategorie sind standardmäßig absetzbar',
+  'expenseCategory.preview':           'Vorschau',
+  'expenseCategory.searchPlaceholder': 'Kategorie suchen…',
+  'expenseCategory.modal.createTitle': 'Neue Ausgabenkategorie',
+  'expenseCategory.modal.editTitle':   'Ausgabenkategorie bearbeiten',
+  'expenseCategory.toast.created':     'Ausgabenkategorie erstellt',
+  'expenseCategory.toast.saved':       'Ausgabenkategorie gespeichert',
+  'expenseCategory.toast.deleted':     'Ausgabenkategorie gelöscht',
+} satisfies Record<string, string>

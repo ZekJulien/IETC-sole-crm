@@ -1,0 +1,19 @@
+<div class="wiz-company">
+  <header class="wiz-company__head">
+    <h2 class="wiz-company__title">{{ 'wizard.company.title' | t }}</h2>
+    <p class="wiz-company__text">{{ 'wizard.company.subtitle' | t }}</p>
+  </header>
+
+  <div class="wiz-company__form">
+    <app-company-form #f [company]="company()" (submitted)="submitted.emit($event)" />
+  </div>
+
+  <footer class="wiz-company__nav">
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="back.emit()">
+      {{ 'common.back' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="f.submit()">
+      {{ 'wizard.finish' | t }}
+    </app-button>
+  </footer>
+</div>

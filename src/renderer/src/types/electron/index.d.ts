@@ -11,6 +11,8 @@ import { QuoteAPI } from '@shared/interfaces/quote'
 import { InvoiceAPI } from '@shared/interfaces/invoice'
 import { VatRateAPI } from '@shared/interfaces/vat-rate'
 import { ProductAPI } from '@shared/interfaces/product'
+import { SeedAPI } from '@shared/interfaces/seed'
+import { I18nAPI } from '@shared/interfaces/i18n'
 
 declare global {
   interface Window {
@@ -29,6 +31,8 @@ declare global {
       invoice:  InvoiceAPI
       vatRate:  VatRateAPI
       product:  ProductAPI
+      seed:     SeedAPI
+      i18n:     I18nAPI
     }
   }
 }

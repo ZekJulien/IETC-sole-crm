@@ -12,6 +12,8 @@ import { registerQuoteHandlers } from './quote'
 import { registerInvoiceHandlers } from './invoice'
 import { registerVatRateHandlers } from './vat-rate'
 import { registerProductHandlers } from './product'
+import { registerSeedHandlers } from './seed'
+import { registerI18nHandlers } from './i18n'
 
 export function registerAllHandlers(deps: AppDependencies): void {
   registerLogHandlers()
@@ -28,4 +30,6 @@ export function registerAllHandlers(deps: AppDependencies): void {
   registerInvoiceHandlers(deps.invoiceService)
   registerVatRateHandlers(deps.vatRateService)
   registerProductHandlers(deps.productService)
+  registerSeedHandlers(deps.seedService)
+  registerI18nHandlers()
 }

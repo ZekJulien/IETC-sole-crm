@@ -5,4 +5,9 @@ export default {
   'settings.tab.expenseCategories': 'Expenses',
   'settings.tab.vatRates':   'VAT',
   'settings.tab.products':   'Catalog',
+  'settings.tab.preferences': 'Preferences',
+  'preferences.title':        'Preferences',
+  'preferences.subtitle':     'Application language and display',
+  'preferences.language':     'Language',
+  'preferences.languageHint': 'Choose the interface language.',
 } satisfies Record<string, string>

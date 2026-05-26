@@ -12,9 +12,9 @@ export class DbContext {
     return this.storage.getStore() ?? this.db
   }
 
-  async transaction<T>(fn: () => Promise<T>): Promise<T> {
+  async transaction<T>(fn: () => Promise<T>, options?: { maxWait?: number; timeout?: number }): Promise<T> {
     const existing = this.storage.getStore()
     if (existing) return fn()
-    return this.db.$transaction(tx => this.storage.run(tx, fn))
+    return this.db.$transaction(tx => this.storage.run(tx, fn), options)
   }
 }

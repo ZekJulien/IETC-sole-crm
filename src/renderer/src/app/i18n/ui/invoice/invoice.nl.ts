@@ -1,0 +1,83 @@
+export default {
+  'invoice.title':            'Facturen',
+  'invoice.subtitle':         'Je facturatie en de inning ervan',
+  'invoice.new':              'Nieuwe factuur',
+  'invoice.searchPlaceholder': 'Zoek een nummer…',
+
+  'invoice.number':           'Nummer',
+  'invoice.client':           'Klant',
+  'invoice.project':          'Project',
+  'invoice.statusLabel':      'Status',
+  'invoice.issueDate':        'Factuurdatum',
+  'invoice.dueDate':          'Vervaldatum',
+  'invoice.total':            'Totaal incl. btw',
+  'invoice.balance':          'Openstaand saldo',
+  'invoice.notes':            'Notities',
+  'invoice.notesPlaceholder': 'Betalingsvoorwaarden, wettelijke vermeldingen…',
+
+  'invoice.selectClient':     'Selecteer een klant',
+  'invoice.noProject':        'Geen project',
+
+  'invoice.createTitle':      'Nieuwe factuur',
+  'invoice.editTitle':        'Factuur bewerken',
+
+  'invoice.section.info':     'Informatie',
+  'invoice.section.dates':    'Datums',
+
+  'invoice.lines':            'Regels',
+  'invoice.line.description': 'Omschrijving',
+  'invoice.line.descriptionPlaceholder': 'Omschrijving of kies uit catalogus…',
+  'invoice.line.quantity':    'Aantal',
+  'invoice.line.unitPrice':   'Eenheidsprijs',
+  'invoice.line.vat':         'Btw',
+  'invoice.line.total':       'Totaal',
+  'invoice.line.add':         'Regel toevoegen',
+  'invoice.line.remove':      'Regel verwijderen',
+
+  'invoice.totalHt':          'Subtotaal',
+  'invoice.totalVat':         'Btw',
+  'invoice.totalTtc':         'Totaal incl. btw',
+  'invoice.paid':             'Betaald',
+  'invoice.balanceDue':       'Openstaand saldo',
+
+  'invoice.payments':         'Betalingen',
+  'invoice.payment.date':     'Datum',
+  'invoice.payment.amount':   'Bedrag',
+  'invoice.payment.method':   'Methode',
+  'invoice.payment.reference': 'Referentie',
+  'invoice.payment.referencePlaceholder': 'Overschrijvingsnr., cheque…',
+  'invoice.payment.add':      'Betaling registreren',
+  'invoice.payment.remove':   'Betaling verwijderen',
+  'invoice.payment.empty':    'Geen betaling geregistreerd',
+  'invoice.payment.lockedDraft': 'Verzend de factuur om betalingen te registreren.',
+  'invoice.payment.settled':  'Factuur volledig betaald — geen saldo meer.',
+  'invoice.payment.fill':     'Vereffenen',
+
+  'invoice.method.transfer':  'Overschrijving',
+  'invoice.method.check':     'Cheque',
+  'invoice.method.cash':      'Contant',
+  'invoice.method.card':      'Kaart',
+
+  'invoice.action.markSent':      'Markeren als verzonden',
+  'invoice.action.markCancelled': 'Factuur annuleren',
+  'invoice.action.reopen':        'Terug naar concept',
+
+  'invoice.filter.allStatuses': 'Alle',
+  'invoice.filter.allClients':  'Alle klanten',
+
+  'invoice.stats.unpaid':         'Totaal openstaand',
+  'invoice.stats.revenueMonth':   'Geïnd deze maand',
+
+  'invoice.status.draft':     'Concept',
+  'invoice.status.sent':      'Verzonden',
+  'invoice.status.paid':      'Betaald',
+  'invoice.status.overdue':   'Te laat',
+  'invoice.status.cancelled': 'Geannuleerd',
+
+  'invoice.toast.created':        'Factuur aangemaakt',
+  'invoice.toast.saved':          'Factuur opgeslagen',
+  'invoice.toast.statusChanged':  'Status bijgewerkt',
+  'invoice.toast.deleted':        'Factuur verwijderd',
+  'invoice.toast.paymentAdded':   'Betaling geregistreerd',
+  'invoice.toast.paymentRemoved': 'Betaling verwijderd',
+} satisfies Record<string, string>

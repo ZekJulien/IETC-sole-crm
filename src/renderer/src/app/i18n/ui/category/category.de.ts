@@ -1,0 +1,15 @@
+export default {
+  'category.title':             'Projektkategorien',
+  'category.subtitle':          'Farbige Labels zur Einordnung Ihrer Projekte',
+  'category.new':               'Neue Kategorie',
+  'category.name':              'Name',
+  'category.namePlaceholder':   'z. B. Web, Mobile, Beratung…',
+  'category.color':             'Farbe',
+  'category.preview':           'Vorschau',
+  'category.searchPlaceholder': 'Kategorie suchen…',
+  'category.modal.createTitle': 'Neue Kategorie',
+  'category.modal.editTitle':   'Kategorie bearbeiten',
+  'category.toast.created':     'Kategorie erstellt',
+  'category.toast.saved':       'Kategorie gespeichert',
+  'category.toast.deleted':     'Kategorie gelöscht',
+} satisfies Record<string, string>

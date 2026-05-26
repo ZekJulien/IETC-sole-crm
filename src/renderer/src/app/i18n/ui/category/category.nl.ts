@@ -1,0 +1,15 @@
+export default {
+  'category.title':             'Projectcategorieën',
+  'category.subtitle':          'Gekleurde labels om je projecten te ordenen',
+  'category.new':               'Nieuwe categorie',
+  'category.name':              'Naam',
+  'category.namePlaceholder':   'bijv. Web, Mobiel, Advies…',
+  'category.color':             'Kleur',
+  'category.preview':           'Voorbeeld',
+  'category.searchPlaceholder': 'Zoek een categorie…',
+  'category.modal.createTitle': 'Nieuwe categorie',
+  'category.modal.editTitle':   'Categorie bewerken',
+  'category.toast.created':     'Categorie aangemaakt',
+  'category.toast.saved':       'Categorie opgeslagen',
+  'category.toast.deleted':     'Categorie verwijderd',
+} satisfies Record<string, string>

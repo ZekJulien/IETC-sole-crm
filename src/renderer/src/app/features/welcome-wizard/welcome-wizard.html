@@ -1,0 +1,27 @@
+<div class="wizard">
+  <div class="wizard__card">
+    <div class="wizard__steps" aria-hidden="true">
+      <span class="wizard__dot" [class.is-done]="step() >= 1"></span>
+      <span class="wizard__bar" [class.is-done]="step() >= 2"></span>
+      <span class="wizard__dot" [class.is-done]="step() >= 2"></span>
+      <span class="wizard__bar" [class.is-done]="step() >= 3"></span>
+      <span class="wizard__dot" [class.is-done]="step() >= 3"></span>
+    </div>
+
+    @switch (step()) {
+      @case (1) {
+        <app-wizard-welcome (start)="next()" />
+      }
+      @case (2) {
+        <app-wizard-seed-choice [busy]="seed.busy()" (choose)="choose($event)" />
+      }
+      @case (3) {
+        <app-wizard-company
+          [company]="company.company()"
+          [saving]="company.saving() || seed.busy()"
+          (submitted)="saveCompany($event)"
+          (back)="back()" />
+      }
+    }
+  </div>
+</div>

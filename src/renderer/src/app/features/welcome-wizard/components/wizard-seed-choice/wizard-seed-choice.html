@@ -1,0 +1,28 @@
+<div class="seed-choice">
+  <header class="seed-choice__head">
+    <h2 class="seed-choice__title">{{ 'wizard.seed.title' | t }}</h2>
+    <p class="seed-choice__text">{{ 'wizard.seed.subtitle' | t }}</p>
+  </header>
+
+  <div class="seed-choice__grid">
+    <app-card [clickable]="!busy()" (clicked)="pick('demo')">
+      <div class="seed-choice__option">
+        <svg lucideRocket [size]="28" class="seed-choice__icon" />
+        <h3 class="seed-choice__name">{{ 'wizard.seed.demo.title' | t }}</h3>
+        <p class="seed-choice__desc">{{ 'wizard.seed.demo.desc' | t }}</p>
+      </div>
+    </app-card>
+
+    <app-card [clickable]="!busy()" (clicked)="pick('empty')">
+      <div class="seed-choice__option">
+        <svg lucideFolderPlus [size]="28" class="seed-choice__icon" />
+        <h3 class="seed-choice__name">{{ 'wizard.seed.empty.title' | t }}</h3>
+        <p class="seed-choice__desc">{{ 'wizard.seed.empty.desc' | t }}</p>
+      </div>
+    </app-card>
+  </div>
+
+  @if (busy()) {
+    <p class="seed-choice__busy">{{ 'wizard.seed.loading' | t }}</p>
+  }
+</div>

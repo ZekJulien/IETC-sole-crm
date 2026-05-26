@@ -1,0 +1,83 @@
+export default {
+  'invoice.title':            'Rechnungen',
+  'invoice.subtitle':         'Ihre Rechnungsstellung und deren Einzug',
+  'invoice.new':              'Neue Rechnung',
+  'invoice.searchPlaceholder': 'Nummer suchen…',
+
+  'invoice.number':           'Nummer',
+  'invoice.client':           'Kunde',
+  'invoice.project':          'Projekt',
+  'invoice.statusLabel':      'Status',
+  'invoice.issueDate':        'Rechnungsdatum',
+  'invoice.dueDate':          'Fälligkeitsdatum',
+  'invoice.total':            'Gesamt inkl. MwSt.',
+  'invoice.balance':          'Offener Betrag',
+  'invoice.notes':            'Notizen',
+  'invoice.notesPlaceholder': 'Zahlungsbedingungen, rechtliche Hinweise…',
+
+  'invoice.selectClient':     'Kunden auswählen',
+  'invoice.noProject':        'Kein Projekt',
+
+  'invoice.createTitle':      'Neue Rechnung',
+  'invoice.editTitle':        'Rechnung bearbeiten',
+
+  'invoice.section.info':     'Informationen',
+  'invoice.section.dates':    'Datumsangaben',
+
+  'invoice.lines':            'Positionen',
+  'invoice.line.description': 'Beschreibung',
+  'invoice.line.descriptionPlaceholder': 'Beschreibung oder aus Katalog wählen…',
+  'invoice.line.quantity':    'Menge',
+  'invoice.line.unitPrice':   'Einzelpreis',
+  'invoice.line.vat':         'MwSt.',
+  'invoice.line.total':       'Summe',
+  'invoice.line.add':         'Position hinzufügen',
+  'invoice.line.remove':      'Position entfernen',
+
+  'invoice.totalHt':          'Zwischensumme',
+  'invoice.totalVat':         'MwSt.',
+  'invoice.totalTtc':         'Gesamt inkl. MwSt.',
+  'invoice.paid':             'Bezahlt',
+  'invoice.balanceDue':       'Offener Betrag',
+
+  'invoice.payments':         'Zahlungen',
+  'invoice.payment.date':     'Datum',
+  'invoice.payment.amount':   'Betrag',
+  'invoice.payment.method':   'Methode',
+  'invoice.payment.reference': 'Referenz',
+  'invoice.payment.referencePlaceholder': 'Überweisungsnr., Scheck…',
+  'invoice.payment.add':      'Zahlung erfassen',
+  'invoice.payment.remove':   'Zahlung entfernen',
+  'invoice.payment.empty':    'Keine Zahlung erfasst',
+  'invoice.payment.lockedDraft': 'Versenden Sie die Rechnung, um Zahlungen zu erfassen.',
+  'invoice.payment.settled':  'Rechnung vollständig bezahlt — kein offener Betrag.',
+  'invoice.payment.fill':     'Ausgleichen',
+
+  'invoice.method.transfer':  'Überweisung',
+  'invoice.method.check':     'Scheck',
+  'invoice.method.cash':      'Bar',
+  'invoice.method.card':      'Karte',
+
+  'invoice.action.markSent':      'Als versendet markieren',
+  'invoice.action.markCancelled': 'Rechnung stornieren',
+  'invoice.action.reopen':        'Zurück zum Entwurf',
+
+  'invoice.filter.allStatuses': 'Alle',
+  'invoice.filter.allClients':  'Alle Kunden',
+
+  'invoice.stats.unpaid':         'Gesamt offen',
+  'invoice.stats.revenueMonth':   'Diesen Monat eingenommen',
+
+  'invoice.status.draft':     'Entwurf',
+  'invoice.status.sent':      'Versendet',
+  'invoice.status.paid':      'Bezahlt',
+  'invoice.status.overdue':   'Überfällig',
+  'invoice.status.cancelled': 'Storniert',
+
+  'invoice.toast.created':        'Rechnung erstellt',
+  'invoice.toast.saved':          'Rechnung gespeichert',
+  'invoice.toast.statusChanged':  'Status aktualisiert',
+  'invoice.toast.deleted':        'Rechnung gelöscht',
+  'invoice.toast.paymentAdded':   'Zahlung erfasst',
+  'invoice.toast.paymentRemoved': 'Zahlung entfernt',
+} satisfies Record<string, string>

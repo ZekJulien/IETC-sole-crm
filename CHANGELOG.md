@@ -9,6 +9,111 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.13.0] — 2026-05-26 — Phase 11 · 1/6 : Welcome Wizard + Seed démo + i18n 4 langues (FR/EN/NL/DE)
+
+Premier chantier (transverse) de la **Phase 11**, livré en **un seul commit** : le **Welcome
+Wizard** au premier démarrage, le **seed** (défauts + démo), et le passage en **4 langues**
+(sélecteur + persistance). Détail des trois volets ci-dessous.
+
+### i18n & sélecteur de langue (4 langues)
+
+Sole devient **quadrilingue** — FR / EN / **NL** / **DE** (les trois langues officielles belges +
+l'anglais). L'infra i18n existait des deux côtés mais **sans sélecteur ni persistance** ; c'est
+désormais complet : un sélecteur dans le **wizard** (écran de bienvenue) **et** un nouvel **onglet
+Paramètres « Préférences »**, le choix **persiste** (localStorage) et **synchronise le locale du
+main** (messages d'erreur backend dans la bonne langue). Bascule **à chaud**, sans reload.
+
+#### Décisions
+
+- **Traductions chargées paresseusement par langue.** Empiler 4 langues × ~430 clés en *eager*
+  faisait **dépasser le budget initial** (524 kB > 500 kB). Refonte : un **module agrégateur par
+  locale** (`i18n/locales/{en,fr,nl,de}.ts`) **importé dynamiquement** → un *lazy chunk* par langue,
+  **zéro traduction dans le bundle initial** (qui retombe à **452 kB**, plus léger qu'avant).
+  `I18nService` charge la locale active (**+ EN en base de repli**), `t()` lit un signal
+  `_dictionary`. **Budget non relevé** (on règle la cause, pas le seuil).
+- **Persistance + synchro main.** Choix stocké en **`localStorage`** (`sole.locale`) — pas en DB, car
+  il doit fonctionner **dans le wizard avant** toute entreprise. Nouveau canal **`i18n:setLocale`**
+  (`ipcHandleNoTx`) → le main (`setLocale`) aligne ses messages d'erreur. Au boot,
+  `provideAppInitializer` **attend** `i18n.init()` (import du chunk de la locale) **avant** le rendu →
+  pas de flash de clés non traduites.
+- **`TranslatePipe` déjà `pure: false`** (lit `locale()`) → la bascule de langue rafraîchit l'UI
+  instantanément, rien à changer côté pipe.
+- **Sélecteur = `<select class="app-select">`** (composant partagé `LanguageSelect`, réutilisé wizard
+  **+** Préférences) plutôt que le `SegmentedToggle` (icône-only, inadapté à 4 langues). Langues en
+  **autonymes** (Français / English / Nederlands / Deutsch).
+- **Traductions complètes des deux côtés** : 17 namespaces renderer × NL + DE, + les messages d'erreur
+  `main/i18n/errors.{nl,de}.ts`.
+
+#### Fichiers
+
+- **Shared** : `channels/i18n`, `interfaces/i18n`. **Preload** : `apis/i18n.api` + window types.
+  **Main** : `handlers/i18n` + `errors.{nl,de}` + enregistrement dans `i18n/index`.
+- **Renderer** : `i18n/locales/{en,fr,nl,de}.ts` (agrégateurs lazy), 34 fichiers `*.{nl,de}.ts`,
+  `I18nService` refondu (lazy + persist + sync), `LanguageSelect` (shared), onglet **Préférences**
+  (`features/settings/pages/preferences` + route + tab `SettingsHeader`), toggle dans le wizard,
+  `provideAppInitializer`.
+
+### Welcome Wizard + Seed démo
+
+Au **premier démarrage** (aucune entreprise en base), l'app affiche un **Welcome Wizard** plein
+écran à la place du dashboard : **3 étapes** (bienvenue → configuration de l'entreprise →
+choix du mode **démo** ou **vide**). Le **seed** (`seedRequiredDefaults` / `seedDemoData`),
+jamais créé jusqu'ici, l'est enfin — et tourne **dans le main process** (pas via `prisma db
+seed` : `better-sqlite3` est compilé pour l'ABI Electron). Un bouton **« Réinitialiser »** dans
+les Paramètres efface tout et relance le wizard (pratique pour la démo à l'oral).
+
+### Décisions d'architecture
+
+- **Seed côté main, déclenché par IPC.** `prisma db seed` est inutilisable (ABI Electron) → le
+  seed est un `SeedService` qui **compose les services existants** (`client.add`, `project.add`,
+  `invoice.add`…) plutôt que d'écrire du SQL brut, donc toute la logique métier (numéros, statuts,
+  totaux) s'applique. Canaux `seed:requiredDefaults` / `seed:demo` / `seed:reset` en
+  **`ipcHandleNoTx`** : le seed gère **sa propre transaction** via
+  `getDbContext().transaction(fn, { timeout: 120_000 })` — ~70 insertions dépassent le **timeout
+  5 s** de la tx interactive par défaut.
+- **`DbContext.transaction()` accepte désormais `{ maxWait, timeout }`** (ajout purement additif,
+  rétrocompatible, transmis à `$transaction`). Seul le seed l'utilise pour l'instant.
+- **Parcours : Bienvenue → Choix démo/vide → (si vide) formulaire entreprise.** Le mode
+  **démo** crée **aussi une entreprise de démo** (« Atelier Margaux ») — `seedDemoData` réutilise
+  `getNextInvoiceNumber/QuoteNumber`, qui **exige une entreprise configurée**. Le mode **vide**
+  ouvre le formulaire société (form Phase 2 réutilisé) pour saisir **sa propre** entreprise, puis
+  `seedRequiredDefaults`. Données démo : 1 entreprise, 3 clients (+ contacts), 4 produits,
+  5 projets (statuts variés, catégories N:M), 7 tâches, 18 entrées de temps (dont 3 pomodoro),
+  9 dépenses, 5 devis (DRAFT→ACCEPTED→REJECTED), 8 factures + paiements donnant des statuts
+  **PAID / OVERDUE / SENT / DRAFT** réalistes (dates **relatives à aujourd'hui** via un helper
+  `at(jours)`, donc toujours fraîches).
+- **`seedRequiredDefaults`** (idempotent — garde sur `category.length > 0`) crée les **catégories
+  projet** (5) + **catégories de dépense** (6). Les **taux de TVA restent seedés par la migration**
+  (21/12/6/0) ; `reset` ne les touche pas.
+- **Gate du wizard côté renderer.** `provideAppInitializer` charge `CompanyStore` au boot ; si
+  `!isConfigured()` → `WizardService.start()`. `App` rend le shell (navbar + `router-outlet`
+  animé) **en permanence** et **superpose** le wizard en overlay (`position: fixed`,
+  `z-index: 900`, sous le toaster à 1000) quand `wizard.active()`. ⚠️ envelopper le `router-outlet`
+  animé dans un `@if/@else` faisait passer `@routeAnim` de `null` à `''` dans le même cycle de
+  détection → **NG0100** ; l'overlay garde le timing d'origine de l'animation. Le wizard est piloté
+  par le signal dédié `WizardService.active` (pas par `isConfigured()`, sinon il se fermerait dès
+  la sauvegarde de la société), remis à `false` en fin de parcours.
+- **Form société réutilisé** (`CompanyForm`, Phase 2) à l'étape 2 — zéro formulaire dupliqué.
+  **3 étapes en composants enfants** (`WizardWelcome` / `WizardCompany` / `WizardSeedChoice`),
+  navigation par signal `step` ; chaque CSS sous le budget **4 kB**.
+- **`reset` FK-safe** : `deleteMany` enfants→parents (paiements → lignes → factures → … →
+  entreprise), taux de TVA conservés, + purge du dossier `storage/` (justificatifs) via
+  `clearAllStorage()`.
+
+### Fichiers (résumé)
+
+- **Main** : `seed/` (`required-defaults`, `demo-data`, `types`), `services/seed`,
+  `handlers/seed`, `dependencies/seed` ; tweaks `core/db-context` (+timeout) &
+  `core/file-storage` (+`clearAllStorage`).
+- **Shared** : `channels/seed`, `interfaces/seed`. **Preload** : `apis/seed.api` + window types.
+- **Renderer** : `services/seed`, `services/wizard`, `stores/seed`, `features/welcome-wizard/*`,
+  gate dans `App` + `app.config` (`provideAppInitializer`), **zone de danger** (« Réinitialiser »)
+  en bas de `company-settings`, i18n `welcome-wizard.{en,fr}` (`wizard.*` / `seed.*` /
+  `settings.reset.*`).
+
+> ⚠️ Pas de migration dans ce chantier (aucun nouveau modèle). **À tester E2E** (`npm start`) :
+> le wizard ne s'affiche qu'avec une base **sans** entreprise.
+
 ## [0.12.0] — 2026-05-26 — Phase 10 : Bundle Invoice (Facture) + paiements + éditeur de lignes partagé
 
 Entité **Invoice** (`Facture`) end-to-end — **le bundle le plus complexe : deux

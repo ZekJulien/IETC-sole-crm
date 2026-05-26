@@ -86,4 +86,8 @@ export const routes: Routes = [
     path: AppRoutes.paths.settingsProducts,
     loadComponent: () => import('./features/product/pages/product-settings/product-settings').then(c => c.ProductSettings)
   },
+  {
+    path: AppRoutes.paths.settingsPreferences,
+    loadComponent: () => import('./features/settings/pages/preferences/preferences').then(c => c.Preferences)
+  },
 ]

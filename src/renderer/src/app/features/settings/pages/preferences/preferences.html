@@ -1,0 +1,13 @@
+<section class="prefs-page">
+  <app-settings-header [icon]="headerIcon" title="preferences.title" subtitle="preferences.subtitle" />
+
+  <div class="prefs-page__content">
+    <div class="prefs-field">
+      <div class="prefs-field__info">
+        <span class="prefs-field__label">{{ 'preferences.language' | t }}</span>
+        <p class="prefs-field__hint">{{ 'preferences.languageHint' | t }}</p>
+      </div>
+      <app-language-select />
+    </div>
+  </div>
+</section>

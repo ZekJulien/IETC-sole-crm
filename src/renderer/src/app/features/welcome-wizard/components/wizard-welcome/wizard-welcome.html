@@ -1,0 +1,12 @@
+<div class="welcome">
+  <div class="welcome__logo">
+    <span class="welcome__mark">S</span>
+    <svg lucideSparkles [size]="20" class="welcome__sparkle" />
+  </div>
+  <h1 class="welcome__title">{{ 'wizard.welcome.title' | t }}</h1>
+  <p class="welcome__text">{{ 'wizard.welcome.subtitle' | t }}</p>
+  <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="start.emit()">
+    {{ 'wizard.welcome.cta' | t }}
+  </app-button>
+  <app-language-select class="welcome__lang" />
+</div>

@@ -30,6 +30,10 @@
       <svg lucidePackage [size]="15" />
       <span>{{ 'settings.tab.products' | t }}</span>
     </a>
+    <a class="settings-header__tab" [routerLink]="preferencesRoute" routerLinkActive="settings-header__tab--active">
+      <svg lucideLanguages [size]="15" />
+      <span>{{ 'settings.tab.preferences' | t }}</span>
+    </a>
   </nav>
 
   <div class="settings-header__actions">

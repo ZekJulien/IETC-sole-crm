@@ -1,0 +1,5 @@
+<select #sel class="app-select language-select" (change)="onChange(sel.value)">
+  @for (lang of languages; track lang.code) {
+    <option [value]="lang.code" [selected]="lang.code === current()">{{ lang.name }}</option>
+  }
+</select>
