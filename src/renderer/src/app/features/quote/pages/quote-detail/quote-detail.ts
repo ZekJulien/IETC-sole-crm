@@ -2,14 +2,14 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
-import { LucideArrowLeft, LucidePlus, LucideTrash2, LucideCheck, LucideX, LucideSend } from '@lucide/angular'
-import { QuoteStatus, QuoteLineDto, CreateQuoteDto, UpdateQuoteDto, QuoteLineInput } from '@shared/dtos/quote'
+import { LucideArrowLeft, LucideCheck, LucideX, LucideSend } from '@lucide/angular'
+import { QuoteStatus, CreateQuoteDto, UpdateQuoteDto, QuoteLineInput } from '@shared/dtos/quote'
 import { QuoteStore } from '@app/stores/quote'
 import { ClientStore } from '@app/stores/client/client-store'
 import { ProjectStore } from '@app/stores/project'
 import { VatRateStore } from '@app/stores/vat-rate'
 import { ProductStore } from '@app/stores/product'
-import { Button, ConfirmDialog, Combobox } from '@app/components'
+import { Button, ConfirmDialog, LineItemsEditor, buildLineGroup } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
 import { formatCurrency, toInputDate } from '@app/utils'
@@ -25,8 +25,8 @@ interface QuoteTotals {
 @Component({
   selector: 'app-quote-detail',
   imports: [
-    ReactiveFormsModule, Button, ConfirmDialog, Combobox, TranslatePipe,
-    LucideArrowLeft, LucidePlus, LucideTrash2, LucideCheck, LucideX, LucideSend,
+    ReactiveFormsModule, Button, ConfirmDialog, LineItemsEditor, TranslatePipe,
+    LucideArrowLeft, LucideCheck, LucideX, LucideSend,
   ],
   templateUrl: './quote-detail.html',
   styleUrl: './quote-detail.css',
@@ -71,8 +71,6 @@ export class QuoteDetail implements OnInit {
     return this.form.controls.lines as FormArray
   }
 
-  readonly productNames = computed(() => this.products.products().map(p => p.name))
-
   readonly availableProjects = computed(() => {
     this.formTick()
     const clientId = this.form.controls.clientId.value
@@ -112,7 +110,7 @@ export class QuoteDetail implements OnInit {
       this.quoteId.set(id)
       await this.loadQuote(id)
     } else {
-      this.addLine()
+      this.addEmptyLine()
     }
   }
 
@@ -133,52 +131,13 @@ export class QuoteDetail implements OnInit {
     })
     this.suppressClientReset = false
     this.linesArray.clear()
-    for (const line of quote.lines) this.linesArray.push(this.lineGroup(line))
-    if (quote.lines.length === 0) this.addLine()
+    for (const line of quote.lines)
+      this.linesArray.push(buildLineGroup(this.fb, line, this.vatRates.defaultRate()))
+    if (quote.lines.length === 0) this.addEmptyLine()
   }
 
-  private lineGroup(line?: QuoteLineDto): FormGroup {
-    return this.fb.group({
-      id:          [line?.id ?? null as number | null],
-      productId:   [line?.productId ?? null as number | null],
-      description: [line?.description ?? '', [Validators.required]],
-      quantity:    [line?.quantity ?? 1, [Validators.required, Validators.min(0.01)]],
-      unitPrice:   [line?.unitPrice ?? 0, [Validators.required, Validators.min(0)]],
-      vatRate:     [line?.vatRate ?? this.vatRates.defaultRate(), [Validators.required]],
-    })
-  }
-
-  addLine(): void {
-    this.linesArray.push(this.lineGroup())
-  }
-
-  removeLine(index: number): void {
-    this.linesArray.removeAt(index)
-  }
-
-  lineTotal(index: number): number {
-    const { quantity, unitPrice } = this.linesArray.at(index).getRawValue()
-    return (Number(quantity) || 0) * (Number(unitPrice) || 0)
-  }
-
-  onDescriptionInput(index: number, value: string): void {
-    const ctrl = this.linesArray.at(index)
-    ctrl.get('description')!.setValue(value)
-    if (!this.products.products().some(p => p.name === value.trim())) {
-      ctrl.get('productId')!.setValue(null)
-    }
-  }
-
-  onDescriptionChange(index: number, value: string): void {
-    const ctrl    = this.linesArray.at(index)
-    const product = this.products.products().find(p => p.name === value.trim())
-    if (!product) return
-    ctrl.patchValue({
-      description: product.name,
-      productId:   product.id,
-      unitPrice:   product.unitPrice,
-      vatRate:     product.vatRate,
-    })
+  private addEmptyLine(): void {
+    this.linesArray.push(buildLineGroup(this.fb, undefined, this.vatRates.defaultRate()))
   }
 
   async markStatus(status: QuoteStatus): Promise<void> {

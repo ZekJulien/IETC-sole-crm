@@ -34,3 +34,6 @@
 .badge--ACCEPTED { background: color-mix(in srgb, var(--color-success)     15%, transparent); color: var(--color-success); }
 .badge--REJECTED { background: color-mix(in srgb, var(--color-danger)      15%, transparent); color: var(--color-danger); }
 .badge--EXPIRED  { background: color-mix(in srgb, var(--color-warning)     15%, transparent); color: var(--color-warning); }
+
+.badge--PAID     { background: color-mix(in srgb, var(--color-success)     15%, transparent); color: var(--color-success); }
+.badge--OVERDUE  { background: color-mix(in srgb, var(--color-danger)      15%, transparent); color: var(--color-danger); }

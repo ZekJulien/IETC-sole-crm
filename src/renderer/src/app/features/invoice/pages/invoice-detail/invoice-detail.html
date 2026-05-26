@@ -1,0 +1,162 @@
+<section class="invoice-detail">
+  <header class="invoice-detail__header">
+    <button type="button" class="back-btn" (click)="cancel()" [attr.aria-label]="'common.back' | t">
+      <svg lucideArrowLeft [size]="18" />
+    </button>
+    <div class="invoice-detail__heading">
+      <h1 class="invoice-detail__title">{{ titleKey() | t }}</h1>
+      @if (number(); as n) {
+        <span class="invoice-detail__number">{{ n }}</span>
+      }
+      @if (isEdit()) {
+        <app-status-badge [status]="status()" [i18nKey]="statusKey(status())" />
+      }
+    </div>
+
+    <div class="invoice-detail__actions">
+      @if (isEdit()) {
+        @if (status() === InvoiceStatus.DRAFT) {
+          <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="markStatus(InvoiceStatus.SENT)">
+            <svg lucideSend [size]="14" />
+            {{ 'invoice.action.markSent' | t }}
+          </app-button>
+        }
+        @if (status() === InvoiceStatus.SENT || status() === InvoiceStatus.OVERDUE) {
+          <app-button [variant]="ButtonVariant.DANGER" (clicked)="markStatus(InvoiceStatus.CANCELLED)">
+            <svg lucideBan [size]="14" />
+            {{ 'invoice.action.markCancelled' | t }}
+          </app-button>
+        }
+        @if (status() === InvoiceStatus.CANCELLED) {
+          <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="markStatus(InvoiceStatus.DRAFT)">
+            <svg lucideRotateCcw [size]="14" />
+            {{ 'invoice.action.reopen' | t }}
+          </app-button>
+        }
+        <app-button [variant]="ButtonVariant.DANGER" (clicked)="confirmOpen.set(true)">
+          {{ 'common.delete' | t }}
+        </app-button>
+      }
+      <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancel()">{{ 'common.cancel' | t }}</app-button>
+      <app-button [variant]="ButtonVariant.PRIMARY" [loading]="store.saving()" (clicked)="submit()">
+        {{ 'common.save' | t }}
+      </app-button>
+    </div>
+  </header>
+
+  <div class="invoice-detail__scroll">
+    <form class="invoice-form" [formGroup]="form" (ngSubmit)="submit()">
+
+      <section class="card">
+        <h2 class="card__title">{{ 'invoice.section.info' | t }}</h2>
+        <div class="grid">
+          <div class="field">
+            <label class="field__label">{{ ('invoice.client' | t) + ' *' }}</label>
+            <select class="app-select" formControlName="clientId">
+              <option [ngValue]="null" disabled>{{ 'invoice.selectClient' | t }}</option>
+              @for (c of clients.clients(); track c.id) {
+                <option [ngValue]="c.id">{{ c.name }}</option>
+              }
+            </select>
+            @if (form.controls.clientId.touched && form.controls.clientId.invalid) {
+              <span class="field__error">{{ 'required' | t }}</span>
+            }
+          </div>
+
+          <div class="field">
+            <label class="field__label">{{ 'invoice.project' | t }}</label>
+            <select class="app-select" formControlName="projectId">
+              <option [ngValue]="null">{{ 'invoice.noProject' | t }}</option>
+              @for (p of availableProjects(); track p.id) {
+                <option [ngValue]="p.id">{{ p.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">{{ 'invoice.section.dates' | t }}</h2>
+        <div class="grid">
+          <div class="field">
+            <label class="field__label">{{ 'invoice.issueDate' | t }}</label>
+            <input class="field__input" type="date" formControlName="issueDate" />
+          </div>
+          <div class="field">
+            <label class="field__label">{{ ('invoice.dueDate' | t) + ' *' }}</label>
+            <input class="field__input" type="date" formControlName="dueDate" />
+            @if (form.controls.dueDate.touched && form.controls.dueDate.invalid) {
+              <span class="field__error">{{ 'required' | t }}</span>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">{{ 'invoice.lines' | t }}</h2>
+
+        <app-line-items-editor
+          [lines]="linesArray"
+          [vatRates]="vatRates.items()"
+          [products]="products.products()" />
+
+        <div class="totals">
+          <div class="totals__row">
+            <span>{{ 'invoice.totalHt' | t }}</span>
+            <span>{{ formatCurrency(totals().totalHt) }}</span>
+          </div>
+          @for (b of totals().breakdown; track b.rate) {
+            <div class="totals__row">
+              <span>{{ 'invoice.totalVat' | t }} {{ b.rate }}%</span>
+              <span>{{ formatCurrency(b.vat) }}</span>
+            </div>
+          }
+          <div class="totals__row totals__row--grand">
+            <span>{{ 'invoice.totalTtc' | t }}</span>
+            <span>{{ formatCurrency(totals().totalTtc) }}</span>
+          </div>
+          @if (isEdit()) {
+            <div class="totals__row totals__row--paid">
+              <span>{{ 'invoice.paid' | t }}</span>
+              <span>{{ formatCurrency(paidAmount()) }}</span>
+            </div>
+            <div class="totals__row totals__row--balance">
+              <span>{{ 'invoice.balanceDue' | t }}</span>
+              <span>{{ formatCurrency(balanceDue()) }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      @if (isEdit()) {
+        <section class="card">
+          <h2 class="card__title">{{ 'invoice.payments' | t }}</h2>
+          <app-payments-panel
+            [payments]="payments()"
+            [form]="paymentForm"
+            [methods]="methods"
+            [canRecord]="canRecordPayment()"
+            [settled]="settled()"
+            [saving]="savingPayment()"
+            (record)="recordPayment()"
+            (remove)="deletePayment($event)"
+            (fill)="fillBalance()" />
+        </section>
+      }
+
+      <section class="card">
+        <h2 class="card__title">{{ 'invoice.notes' | t }}</h2>
+        <textarea
+          class="field__input field__textarea"
+          rows="3"
+          formControlName="notes"
+          [placeholder]="'invoice.notesPlaceholder' | t"></textarea>
+      </section>
+    </form>
+  </div>
+
+  <app-confirm-dialog
+    [visible]="confirmOpen()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmOpen.set(false)" />
+</section>

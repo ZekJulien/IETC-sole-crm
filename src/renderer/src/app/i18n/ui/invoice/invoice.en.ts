@@ -1,0 +1,83 @@
+export default {
+  'invoice.title':            'Invoices',
+  'invoice.subtitle':         'Your billing and its collection',
+  'invoice.new':              'New invoice',
+  'invoice.searchPlaceholder': 'Search a number…',
+
+  'invoice.number':           'Number',
+  'invoice.client':           'Client',
+  'invoice.project':          'Project',
+  'invoice.statusLabel':      'Status',
+  'invoice.issueDate':        'Issue date',
+  'invoice.dueDate':          'Due date',
+  'invoice.total':            'Total incl. VAT',
+  'invoice.balance':          'Balance due',
+  'invoice.notes':            'Notes',
+  'invoice.notesPlaceholder': 'Payment terms, legal mentions…',
+
+  'invoice.selectClient':     'Select a client',
+  'invoice.noProject':        'No project',
+
+  'invoice.createTitle':      'New invoice',
+  'invoice.editTitle':        'Edit invoice',
+
+  'invoice.section.info':     'Information',
+  'invoice.section.dates':    'Dates',
+
+  'invoice.lines':            'Line items',
+  'invoice.line.description': 'Description',
+  'invoice.line.descriptionPlaceholder': 'Description or pick from catalog…',
+  'invoice.line.quantity':    'Qty',
+  'invoice.line.unitPrice':   'Unit price',
+  'invoice.line.vat':         'VAT',
+  'invoice.line.total':       'Total',
+  'invoice.line.add':         'Add a line',
+  'invoice.line.remove':      'Remove line',
+
+  'invoice.totalHt':          'Subtotal',
+  'invoice.totalVat':         'VAT',
+  'invoice.totalTtc':         'Total incl. VAT',
+  'invoice.paid':             'Paid',
+  'invoice.balanceDue':       'Balance due',
+
+  'invoice.payments':         'Payments',
+  'invoice.payment.date':     'Date',
+  'invoice.payment.amount':   'Amount',
+  'invoice.payment.method':   'Method',
+  'invoice.payment.reference': 'Reference',
+  'invoice.payment.referencePlaceholder': 'Transfer no., cheque…',
+  'invoice.payment.add':      'Record payment',
+  'invoice.payment.remove':   'Remove payment',
+  'invoice.payment.empty':    'No payment recorded',
+  'invoice.payment.lockedDraft': 'Send the invoice to record payments.',
+  'invoice.payment.settled':  'Invoice fully paid — no balance left.',
+  'invoice.payment.fill':     'Settle',
+
+  'invoice.method.transfer':  'Transfer',
+  'invoice.method.check':     'Cheque',
+  'invoice.method.cash':      'Cash',
+  'invoice.method.card':      'Card',
+
+  'invoice.action.markSent':      'Mark as sent',
+  'invoice.action.markCancelled': 'Cancel invoice',
+  'invoice.action.reopen':        'Back to draft',
+
+  'invoice.filter.allStatuses': 'All',
+  'invoice.filter.allClients':  'All clients',
+
+  'invoice.stats.unpaid':         'Total unpaid',
+  'invoice.stats.revenueMonth':   'Collected this month',
+
+  'invoice.status.draft':     'Draft',
+  'invoice.status.sent':      'Sent',
+  'invoice.status.paid':      'Paid',
+  'invoice.status.overdue':   'Overdue',
+  'invoice.status.cancelled': 'Cancelled',
+
+  'invoice.toast.created':        'Invoice created',
+  'invoice.toast.saved':          'Invoice saved',
+  'invoice.toast.statusChanged':  'Status updated',
+  'invoice.toast.deleted':        'Invoice deleted',
+  'invoice.toast.paymentAdded':   'Payment recorded',
+  'invoice.toast.paymentRemoved': 'Payment removed',
+} satisfies Record<string, string>

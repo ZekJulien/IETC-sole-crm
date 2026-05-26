@@ -20,4 +20,5 @@ model Client {
   contacts      Contact[]
   projects      Project[]
   quotes        Quote[]
+  invoices      Invoice[]
 }

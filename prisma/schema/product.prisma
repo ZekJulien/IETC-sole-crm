@@ -8,6 +8,7 @@ model Product {
   archived    Boolean  @default(false)
 
   quoteLines  QuoteLine[]
+  invoiceLines InvoiceLine[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

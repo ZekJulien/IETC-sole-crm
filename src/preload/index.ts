@@ -10,6 +10,7 @@ import { taskApi } from './apis/task.api'
 import { timeEntryApi } from './apis/time-entry.api'
 import { expenseApi } from './apis/expense.api'
 import { quoteApi } from './apis/quote.api'
+import { invoiceApi } from './apis/invoice.api'
 import { vatRateApi } from './apis/vat-rate.api'
 import { productApi } from './apis/product.api'
 
@@ -25,6 +26,7 @@ contextBridge.exposeInMainWorld('api', {
   timeEntry: timeEntryApi,
   expense:  expenseApi,
   quote:    quoteApi,
+  invoice:  invoiceApi,
   vatRate:  vatRateApi,
   product:  productApi,
 })

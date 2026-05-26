@@ -8,6 +8,7 @@ import { TaskAPI } from '@shared/interfaces/task'
 import { TimeEntryAPI } from '@shared/interfaces/time-entry'
 import { ExpenseAPI } from '@shared/interfaces/expense'
 import { QuoteAPI } from '@shared/interfaces/quote'
+import { InvoiceAPI } from '@shared/interfaces/invoice'
 import { VatRateAPI } from '@shared/interfaces/vat-rate'
 import { ProductAPI } from '@shared/interfaces/product'
 
@@ -25,6 +26,7 @@ declare global {
       timeEntry: TimeEntryAPI
       expense:  ExpenseAPI
       quote:    QuoteAPI
+      invoice:  InvoiceAPI
       vatRate:  VatRateAPI
       product:  ProductAPI
     }

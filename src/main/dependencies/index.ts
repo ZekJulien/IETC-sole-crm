@@ -7,6 +7,7 @@ import { TaskService } from '../services/task'
 import { TimeEntryService } from '../services/time-entry'
 import { ExpenseService } from '../services/expense'
 import { QuoteService } from '../services/quote'
+import { InvoiceService } from '../services/invoice'
 import { VatRateService } from '../services/vat-rate'
 import { ProductService } from '../services/product'
 import { getClientService, getContactService } from './client'
@@ -18,6 +19,7 @@ import { getTaskService } from './task'
 import { getTimeEntryService } from './time-entry'
 import { getExpenseService } from './expense'
 import { getQuoteService } from './quote'
+import { getInvoiceService } from './invoice'
 import { getVatRateService } from './vat-rate'
 import { getProductService } from './product'
 
@@ -32,6 +34,7 @@ export interface AppDependencies {
   timeEntryService: TimeEntryService
   expenseService: ExpenseService
   quoteService: QuoteService
+  invoiceService: InvoiceService
   vatRateService: VatRateService
   productService: ProductService
 }
@@ -48,6 +51,7 @@ export function buildDependencies(): AppDependencies {
     timeEntryService: getTimeEntryService(),
     expenseService: getExpenseService(),
     quoteService: getQuoteService(),
+    invoiceService: getInvoiceService(),
     vatRateService: getVatRateService(),
     productService: getProductService(),
   }

@@ -1,0 +1,61 @@
+@if (!canRecord()) {
+  <p class="payments__locked">{{ 'invoice.payment.lockedDraft' | t }}</p>
+}
+
+@if (payments().length) {
+  <ul class="payments__list">
+    @for (p of payments(); track p.id) {
+      <li class="payment-row">
+        <span class="payment-row__date">{{ formatDate(p.date) }}</span>
+        <span class="payment-row__method">{{ methodKey(p.method) | t }}</span>
+        <span class="payment-row__ref">{{ p.reference || '—' }}</span>
+        <span class="payment-row__amount">{{ formatCurrency(p.amount) }}</span>
+        <button
+          type="button"
+          class="payment-row__remove"
+          (click)="remove.emit(p.id)"
+          [attr.aria-label]="'invoice.payment.remove' | t">
+          <svg lucideTrash2 [size]="14" />
+        </button>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="payments__empty">{{ 'invoice.payment.empty' | t }}</p>
+}
+
+@if (canRecord() && settled()) {
+  <p class="payments__settled">{{ 'invoice.payment.settled' | t }}</p>
+}
+
+@if (canRecord() && !settled()) {
+  <form class="payment-form" [formGroup]="form()" (ngSubmit)="record.emit()">
+    <div class="field">
+      <label class="field__label">{{ 'invoice.payment.date' | t }}</label>
+      <input class="field__input" type="date" formControlName="date" />
+    </div>
+    <div class="field">
+      <label class="field__label">{{ 'invoice.payment.amount' | t }}</label>
+      <div class="input-affix">
+        <input class="field__input" type="number" min="0" step="0.01" formControlName="amount" />
+        <button type="button" class="input-affix__btn" (click)="fill.emit()">{{ 'invoice.payment.fill' | t }}</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field__label">{{ 'invoice.payment.method' | t }}</label>
+      <select class="app-select" formControlName="method">
+        @for (m of methods(); track m) {
+          <option [ngValue]="m">{{ methodKey(m) | t }}</option>
+        }
+      </select>
+    </div>
+    <div class="field field--grow">
+      <label class="field__label">{{ 'invoice.payment.reference' | t }}</label>
+      <input class="field__input" type="text" formControlName="reference"
+        [placeholder]="'invoice.payment.referencePlaceholder' | t" />
+    </div>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="record.emit()">
+      {{ 'invoice.payment.add' | t }}
+    </app-button>
+  </form>
+}

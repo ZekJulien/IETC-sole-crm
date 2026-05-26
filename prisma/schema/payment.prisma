@@ -1,0 +1,10 @@
+model Payment {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @default(now())
+  amount    Float
+  method    String   @default("TRANSFER")
+  reference String?
+
+  invoiceId Int
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}

@@ -23,6 +23,8 @@ import expenseEn   from '../../i18n/ui/expense/expense.en'
 import expenseFr   from '../../i18n/ui/expense/expense.fr'
 import quoteEn     from '../../i18n/ui/quote/quote.en'
 import quoteFr     from '../../i18n/ui/quote/quote.fr'
+import invoiceEn   from '../../i18n/ui/invoice/invoice.en'
+import invoiceFr   from '../../i18n/ui/invoice/invoice.fr'
 import vatRateEn   from '../../i18n/ui/vat-rate/vat-rate.en'
 import vatRateFr   from '../../i18n/ui/vat-rate/vat-rate.fr'
 import productEn   from '../../i18n/ui/product/product.en'
@@ -31,8 +33,8 @@ import settingsEn  from '../../i18n/ui/settings/settings.en'
 import settingsFr  from '../../i18n/ui/settings/settings.fr'
 
 const translations: Record<string, Record<string, string>> = {
-  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...taskEn, ...timeEn, ...expenseEn, ...quoteEn, ...vatRateEn, ...productEn, ...settingsEn },
-  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...taskFr, ...timeFr, ...expenseFr, ...quoteFr, ...vatRateFr, ...productFr, ...settingsFr },
+  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...taskEn, ...timeEn, ...expenseEn, ...quoteEn, ...invoiceEn, ...vatRateEn, ...productEn, ...settingsEn },
+  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...taskFr, ...timeFr, ...expenseFr, ...quoteFr, ...invoiceFr, ...vatRateFr, ...productFr, ...settingsFr },
 }
 
 @Injectable({ providedIn: 'root' })

@@ -1,0 +1,83 @@
+export default {
+  'invoice.title':            'Factures',
+  'invoice.subtitle':         'Votre facturation et son encaissement',
+  'invoice.new':              'Nouvelle facture',
+  'invoice.searchPlaceholder': 'Rechercher un numéro…',
+
+  'invoice.number':           'Numéro',
+  'invoice.client':           'Client',
+  'invoice.project':          'Projet',
+  'invoice.statusLabel':      'Statut',
+  'invoice.issueDate':        "Date d'émission",
+  'invoice.dueDate':          "Échéance",
+  'invoice.total':            'Total TTC',
+  'invoice.balance':          'Solde dû',
+  'invoice.notes':            'Notes',
+  'invoice.notesPlaceholder': 'Conditions de paiement, mentions légales…',
+
+  'invoice.selectClient':     'Sélectionner un client',
+  'invoice.noProject':        'Aucun projet',
+
+  'invoice.createTitle':      'Nouvelle facture',
+  'invoice.editTitle':        'Modifier la facture',
+
+  'invoice.section.info':     'Informations',
+  'invoice.section.dates':    'Dates',
+
+  'invoice.lines':            'Lignes',
+  'invoice.line.description': 'Désignation',
+  'invoice.line.descriptionPlaceholder': 'Désignation ou choix dans le catalogue…',
+  'invoice.line.quantity':    'Qté',
+  'invoice.line.unitPrice':   'Prix unit.',
+  'invoice.line.vat':         'TVA',
+  'invoice.line.total':       'Total',
+  'invoice.line.add':         'Ajouter une ligne',
+  'invoice.line.remove':      'Supprimer la ligne',
+
+  'invoice.totalHt':          'Total HT',
+  'invoice.totalVat':         'TVA',
+  'invoice.totalTtc':         'Total TTC',
+  'invoice.paid':             'Encaissé',
+  'invoice.balanceDue':       'Reste à payer',
+
+  'invoice.payments':         'Paiements',
+  'invoice.payment.date':     'Date',
+  'invoice.payment.amount':   'Montant',
+  'invoice.payment.method':   'Moyen',
+  'invoice.payment.reference': 'Référence',
+  'invoice.payment.referencePlaceholder': 'N° de virement, chèque…',
+  'invoice.payment.add':      'Enregistrer le paiement',
+  'invoice.payment.remove':   'Supprimer le paiement',
+  'invoice.payment.empty':    'Aucun paiement enregistré',
+  'invoice.payment.lockedDraft': 'Envoyez la facture pour enregistrer des paiements.',
+  'invoice.payment.settled':  'Facture soldée — aucun solde à encaisser.',
+  'invoice.payment.fill':     'Solder',
+
+  'invoice.method.transfer':  'Virement',
+  'invoice.method.check':     'Chèque',
+  'invoice.method.cash':      'Espèces',
+  'invoice.method.card':      'Carte',
+
+  'invoice.action.markSent':      'Marquer envoyée',
+  'invoice.action.markCancelled': 'Annuler la facture',
+  'invoice.action.reopen':        'Repasser en brouillon',
+
+  'invoice.filter.allStatuses': 'Toutes',
+  'invoice.filter.allClients':  'Tous les clients',
+
+  'invoice.stats.unpaid':         'Total impayé',
+  'invoice.stats.revenueMonth':   'Encaissé ce mois',
+
+  'invoice.status.draft':     'Brouillon',
+  'invoice.status.sent':      'Envoyée',
+  'invoice.status.paid':      'Payée',
+  'invoice.status.overdue':   'En retard',
+  'invoice.status.cancelled': 'Annulée',
+
+  'invoice.toast.created':        'Facture créée',
+  'invoice.toast.saved':          'Facture enregistrée',
+  'invoice.toast.statusChanged':  'Statut mis à jour',
+  'invoice.toast.deleted':        'Facture supprimée',
+  'invoice.toast.paymentAdded':   'Paiement enregistré',
+  'invoice.toast.paymentRemoved': 'Paiement supprimé',
+} satisfies Record<string, string>

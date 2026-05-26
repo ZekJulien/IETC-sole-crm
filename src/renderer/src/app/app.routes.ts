@@ -49,6 +49,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/quote/pages/quote-detail/quote-detail').then(c => c.QuoteDetail)
   },
   {
+    path: AppRoutes.paths.invoices,
+    pathMatch: 'full',
+    loadComponent: () => import('./features/invoice/pages/invoice-list/invoice-list').then(c => c.InvoiceList)
+  },
+  {
+    path: AppRoutes.paths.invoiceNew,
+    loadComponent: () => import('./features/invoice/pages/invoice-detail/invoice-detail').then(c => c.InvoiceDetail)
+  },
+  {
+    path: AppRoutes.paths.invoiceDetail,
+    loadComponent: () => import('./features/invoice/pages/invoice-detail/invoice-detail').then(c => c.InvoiceDetail)
+  },
+  {
     path: AppRoutes.paths.settings,
     pathMatch: 'full',
     redirectTo: AppRoutes.paths.settingsCompany,

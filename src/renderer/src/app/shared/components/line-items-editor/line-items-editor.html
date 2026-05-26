@@ -1,0 +1,45 @@
+<div class="lines">
+  <div class="lines__head">
+    <span>{{ 'lineEditor.description' | t }}</span>
+    <span class="lines__num">{{ 'lineEditor.quantity' | t }}</span>
+    <span class="lines__num">{{ 'lineEditor.unitPrice' | t }}</span>
+    <span>{{ 'lineEditor.vat' | t }}</span>
+    <span class="lines__num">{{ 'lineEditor.total' | t }}</span>
+    <span class="lines__action"></span>
+  </div>
+
+  @for (line of lines().controls; track line; let i = $index) {
+    <div class="line-row" [formGroup]="$any(line)">
+      <app-combobox
+        [value]="line.get('description')!.value"
+        [suggestions]="productNames()"
+        [placeholder]="'lineEditor.descriptionPlaceholder' | t"
+        (valueChange)="onDescriptionInput(i, $event)"
+        (picked)="onDescriptionChange(i, $event)" />
+      <input class="field__input lines__num" type="number" min="0" step="0.5" formControlName="quantity" />
+      <div class="input-affix lines__num">
+        <input class="field__input" type="number" min="0" step="0.01" formControlName="unitPrice" />
+        <span class="input-affix__unit">€</span>
+      </div>
+      <select class="app-select" formControlName="vatRate">
+        @for (r of vatRates(); track r.id) {
+          <option [ngValue]="r.rate">{{ r.rate }}%</option>
+        }
+      </select>
+      <span class="line-row__total lines__num">{{ formatCurrency(lineTotal(i)) }}</span>
+      <button
+        type="button"
+        class="line-row__remove"
+        [disabled]="lines().length === 1"
+        (click)="removeLine(i)"
+        [attr.aria-label]="'lineEditor.remove' | t">
+        <svg lucideTrash2 [size]="15" />
+      </button>
+    </div>
+  }
+
+  <button type="button" class="add-line" (click)="addLine()">
+    <svg lucidePlus [size]="14" />
+    {{ 'lineEditor.add' | t }}
+  </button>
+</div>

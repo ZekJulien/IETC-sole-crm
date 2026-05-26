@@ -1,0 +1,68 @@
+<section class="invoices-page">
+  <header class="invoices-page__header">
+    <div class="invoices-page__heading">
+      <h1 class="invoices-page__title">{{ 'invoice.title' | t }}</h1>
+      <p class="invoices-page__subtitle">{{ 'invoice.subtitle' | t }}</p>
+    </div>
+    <div class="invoices-page__stats">
+      <div class="stat stat--accent">
+        <span class="stat__label">{{ 'invoice.stats.unpaid' | t }}</span>
+        <strong class="stat__value">{{ formatCurrency(store.stats().unpaid) }}</strong>
+      </div>
+      <div class="stat">
+        <span class="stat__label">{{ 'invoice.stats.revenueMonth' | t }}</span>
+        <strong class="stat__value">{{ formatCurrency(store.stats().revenueThisMonth) }}</strong>
+      </div>
+      <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+        <svg lucidePlus [size]="15" />
+        {{ 'invoice.new' | t }}
+      </app-button>
+    </div>
+  </header>
+
+  <div class="invoices-page__pipeline">
+    <button
+      type="button"
+      class="pipe-chip"
+      [class.pipe-chip--on]="statusFilter() === ''"
+      (click)="selectStatus('')">
+      <span class="pipe-chip__label">{{ 'invoice.filter.allStatuses' | t }}</span>
+      <span class="pipe-chip__count">{{ totalCount() }}</span>
+    </button>
+    @for (s of statuses; track s) {
+      <button
+        type="button"
+        class="pipe-chip"
+        [class.pipe-chip--on]="statusFilter() === s"
+        [attr.data-status]="s"
+        (click)="selectStatus(s)">
+        <span class="pipe-chip__label">{{ statusKey(s) | t }}</span>
+        <span class="pipe-chip__count">{{ count(s) }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="invoices-page__content">
+    <div class="invoices-page__filters">
+      <app-search-bar
+        class="invoices-page__search"
+        [placeholder]="'invoice.searchPlaceholder' | t"
+        (search)="onSearch($event)" />
+
+      <select class="filter-select" (change)="onClientChange($any($event.target).value)">
+        <option value="">{{ 'invoice.filter.allClients' | t }}</option>
+        @for (c of clients.clients(); track c.id) {
+          <option [value]="c.id">{{ c.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="invoices-page__table">
+      <app-data-table
+        [columns]="columns"
+        [data]="rows()"
+        [loading]="store.loading()"
+        (rowClick)="onRowClick($event)" />
+    </div>
+  </div>
+</section>

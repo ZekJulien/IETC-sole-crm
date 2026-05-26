@@ -9,6 +9,88 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-05-26 — Phase 10 : Bundle Invoice (Facture) + paiements + éditeur de lignes partagé
+
+Entité **Invoice** (`Facture`) end-to-end — **le bundle le plus complexe : deux
+sous-entités** (`InvoiceLine` **et** `Payment`) + **logique de statut automatique**. Deux
+pages dédiées : **liste `/invoices`** (lien navbar « Factures ») avec **en-tête pipeline**
+(compteurs par statut) **+ agrégats phares** (total impayé & encaissé ce mois) + filtres ;
+**page détail `/invoices/:id`** (+ `/invoices/new`) avec lignes en `FormArray`, **totaux
+HT/TVA/TTC + encaissé + reste à payer** recalculés en `computed()`, et une **section
+Paiements** (liste + sous-formulaire) pour encaisser des **paiements partiels**. En passant,
+l'**éditeur de lignes** est enfin **extrait en composant partagé** (`LineItemsEditor`) commun
+Devis ⇄ Facture, et la section paiements en composant `PaymentsPanel` propre à la facture.
+*(Conversion devis → facture et génération PDF restent en Phase 11, comme prévu.)*
+
+### Décisions d'architecture
+
+- **Deux sous-entités sans bundle propre.** `InvoiceLine` est synchronisée par **diff**
+  (`syncLines`, identique à `QuoteLine` : le front envoie tout le tableau, chaque ligne avec
+  `id?`). `Payment` est manipulée par des canaux dédiés **`ADD_PAYMENT` / `REMOVE_PAYMENT`**
+  (pas de diff : on ajoute/supprime un encaissement à l'unité). Les deux en **`onDelete:
+  Cascade`** (4ᵉ et 5ᵉ Cascade) : supprimer une facture élague lignes **et** paiements.
+- **Logique de statut automatique (cœur de la phase).** `status` **TEXT+CHECK**
+  (`DRAFT / SENT / PAID / OVERDUE / CANCELLED`, CHECK manuel dans la migration). Le service
+  recalcule le statut (`refreshStatus`) **après chaque écriture** (création, édition de
+  lignes, ajout/retrait de paiement) **et en lecture** (`get` / `getById`) : `paidAmount ≥
+  totalTtc → PAID` ; sinon `dueDate < aujourd'hui → OVERDUE` ; sinon `SENT`. `DRAFT` et
+  `CANCELLED` sont **gelés** (jamais écrasés automatiquement). Le passage en retard étant
+  *temporel*, il est évalué **paresseusement en lecture** (pas de scheduler — appli locale) :
+  ouvrir la page rafraîchit les statuts, donc le pipeline et l'agrégat impayé restent justes.
+  Transitions manuelles via **`UPDATE_STATUS`** (boutons « Marquer envoyée » / « Annuler » /
+  « Repasser en brouillon »).
+- **Totaux calculés, jamais stockés (normalisation)** — comme le devis : pas de `montantHT`/
+  `tva` dénormalisés (la spec les modélisait). `toDto` dérive `totalHt`/`totalVat`/`totalTtc`
+  + **ventilation TVA par taux** (`vatBreakdown`) des lignes, plus `paidAmount` (Σ paiements)
+  et `balanceDue`. **TVA par ligne** + **picker produit** (`InvoiceLine.vatRate` `@default(21)`
+  + `productId` FK `Product` `SetNull` avec snapshot) — **réutilise tel quel `VatRate` +
+  `Product`** de la 0.11.0.
+- **Numérotation auto réutilisant l'infra Company.** `InvoiceService` ⇒
+  `CompanyService.getNextInvoiceNumber()` (format `invoiceNumberFormat` + compteur
+  `CompanySettings`, reset annuel), incrément **atomique dans le même `ipcHandle`**. ⚠️ exige
+  une entreprise configurée (`COMPANY_NOT_CONFIGURED`).
+- **`Payment.method` TEXT+CHECK** (`TRANSFER / CHECK / CASH / CARD`, CHECK manuel) plutôt qu'un
+  enum Prisma — cohérent avec le reste du projet.
+- **Agrégats visibles dans l'en-tête de liste** (le dashboard reste un placeholder, Phase 11) :
+  **total impayé** = `Σ max(0, totalTtc − paidAmount)` sur les factures `SENT`/`OVERDUE`
+  (réduction JS car les totaux sont dérivés, non stockés) ; **CA encaissé du mois** = vrai
+  agrégat Prisma `payment.aggregate _sum` filtré sur `date` du mois. + `countByStatus`
+  (`groupBy` statut) pour le pipeline.
+- **Éditeur de lignes extrait en composant partagé** (`LineItemsEditor`) — le « candidat à
+  extraire » noté en 0.11.0 est fait : le `FormArray` de lignes (combobox produit + qté + PU +
+  sélecteur TVA + total + suppr + « ajouter une ligne ») vit dans `shared/components`, **utilisé
+  par Devis ET Facture**. Factory `buildLineGroup(fb, line?, defaultRate)` partagée ; i18n
+  `lineEditor.*` dans le namespace `common`. `quote-detail` **refactoré** pour le consommer.
+- **Section paiements extraite en composant `PaymentsPanel`** (`features/invoice/components`,
+  **pas** `shared` : un paiement n'existe que sur une facture, jamais sur un devis). Décompose
+  la page détail et garde **chaque CSS de composant sous le budget 4 kB** (budget **inchangé** :
+  on extrait plutôt que de relever le seuil).
+- **8 comportements vérifiés `node:sqlite`** sur une copie de `dev.db` (sans Electron) : CHECK
+  `status` (rejet/accept), CHECK `method` (rejet/accept), unicité `number`, FK Client
+  `Restrict`, FK Project `SetNull`, Cascade lignes **et** paiements — 10 assertions vertes.
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/invoice.prisma` — `Invoice` (FK Client `Restrict`, Project `SetNull`, 1:N `lines` + `payments`)
+- `prisma/schema/invoice-line.prisma` — `InvoiceLine` (`vatRate` `@default(21)`, `productId` FK `Product` `SetNull`)
+- `prisma/schema/payment.prisma` — `Payment` (`amount`, `method`, `reference?`, FK Invoice `Cascade`)
+- `prisma/migrations/20260526155508_add_invoice/` — 3 tables + **CHECK manuels** (`status`, `method`) + unicité `number`
+- Relations inverses `invoices Invoice[]` (Client, Project) + `invoiceLines InvoiceLine[]` (Product)
+
+**Bundle Invoice (full)** — `InvoiceRepository` (include lignes/paiements/client/projet, `countByStatus` via `groupBy`, CRUD lignes + paiements, `sumPaymentsBetween`, `findByStatuses`), `InvoiceService` (CRUD + `syncLines` + `addPayment`/`removePayment` + `refreshStatus` auto + `getStats` + `toDto` avec `vatBreakdown`/`paidAmount`/`balanceDue`), handlers `ipcHandle` (GET / GET_BY_ID / COUNT_BY_STATUS / GET_STATS / ADD / UPDATE / UPDATE_STATUS / REMOVE / ADD_PAYMENT / REMOVE_PAYMENT), DI, preload `window.api.invoice`, service + store (CRUD + paiements + signaux `counts`/`stats`), pages `/invoices` + `/invoices/:id`
+**Composants** — `LineItemsEditor` (**shared**, Devis + Facture) ; `PaymentsPanel` (feature invoice)
+**Shared** — DTOs `invoice` (read interfaces + Zod create/update/status/record-payment + enums `InvoiceStatus`/`PaymentMethod` + `InvoiceStats` + `status-count`), `INVOICE_CHANNELS`, `InvoiceAPI`
+**i18n** — namespace `invoice` (fr/en) + clés partagées `lineEditor.*` (common) + nav « Factures »
+**UI** — `StatusBadge` étendu (`PAID` succès / `OVERDUE` danger) ; en-tête de liste à 2 agrégats ; icône nav `LucideReceiptEuro`
+
+### Modifié
+
+- `quote-detail` (Phase 9) — **refactoré** pour consommer `LineItemsEditor` (suppression du `FormArray` de lignes inline + CSS dupliqué)
+- `client.prisma`, `project.prisma`, `product.prisma` — relations inverses vers `Invoice`/`InvoiceLine`
+- `i18n.ts`, `preload/index.ts`, `renderer/.../types/electron/index.d.ts`, `navbar`, `app.routes.ts`, `app-routes.const.ts`, barrels `channels`/`interfaces`/`stores`/`components` — câblage du bundle + des 2 composants
+- `common.{fr,en}` — clés `lineEditor.*` + `nav.invoices`
+
 ## [0.11.0] — 2026-05-26 — Multi-TVA configurable + Catalogue produits (extension Phase 9)
 
 Deux entités de référence **`VatRate`** et **`Product`** (bundles complets, gérées sous
