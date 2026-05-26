@@ -1,0 +1,36 @@
+.product-form { display: flex; flex-direction: column; gap: 16px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.field__label { font-size: 12px; font-weight: 500; color: var(--color-text-muted); }
+
+.field__input {
+  height: var(--control-height);
+  width: 100%;
+  padding: 0 11px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.field__input:focus { border-color: var(--color-accent); }
+.field__textarea { height: auto; padding: 9px 11px; resize: vertical; line-height: 1.5; }
+
+.input-affix { position: relative; display: flex; align-items: center; }
+.input-affix .field__input { padding-right: 28px; }
+.input-affix__unit {
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+  pointer-events: none;
+}
+
+.product-actions { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.product-actions--edit { justify-content: space-between; }

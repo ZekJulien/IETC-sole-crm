@@ -1,0 +1,36 @@
+<section class="product-page">
+  <app-settings-header [icon]="headerIcon" title="product.title" subtitle="product.subtitle">
+    <app-button actions [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+      <svg lucidePlus [size]="15" />
+      {{ 'product.new' | t }}
+    </app-button>
+  </app-settings-header>
+
+  <div class="product-page__content">
+    <app-search-bar
+      [placeholder]="'product.searchPlaceholder' | t"
+      (search)="onSearch($event)" />
+
+    <div class="product-page__table">
+      <app-data-table
+        [columns]="columns"
+        [data]="store.products()"
+        [loading]="store.loading()"
+        (rowClick)="openEdit($event)" />
+    </div>
+  </div>
+
+  <app-product-form-modal
+    [open]="modalOpen()"
+    [product]="editing()"
+    [vatRates]="vatRates.items()"
+    [saving]="store.saving()"
+    (submitted)="onSubmit($event)"
+    (cancelled)="closeModal()"
+    (deleted)="confirmOpen.set(true)" />
+
+  <app-confirm-dialog
+    [visible]="confirmOpen()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmOpen.set(false)" />
+</section>

@@ -7,6 +7,9 @@ import { ProjectAPI } from '@shared/interfaces/project'
 import { TaskAPI } from '@shared/interfaces/task'
 import { TimeEntryAPI } from '@shared/interfaces/time-entry'
 import { ExpenseAPI } from '@shared/interfaces/expense'
+import { QuoteAPI } from '@shared/interfaces/quote'
+import { VatRateAPI } from '@shared/interfaces/vat-rate'
+import { ProductAPI } from '@shared/interfaces/product'
 
 declare global {
   interface Window {
@@ -21,6 +24,9 @@ declare global {
       task:     TaskAPI
       timeEntry: TimeEntryAPI
       expense:  ExpenseAPI
+      quote:    QuoteAPI
+      vatRate:  VatRateAPI
+      product:  ProductAPI
     }
   }
 }

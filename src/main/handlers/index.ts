@@ -8,6 +8,9 @@ import { registerProjectHandlers } from './project'
 import { registerTaskHandlers } from './task'
 import { registerTimeEntryHandlers } from './time-entry'
 import { registerExpenseHandlers } from './expense'
+import { registerQuoteHandlers } from './quote'
+import { registerVatRateHandlers } from './vat-rate'
+import { registerProductHandlers } from './product'
 
 export function registerAllHandlers(deps: AppDependencies): void {
   registerLogHandlers()
@@ -20,4 +23,7 @@ export function registerAllHandlers(deps: AppDependencies): void {
   registerTaskHandlers(deps.taskService)
   registerTimeEntryHandlers(deps.timeEntryService)
   registerExpenseHandlers(deps.expenseService)
+  registerQuoteHandlers(deps.quoteService)
+  registerVatRateHandlers(deps.vatRateService)
+  registerProductHandlers(deps.productService)
 }

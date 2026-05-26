@@ -1,0 +1,31 @@
+<section class="vat-page">
+  <app-settings-header [icon]="headerIcon" title="vatRate.title" subtitle="vatRate.subtitle">
+    <app-button actions [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+      <svg lucidePlus [size]="15" />
+      {{ 'vatRate.new' | t }}
+    </app-button>
+  </app-settings-header>
+
+  <div class="vat-page__content">
+    <div class="vat-page__table">
+      <app-data-table
+        [columns]="columns"
+        [data]="store.items()"
+        [loading]="store.loading()"
+        (rowClick)="openEdit($event)" />
+    </div>
+  </div>
+
+  <app-vat-rate-form-modal
+    [open]="modalOpen()"
+    [vatRate]="editing()"
+    [saving]="store.saving()"
+    (submitted)="onSubmit($event)"
+    (cancelled)="closeModal()"
+    (deleted)="confirmOpen.set(true)" />
+
+  <app-confirm-dialog
+    [visible]="confirmOpen()"
+    (confirmed)="confirmDelete()"
+    (cancelled)="confirmOpen.set(false)" />
+</section>

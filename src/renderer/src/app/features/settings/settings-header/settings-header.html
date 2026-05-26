@@ -22,6 +22,14 @@
       <svg lucideReceipt [size]="15" />
       <span>{{ 'settings.tab.expenseCategories' | t }}</span>
     </a>
+    <a class="settings-header__tab" [routerLink]="vatRatesRoute" routerLinkActive="settings-header__tab--active">
+      <svg lucidePercent [size]="15" />
+      <span>{{ 'settings.tab.vatRates' | t }}</span>
+    </a>
+    <a class="settings-header__tab" [routerLink]="productsRoute" routerLinkActive="settings-header__tab--active">
+      <svg lucidePackage [size]="15" />
+      <span>{{ 'settings.tab.products' | t }}</span>
+    </a>
   </nav>
 
   <div class="settings-header__actions">

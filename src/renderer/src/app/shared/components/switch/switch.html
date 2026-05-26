@@ -1,0 +1,9 @@
+<button
+  type="button"
+  class="switch"
+  role="switch"
+  [class.switch--on]="checked()"
+  [attr.aria-checked]="checked()"
+  (click)="toggled.emit()">
+  <span class="switch__thumb"></span>
+</button>

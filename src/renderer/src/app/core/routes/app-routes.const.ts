@@ -7,10 +7,15 @@ const PATHS = {
   tasks:                     'tasks',
   time:                      'time',
   expenses:                  'expenses',
+  quotes:                    'quotes',
+  quoteNew:                  'quotes/new',
+  quoteDetail:               'quotes/:id',
   settings:                  'settings',
   settingsCompany:           'settings/company',
   settingsCategories:        'settings/categories',
   settingsExpenseCategories: 'settings/expense-categories',
+  settingsVatRates:          'settings/vat-rates',
+  settingsProducts:          'settings/products',
 } as const
 
 export const AppRoutes = {
@@ -22,9 +27,12 @@ export const AppRoutes = {
     tasks:                     `/${PATHS.tasks}`,
     time:                      `/${PATHS.time}`,
     expenses:                  `/${PATHS.expenses}`,
+    quotes:                    `/${PATHS.quotes}`,
     settings:                  `/${PATHS.settings}`,
     settingsCompany:           `/${PATHS.settingsCompany}`,
     settingsCategories:        `/${PATHS.settingsCategories}`,
     settingsExpenseCategories: `/${PATHS.settingsExpenseCategories}`,
+    settingsVatRates:          `/${PATHS.settingsVatRates}`,
+    settingsProducts:          `/${PATHS.settingsProducts}`,
   },
 } as const

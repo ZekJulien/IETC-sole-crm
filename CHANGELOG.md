@@ -9,6 +9,171 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-05-26 — Multi-TVA configurable + Catalogue produits (extension Phase 9)
+
+Deux entités de référence **`VatRate`** et **`Product`** (bundles complets, gérées sous
+**Paramètres**), plus une **refonte des lignes de devis** : la **TVA passe au niveau de la
+ligne** (ventilation multi-taux, ex. Belgique 21/12/6/0) et chaque ligne peut référencer un
+**produit du catalogue** (pré-remplissage + lien `SetNull` avec **snapshot**). Tout est pensé
+pour être **réutilisé tel quel par la Facture** (Phase 10).
+
+### Décisions d'architecture
+
+- **`VatRate` = table de référence + onglet Settings « TVA »** : les taux disponibles sont
+  gérés en base (CRUD), **seedés dans la migration** avec les 4 taux belges (21 défaut / 12 /
+  6 / 0). Un seul `isDefault` à la fois — le service appelle `clearDefault()` (un
+  `updateMany`) **dans la transaction** avant de poser le nouveau défaut. Les lignes de devis
+  ne pointent **pas** vers `VatRate` par FK : elles **snapshotent la valeur numérique** du
+  taux (intégrité historique — éditer/supprimer un taux ne réécrit pas les devis émis) ; la
+  liste `VatRate` n'alimente que le sélecteur.
+- **`Product` = catalogue + onglet Settings « Catalogue »** : `name`, `unitPrice`, `vatRate`
+  par défaut, `unit`, `description`. `QuoteLine.productId` est une **FK `SetNull`** (5ᵉ
+  SetNull) : choisir un produit **pré-remplit** description/prix/TVA de la ligne, mais la
+  ligne **conserve sa propre copie** (snapshot) — supprimer un produit met `productId` à NULL
+  sans toucher aux montants de la ligne. Vérifié `node:sqlite`.
+- **TVA par ligne (supersede le `vatRate` document-level de 0.10.0)** : `vatRate` déplacé de
+  `Quote` → `QuoteLine` (`@default(21)`). `QuoteService.toDto` calcule désormais une
+  **ventilation par taux** (`vatBreakdown: { rate, baseHt, vat }[]`, regroupée par taux),
+  `totalVat` = somme des TVA par taux, `totalTtc` = HT + TVA. Le form détail recalcule la même
+  ventilation en `computed()`. Notion SGBD : agrégation/regroupement par taux.
+- **Migration `add_quote_line_vat` — gotcha TEXT+CHECK** : retirer `Quote.vatRate` force un
+  **rebuild de la table `Quote`** (pattern `RedefineTables` de Prisma), dont le SQL régénéré
+  **perd le `CHECK` sur `status`** (Prisma ne le connaît pas). Le `CHECK` a été **réajouté à
+  la main** dans la migration ; survie vérifiée `node:sqlite`. (Rappel utile pour toute
+  future migration qui reconstruit une table à colonne TEXT+CHECK.)
+- **Réutilisation maximale** : les deux entités de référence calquent le bundle `ExpenseCategory`
+  (le plus léger) ; leurs pages vivent en **onglets Settings** (cohérent avec Catégories /
+  Dépenses — données de référence regroupées). L'éditeur de lignes (`FormArray`) du devis
+  accueille un `<select>` TVA (réactif, `formControlName`) et la désignation est une **combobox**
+  (`<input list>` + `<datalist>` des produits) : saisie libre **ou** choix d'un produit qui
+  pré-remplit prix/TVA — **une seule box** au lieu de deux. La combobox + le sélecteur TVA
+  resserviront aux lignes de Facture.
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/vat-rate.prisma` — `VatRate` (`label`, `rate` `@unique`, `isDefault`)
+- `prisma/schema/product.prisma` — `Product` (`name`, `description?`, `unitPrice`, `vatRate`, `unit?`, `archived`, relation `quoteLines QuoteLine[]`)
+- `prisma/migrations/20260526120930_add_vat_rate/` — table `VatRate` + **seed des 4 taux belges**
+- `prisma/migrations/20260526121353_add_product/` — table `Product`
+- `prisma/migrations/20260526122410_add_quote_line_vat/` — `QuoteLine` + `vatRate` & `productId` (FK `SetNull`), retrait de `Quote.vatRate` (rebuild + **CHECK `status` réajouté**)
+
+**Bundle VatRate (full)** — `VatRateRepository` (+`clearDefault`), `VatRateService` (single-default), handler GET/ADD/UPDATE/REMOVE, DI, preload `window.api.vatRate`, store, page Settings `/settings/vat-rates` + `VatRateFormModal`
+**Bundle Product (full)** — `ProductRepository`, `ProductService`, handler, DI, preload `window.api.product`, store, page Settings `/settings/products` + `ProductFormModal` (sélecteur de TVA depuis `VatRate`)
+**Shared** — DTOs `vat-rate` + `product` (read/create/update), `VAT_RATE_CHANNELS`/`PRODUCT_CHANNELS`, `VatRateAPI`/`ProductAPI`
+**i18n** — namespaces `vat-rate` + `product` (fr/en), onglets `settings.tab.vatRates` / `settings.tab.products`
+
+### Modifié
+
+- `quote.prisma` — retrait de `vatRate` (désormais par ligne)
+- `quote-line.prisma` — + `vatRate` (`@default(21)`) + `productId` (FK `Product` `SetNull`)
+- DTOs Quote — `QuoteLineDto` + `vatRate`/`productId` ; `QuoteDto` retire `vatRate`, ajoute `vatBreakdown: QuoteVatBreakdownLine[]` ; `QuoteLineInputSchema` + `vatRate`/`productId`
+- `QuoteService.toDto` — ventilation TVA par taux (remplace le calcul mono-taux de 0.10.0)
+- `features/quote/pages/quote-detail` — carte « Dates » (sans TVA document), **désignation en combobox (`datalist` produits) + sélecteur TVA par ligne**, totaux **ventilés par taux** ; charge `VatRateStore` + `ProductStore`. Le **prix/TVA pré-remplis sont figés sur la ligne** (`QuoteLine`) : modifier un produit plus tard n'impacte aucun devis déjà créé (snapshot)
+- `settings-header` — 2 onglets (« TVA » `LucidePercent`, « Catalogue » `LucidePackage`)
+- `app.routes.ts` + `app-routes.const.ts` — routes `settings/vat-rates` et `settings/products`
+- `i18n.ts`, `preload/index.ts`, `renderer/.../types/electron/index.d.ts`, barrels `channels`/`interfaces`/`stores` — câblage des 2 bundles
+
+## [0.10.0] — 2026-05-26 — Phase 9 : Bundle Quote
+
+Entité **Quote** (`Devis` dans la spec) end-to-end — **premier bundle avec une
+sous-entité dynamique** (`QuoteLine` / `LigneDevis`) éditée via un **`FormArray`
+Angular**. Deux pages dédiées : une **liste `/quotes`** (lien navbar « Devis ») avec
+un **en-tête pipeline** (compteurs cliquables par statut, qui filtrent) + filtre client
++ recherche par numéro ; et une **page détail `/quotes/:id`** (+ `/quotes/new`) avec
+en-tête client/projet/dates/TVA/statut, **lignes ajoutables/supprimables dynamiquement**
+et **totaux HT / TVA / TTC recalculés en `computed()`**. Workflow de statut
+**brouillon → envoyé → accepté / refusé** avec boutons d'action rapides. *(Conversion
+devis → projet/facture reportée en Phase 11, comme prévu par la spec.)*
+
+### Décisions d'architecture
+
+- **Sous-entité `QuoteLine` sans bundle propre, synchronisée par diff** (comme
+  `Contact`, `ProjectCategory`, `ExpenseReceipt`) : le front envoie le **tableau complet**
+  des lignes (`lines: QuoteLineInput[]`, chaque ligne portant un `id` optionnel) ;
+  `QuoteService.syncLines` **diffe** contre les ids en base — supprime les manquantes,
+  met à jour celles avec `id`, crée celles sans `id` (même esprit que `syncCategories`
+  de Project et le diff `keepReceiptIds`/`newReceiptPaths` d'Expense). `QuoteLine` en
+  **`onDelete: Cascade`** (4ᵉ Cascade) : supprimer un devis supprime ses lignes — vérifié
+  `node:sqlite`.
+- **Totaux calculés, jamais stockés (normalisation)** : pas de colonne `montantHT`
+  dénormalisée (la spec la modélisait). Le total HT est **dérivé** des lignes (`Σ quantité ×
+  prixUnitaire`), donc `QuoteService.toDto` calcule `totalHt` / `totalVat` (via `vatRate`
+  stocké par devis, défaut 21) / `totalTtc` à la volée et les expose dans `QuoteDto`. Évite
+  la redondance et la resynchronisation à chaque édition de ligne — exactement la notion
+  SGBD « pas de donnée dérivée stockée ». La liste affiche `totalTtc`, le détail recalcule
+  en live côté form (`computed()` branché sur `valueChanges`).
+- **Numérotation auto réutilisant l'infra Company (Phase 2)** : `QuoteService` dépend de
+  `CompanyService` et appelle **`getNextQuoteNumber()`** (format `quoteNumberFormat` +
+  compteur `quoteNumberCounter` de `CompanySettings`, reset annuel) — au lieu d'un compteur
+  ad hoc. L'incrément vit dans le **même `ipcHandle` transactionnel** que la création du
+  devis → **atomique** (si la création échoue, l'incrément du compteur est rollback). ⚠️
+  Émettre un devis exige donc une entreprise configurée (sinon `COMPANY_NOT_CONFIGURED`,
+  remonté proprement) — cohérent : un devis a besoin de l'identité de l'émetteur.
+- **FK `Client` Restrict + FK `Project?` SetNull + `status` TEXT+CHECK** : Restrict (3ᵉ)
+  empêche de supprimer un client ayant des devis ; SetNull (3ᵉ) conserve les devis d'un
+  projet supprimé (`projectId → NULL`, le champ étant *peuplé après acceptation* selon la
+  spec) ; `status` en **TEXT + CHECK** (`DRAFT / SENT / ACCEPTED / REJECTED / EXPIRED`,
+  CHECK ajouté à la main dans la migration `add_quote`) plutôt qu'un enum Prisma. Les 4
+  comportements (CHECK rejette/accepte, Restrict bloque, SetNull nullifie, Cascade élague)
+  + l'unicité de `number` **vérifiés sur une copie de `dev.db` via `node:sqlite`**.
+- **Statut éditable + transitions rapides** : `status` est dans le form (couvre la création
+  et tout changement au save), **plus** un canal léger dédié **`UPDATE_STATUS`** branché sur
+  des boutons d'en-tête contextuels (« Marquer envoyé » sur un brouillon ; « Marquer accepté »
+  / « Marquer refusé » sur un envoyé) qui persistent immédiatement. Agrégat **`countByStatus`**
+  via `groupBy({ by: ['status'], _count })` alimentant l'en-tête pipeline (rafraîchi après
+  chaque mutation, comme TimeEntry/Expense).
+- **`FormArray` réactif + signaux** : la page détail mixe `ReactiveFormsModule` et signals —
+  un `formTick` (bumpé sur `valueChanges`, façon `FormField`) sert de dépendance aux
+  `computed()` `totals` et `availableProjects` (projets filtrés sur le client choisi).
+  Changer de client **réinitialise** le projet (sous garde `suppressClientReset` pour ne pas
+  écraser la valeur chargée en édition). Validation client-side (`Validators` + min 1 ligne)
+  doublée du `min(1)` Zod à la frontière IPC.
+- **Réutilisation des primitives partagées** : aucune nouvelle brique transverse. `DataTable`
+  (colonnes `'badge'` + `'currency'` + `'date'`), `StatusBadge` (étendu de 5 classes
+  `.badge--DRAFT/SENT/ACCEPTED/REJECTED/EXPIRED`), `Button`, `ConfirmDialog`, `SearchBar`,
+  `formatCurrency`, classe globale `.app-select`. Page liste smart → `DataTable` ; page détail
+  porte la logique de form (jamais le store).
+
+### Ajouté
+
+**Prisma**
+- `prisma/schema/quote.prisma` — modèle `Quote` (`number` unique, `issueDate` `@default(now())`, `validUntil`, `status` TEXT défaut `DRAFT`, `vatRate` défaut 21, `notes?`, FK `Client` **Restrict**, FK `Project?` **SetNull**, relation `lines QuoteLine[]`)
+- `prisma/schema/quote-line.prisma` — sous-entité `QuoteLine` (`description`, `quantity`, `unitPrice`, FK `Quote` **Cascade**)
+- Relations inverses `quotes` sur `Client` (`Quote[]`) et `Project` (`Quote[]`)
+- `prisma/migrations/20260526111805_add_quote/` — tables `Quote` + `QuoteLine`, **CHECK ajouté à la main** sur `status`, FK Restrict/SetNull/Cascade, index unique `Quote_number_key`
+
+**Bundle Quote (main)**
+- `QuoteRepository` (extends `BaseRepository`, `searchFields: ['number']`, include `client`+`project`+`lines`, `findByIdWithRelations`, agrégat `countByStatus` via `groupBy`, `updateStatus`, helpers sous-entité `findLineIds`/`createLine`/`updateLine`/`deleteLine`)
+- `QuoteService` — pur : `get` / `getById` / `countByStatus` / `add` (numéro via `CompanyService` + création des lignes) / `update` (+ `syncLines` diff) / `updateStatus` / `remove` ; `toDto` aplatit `clientName` + `projectName` et **calcule** `totalHt`/`totalVat`/`totalTtc` + total par ligne
+- `QuoteHandler` — `GET` / `GET_BY_ID` / `COUNT_BY_STATUS` / `ADD` / `UPDATE` / `UPDATE_STATUS` / `REMOVE` via `ipcHandle` (transactionnel)
+- DI factories Quote (repo + service, service injecté avec `CompanyService`) + wire dans `AppDependencies`
+- Preload `quote.api.ts` exposé via `window.api.quote`
+
+**Shared layer**
+- DTOs Quote dans `src/shared/dtos/quote/` (read `QuoteDto` avec totaux + `QuoteLineDto` ; create/update Zod avec `QuoteLineInputSchema` partagé ; `UpdateQuoteStatusSchema` ; `QuoteStatus` enum ; `QuoteStatusCount`)
+- `QUOTE_CHANNELS`, interface `QuoteAPI`
+
+**Frontend Angular**
+- `services/quote/quote.ts` — `QuoteService` (wrapper `window.api.quote`, dont `countByStatus` / `updateStatus`)
+- `stores/quote/quote-store.ts` — `QuoteStore` (devis + compteurs par statut + add/update/updateStatus/remove, rafraîchit les compteurs après mutation)
+- `features/quote/pages/quote-list/` — page `/quotes` (en-tête pipeline cliquable par statut + filtre client + recherche + `DataTable` bordé), lazy-loadée
+- `features/quote/pages/quote-detail/` — page `/quotes/:id` (+ `/quotes/new`) : form réactif (client, projet filtré, dates, TVA, statut, notes) + **`FormArray` de lignes** (ajouter/supprimer, total par ligne) + bloc **totaux HT/TVA/TTC en `computed()`** + boutons de transition de statut + suppression
+- `features/quote/utils/quote-status.ts` — `QUOTE_STATUSES` + `quoteStatusKey`
+- i18n `i18n/ui/quote/quote.{fr,en}.ts`
+- 5 classes de statut `.badge--DRAFT/SENT/ACCEPTED/REJECTED/EXPIRED` sur `StatusBadge`
+- Lien navbar « Devis » (`LucideFileText` → `/quotes`) + routes `quotes` / `quotes/new` / `quotes/:id`
+
+### Modifié
+
+- `client.prisma` — relation inverse `quotes Quote[]`
+- `project.prisma` — relation inverse `quotes Quote[]`
+- `shared/components/status-badge/status-badge.css` — 5 couleurs de badge pour les statuts de devis
+- `app.routes.ts` + `app-routes.const.ts` — routes et paths `quotes` / `quoteNew` / `quoteDetail` (`new` avant `:id`)
+- `navbar.ts` — 7ᵉ item de navigation « Devis »
+- `i18n.ts` — enregistrement du namespace `quote` ; `common` — clé `nav.quotes` (fr + en)
+- `preload/index.ts` + `renderer/.../types/electron/index.d.ts` — exposition de `window.api.quote`
+
 ## [0.9.0] — 2026-05-25 — Phase 8 : Bundle Expense
 
 Entité **Expense** (`Depense` dans la spec) end-to-end, avec une **page dédiée
@@ -833,7 +998,9 @@ Aucune entité métier ici : tout sera ajouté à partir de Phase 1 (Client).
 
 ---
 
-[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/ZekJulien/IETC-sole-crm/compare/v0.6.0...v0.7.0

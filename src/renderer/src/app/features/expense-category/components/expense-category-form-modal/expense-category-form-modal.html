@@ -25,15 +25,7 @@
         <span class="field__label">{{ 'expenseCategory.deductible' | t }}</span>
         <p class="toggle-row__hint">{{ 'expenseCategory.deductibleHint' | t }}</p>
       </div>
-      <button
-        type="button"
-        class="switch"
-        role="switch"
-        [class.switch--on]="isDeductible()"
-        [attr.aria-checked]="isDeductible()"
-        (click)="toggleDeductible()">
-        <span class="switch__thumb"></span>
-      </button>
+      <app-switch [checked]="isDeductible()" (toggled)="toggleDeductible()" />
     </div>
 
     <div class="preview">

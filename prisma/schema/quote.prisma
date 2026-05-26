@@ -1,0 +1,18 @@
+model Quote {
+  id         Int      @id @default(autoincrement())
+  number     String   @unique
+  issueDate  DateTime @default(now())
+  validUntil DateTime
+  status     String   @default("DRAFT")
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  clientId   Int
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  projectId  Int?
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  lines      QuoteLine[]
+}

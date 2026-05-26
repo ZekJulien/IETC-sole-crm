@@ -199,6 +199,7 @@ body {
   background-image:    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a6adc8' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
   background-repeat:   no-repeat;
   background-position: right 10px center;
+  background-size:     16px 16px;
   transition:          border-color var(--transition), box-shadow var(--transition);
 }
 .app-select:hover { border-color: var(--color-text-subtle); }

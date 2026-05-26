@@ -1,0 +1,33 @@
+<div class="combobox">
+  <input
+    #input
+    class="combobox__input"
+    type="text"
+    role="combobox"
+    aria-autocomplete="list"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="listboxId"
+    [attr.aria-activedescendant]="activeId()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    (input)="onInput($any($event.target).value)"
+    (focus)="onFocus()"
+    (blur)="close()"
+    (keydown)="onKeydown($event)" />
+  @if (open() && filtered().length) {
+    <ul #menu class="combobox__menu" role="listbox" [id]="listboxId">
+      @for (opt of filtered(); track opt; let i = $index) {
+        <li
+          class="combobox__option"
+          [class.combobox__option--active]="activeIndex() === i"
+          role="option"
+          [id]="optionId(i)"
+          [attr.aria-selected]="activeIndex() === i"
+          (mouseenter)="activeIndex.set(i)"
+          (mousedown)="pick(opt)">
+          {{ opt }}
+        </li>
+      }
+    </ul>
+  }
+</div>

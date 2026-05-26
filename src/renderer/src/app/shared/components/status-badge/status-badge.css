@@ -28,3 +28,9 @@
 .badge--MEDIUM { background: color-mix(in srgb, var(--color-info)        15%, transparent); color: var(--color-info); }
 .badge--HIGH   { background: color-mix(in srgb, var(--color-warning)     15%, transparent); color: var(--color-warning); }
 .badge--URGENT { background: color-mix(in srgb, var(--color-danger)      15%, transparent); color: var(--color-danger); }
+
+.badge--DRAFT    { background: color-mix(in srgb, var(--color-text-subtle) 15%, transparent); color: var(--color-text-subtle); }
+.badge--SENT     { background: color-mix(in srgb, var(--color-info)        15%, transparent); color: var(--color-info); }
+.badge--ACCEPTED { background: color-mix(in srgb, var(--color-success)     15%, transparent); color: var(--color-success); }
+.badge--REJECTED { background: color-mix(in srgb, var(--color-danger)      15%, transparent); color: var(--color-danger); }
+.badge--EXPIRED  { background: color-mix(in srgb, var(--color-warning)     15%, transparent); color: var(--color-warning); }

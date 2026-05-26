@@ -1,0 +1,14 @@
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  unitPrice   Float    @default(0)
+  vatRate     Float    @default(21)
+  unit        String?
+  archived    Boolean  @default(false)
+
+  quoteLines  QuoteLine[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

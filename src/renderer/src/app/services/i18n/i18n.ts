@@ -21,12 +21,18 @@ import timeEn      from '../../i18n/ui/time-entry/time.en'
 import timeFr      from '../../i18n/ui/time-entry/time.fr'
 import expenseEn   from '../../i18n/ui/expense/expense.en'
 import expenseFr   from '../../i18n/ui/expense/expense.fr'
+import quoteEn     from '../../i18n/ui/quote/quote.en'
+import quoteFr     from '../../i18n/ui/quote/quote.fr'
+import vatRateEn   from '../../i18n/ui/vat-rate/vat-rate.en'
+import vatRateFr   from '../../i18n/ui/vat-rate/vat-rate.fr'
+import productEn   from '../../i18n/ui/product/product.en'
+import productFr   from '../../i18n/ui/product/product.fr'
 import settingsEn  from '../../i18n/ui/settings/settings.en'
 import settingsFr  from '../../i18n/ui/settings/settings.fr'
 
 const translations: Record<string, Record<string, string>> = {
-  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...taskEn, ...timeEn, ...expenseEn, ...settingsEn },
-  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...taskFr, ...timeFr, ...expenseFr, ...settingsFr },
+  en: { ...validationEn, ...commonEn, ...clientEn, ...contactEn, ...companyEn, ...categoryEn, ...expenseCategoryEn, ...projectEn, ...taskEn, ...timeEn, ...expenseEn, ...quoteEn, ...vatRateEn, ...productEn, ...settingsEn },
+  fr: { ...validationFr, ...commonFr, ...clientFr, ...contactFr, ...companyFr, ...categoryFr, ...expenseCategoryFr, ...projectFr, ...taskFr, ...timeFr, ...expenseFr, ...quoteFr, ...vatRateFr, ...productFr, ...settingsFr },
 }
 
 @Injectable({ providedIn: 'root' })

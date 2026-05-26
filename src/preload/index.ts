@@ -9,6 +9,9 @@ import { projectApi } from './apis/project.api'
 import { taskApi } from './apis/task.api'
 import { timeEntryApi } from './apis/time-entry.api'
 import { expenseApi } from './apis/expense.api'
+import { quoteApi } from './apis/quote.api'
+import { vatRateApi } from './apis/vat-rate.api'
+import { productApi } from './apis/product.api'
 
 contextBridge.exposeInMainWorld('logService', logApi)
 contextBridge.exposeInMainWorld('api', {
@@ -21,4 +24,7 @@ contextBridge.exposeInMainWorld('api', {
   task:     taskApi,
   timeEntry: timeEntryApi,
   expense:  expenseApi,
+  quote:    quoteApi,
+  vatRate:  vatRateApi,
+  product:  productApi,
 })

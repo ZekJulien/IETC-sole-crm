@@ -36,6 +36,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/expense/pages/expense-list/expense-list').then(c => c.ExpenseList)
   },
   {
+    path: AppRoutes.paths.quotes,
+    pathMatch: 'full',
+    loadComponent: () => import('./features/quote/pages/quote-list/quote-list').then(c => c.QuoteList)
+  },
+  {
+    path: AppRoutes.paths.quoteNew,
+    loadComponent: () => import('./features/quote/pages/quote-detail/quote-detail').then(c => c.QuoteDetail)
+  },
+  {
+    path: AppRoutes.paths.quoteDetail,
+    loadComponent: () => import('./features/quote/pages/quote-detail/quote-detail').then(c => c.QuoteDetail)
+  },
+  {
     path: AppRoutes.paths.settings,
     pathMatch: 'full',
     redirectTo: AppRoutes.paths.settingsCompany,
@@ -51,5 +64,13 @@ export const routes: Routes = [
   {
     path: AppRoutes.paths.settingsExpenseCategories,
     loadComponent: () => import('./features/expense-category/pages/expense-category-settings/expense-category-settings').then(c => c.ExpenseCategorySettings)
+  },
+  {
+    path: AppRoutes.paths.settingsVatRates,
+    loadComponent: () => import('./features/vat-rate/pages/vat-rate-settings/vat-rate-settings').then(c => c.VatRateSettings)
+  },
+  {
+    path: AppRoutes.paths.settingsProducts,
+    loadComponent: () => import('./features/product/pages/product-settings/product-settings').then(c => c.ProductSettings)
   },
 ]

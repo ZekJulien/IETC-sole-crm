@@ -1,0 +1,9 @@
+model VatRate {
+  id        Int      @id @default(autoincrement())
+  label     String
+  rate      Float    @unique
+  isDefault Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

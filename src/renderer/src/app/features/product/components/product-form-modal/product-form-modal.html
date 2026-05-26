@@ -1,0 +1,55 @@
+<app-modal [open]="open()" [title]="titleKey()" (closed)="cancelled.emit()">
+  <form class="product-form" [formGroup]="form" (ngSubmit)="submit()">
+    <app-form-field
+      [label]="'product.name' | t"
+      [control]="nameControl"
+      [placeholder]="'product.namePlaceholder' | t" />
+
+    <div class="grid">
+      <div class="field">
+        <label class="field__label">{{ 'product.unitPrice' | t }}</label>
+        <div class="input-affix">
+          <input class="field__input" type="number" min="0" step="0.01" formControlName="unitPrice" />
+          <span class="input-affix__unit">€</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label">{{ 'product.vatRate' | t }}</label>
+        <select class="app-select" formControlName="vatRate">
+          @for (r of vatRates(); track r.id) {
+            <option [ngValue]="r.rate">{{ r.rate }}%</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label">{{ 'product.unit' | t }}</label>
+        <input class="field__input" type="text" formControlName="unit" [placeholder]="'product.unitPlaceholder' | t" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label">{{ 'product.description' | t }}</label>
+      <textarea
+        class="field__input field__textarea"
+        rows="2"
+        formControlName="description"
+        [placeholder]="'product.descriptionPlaceholder' | t"></textarea>
+    </div>
+  </form>
+
+  <div modal-actions class="product-actions" [class.product-actions--edit]="isEdit()">
+    @if (isEdit()) {
+      <app-button [variant]="ButtonVariant.DANGER" (clicked)="deleted.emit()">
+        {{ 'common.delete' | t }}
+      </app-button>
+    }
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="submit()">
+      {{ 'common.save' | t }}
+    </app-button>
+  </div>
+</app-modal>

@@ -16,6 +16,7 @@ model Project {
   tasks       Task[]
   timeEntries TimeEntry[]
   expenses    Expense[]
+  quotes      Quote[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
