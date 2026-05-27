@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core'
+import { Component, ElementRef, Injector, afterNextRender, computed, inject, input } from '@angular/core'
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { LucidePlus, LucideTrash2 } from '@lucide/angular'
 import { VatRateDto } from '@shared/dtos/vat-rate'
@@ -13,6 +13,7 @@ export interface LineItemValue {
   description: string
   quantity:    number
   unitPrice:   number
+  discount:    number
   vatRate:     number
 }
 
@@ -27,6 +28,7 @@ export function buildLineGroup(
     description: [line?.description ?? '', [Validators.required]],
     quantity:    [line?.quantity ?? 1, [Validators.required, Validators.min(0.01)]],
     unitPrice:   [line?.unitPrice ?? 0, [Validators.required, Validators.min(0)]],
+    discount:    [line?.discount ?? 0, [Validators.min(0), Validators.max(100)]],
     vatRate:     [line?.vatRate ?? defaultRate, [Validators.required]],
   })
 }
@@ -38,7 +40,9 @@ export function buildLineGroup(
   styleUrl: './line-items-editor.css',
 })
 export class LineItemsEditor {
-  private readonly fb = inject(FormBuilder)
+  private readonly fb       = inject(FormBuilder)
+  private readonly host     = inject<ElementRef<HTMLElement>>(ElementRef)
+  private readonly injector = inject(Injector)
 
   readonly lines    = input.required<FormArray>()
   readonly vatRates = input<VatRateDto[]>([])
@@ -51,6 +55,10 @@ export class LineItemsEditor {
 
   addLine(): void {
     this.lines().push(buildLineGroup(this.fb, undefined, this.defaultRate()))
+    afterNextRender(() => {
+      const rows = this.host.nativeElement.querySelectorAll<HTMLElement>('.line-row')
+      rows[rows.length - 1]?.querySelector<HTMLInputElement>('input')?.focus()
+    }, { injector: this.injector })
   }
 
   removeLine(index: number): void {
@@ -58,8 +66,8 @@ export class LineItemsEditor {
   }
 
   lineTotal(index: number): number {
-    const { quantity, unitPrice } = this.lines().at(index).getRawValue()
-    return (Number(quantity) || 0) * (Number(unitPrice) || 0)
+    const { quantity, unitPrice, discount } = this.lines().at(index).getRawValue()
+    return (Number(quantity) || 0) * (Number(unitPrice) || 0) * (1 - (Number(discount) || 0) / 100)
   }
 
   onDescriptionInput(index: number, value: string): void {

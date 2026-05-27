@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, output, signal } from '@ang
 import { toSignal } from '@angular/core/rxjs-interop'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { CompanyDto, SaveCompanyInput } from '@shared/dtos/company'
+import { VatRegime } from '@shared/dtos/company/vat-regime.enum'
 import { formatNumber } from '@shared/utils/format-number'
 import { FormField, Button } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
@@ -23,6 +24,10 @@ import {
 export class CompanyForm {
   private readonly fb = inject(FormBuilder)
   readonly ButtonVariant = ButtonVariant
+  readonly regimeOptions = [
+    { value: VatRegime.NORMAL,    key: 'company.vatRegime.normal' },
+    { value: VatRegime.FRANCHISE, key: 'company.vatRegime.franchise' },
+  ]
 
   readonly company      = input<CompanyDto | null>(null)
   readonly showCounters = input<boolean>(false)
@@ -49,6 +54,7 @@ export class CompanyForm {
     iban:          [''],
     bic:           [''],
     defaultVatRate:            [21, companyValidators.vatRate],
+    vatRegime:                 [VatRegime.NORMAL as VatRegime],
     paymentTermsDays:          [30, companyValidators.terms],
     paymentConditions:         [''],
     invoiceNumberFormat:       ['INV-{YYYY}-{####}', [Validators.required, numberFormatValidator]],
@@ -119,6 +125,7 @@ export class CompanyForm {
       iban:          company.iban,
       bic:           company.bic,
       defaultVatRate:            company.settings.defaultVatRate,
+      vatRegime:                 company.settings.vatRegime,
       paymentTermsDays:          company.settings.paymentTermsDays,
       paymentConditions:         company.settings.paymentConditions,
       invoiceNumberFormat:       company.settings.invoiceNumberFormat,
@@ -149,6 +156,7 @@ export class CompanyForm {
       },
       settings: {
         defaultVatRate:            v.defaultVatRate ?? undefined,
+        vatRegime:                 v.vatRegime ?? undefined,
         paymentTermsDays:          v.paymentTermsDays ?? undefined,
         paymentConditions:         v.paymentConditions || null,
         invoiceNumberFormat:       v.invoiceNumberFormat!,

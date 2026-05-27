@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
-import { LucideArrowLeft, LucideCheck, LucideX, LucideSend, LucideFileText } from '@lucide/angular'
+import { LucideArrowLeft, LucideCheck, LucideX, LucideSend, LucideFileText, LucideDownload } from '@lucide/angular'
 import { QuoteStatus, QuoteDto, CreateQuoteDto, UpdateQuoteDto, QuoteLineInput } from '@shared/dtos/quote'
 import { ConvertQuoteDto, QuoteBillingDto } from '@shared/dtos/conversion'
 import { QuoteStore } from '@app/stores/quote'
@@ -29,7 +29,7 @@ interface QuoteTotals {
   selector: 'app-quote-detail',
   imports: [
     ReactiveFormsModule, Button, ConfirmDialog, LineItemsEditor, QuoteConvertModal, TranslatePipe,
-    LucideArrowLeft, LucideCheck, LucideX, LucideSend, LucideFileText,
+    LucideArrowLeft, LucideCheck, LucideX, LucideSend, LucideFileText, LucideDownload,
   ],
   templateUrl: './quote-detail.html',
   styleUrl: './quote-detail.css',
@@ -58,6 +58,7 @@ export class QuoteDetail implements OnInit {
   readonly confirmOpen = signal(false)
   readonly convertOpen = signal(false)
   readonly loading     = signal(false)
+  readonly exporting   = signal(false)
   private readonly formTick = signal(0)
   private suppressClientReset = false
 
@@ -91,8 +92,8 @@ export class QuoteDetail implements OnInit {
     const groups = new Map<number, number>()
     let totalHt = 0
     for (const ctrl of this.linesArray.controls) {
-      const { quantity, unitPrice, vatRate } = ctrl.getRawValue()
-      const lineHt = (Number(quantity) || 0) * (Number(unitPrice) || 0)
+      const { quantity, unitPrice, discount, vatRate } = ctrl.getRawValue()
+      const lineHt = (Number(quantity) || 0) * (Number(unitPrice) || 0) * (1 - (Number(discount) || 0) / 100)
       const rate   = Number(vatRate) || 0
       totalHt += lineHt
       groups.set(rate, (groups.get(rate) ?? 0) + lineHt)
@@ -166,6 +167,14 @@ export class QuoteDetail implements OnInit {
     else                           this.router.navigate(['/projects', result.projectId])
   }
 
+  async exportPdf(): Promise<void> {
+    const id = this.quoteId()
+    if (id === null) return
+    this.exporting.set(true)
+    await this.store.exportPdf(id)
+    this.exporting.set(false)
+  }
+
   async invoiceBalance(): Promise<void> {
     const q = this.quote()
     if (!q) return
@@ -186,6 +195,7 @@ export class QuoteDetail implements OnInit {
       description: String(l.description).trim(),
       quantity:    Number(l.quantity),
       unitPrice:   Number(l.unitPrice),
+      discount:    Number(l.discount) || 0,
       vatRate:     Number(l.vatRate),
       productId:   l.productId ?? null,
     }))

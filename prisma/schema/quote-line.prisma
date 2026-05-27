@@ -3,6 +3,7 @@ model QuoteLine {
   description String
   quantity    Float
   unitPrice   Float
+  discount    Float  @default(0)
   vatRate     Float  @default(21)
 
   quoteId     Int

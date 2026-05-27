@@ -5,6 +5,7 @@ import {
 } from '@shared/dtos/invoice'
 import { FindManyArgs } from '@shared/types'
 import { InvoiceService } from '@app/services/invoice/invoice'
+import { PdfService } from '@app/services/pdf'
 import { ToastService } from '@app/services/toast/toast.service'
 import { ErrorService } from '@app/services/error/error.service'
 import { I18nService } from '@app/services/i18n/i18n'
@@ -12,6 +13,7 @@ import { I18nService } from '@app/services/i18n/i18n'
 @Injectable({ providedIn: 'root' })
 export class InvoiceStore {
   private readonly invoiceSvc = inject(InvoiceService)
+  private readonly pdf        = inject(PdfService)
   private readonly toast      = inject(ToastService)
   private readonly errors     = inject(ErrorService)
   private readonly i18n       = inject(I18nService)
@@ -87,6 +89,13 @@ export class InvoiceStore {
       this.toast.success(this.i18n.t('invoice.toast.paymentRemoved'))
       return updated
     } catch (e) { this.errors.handle(e); return null }
+  }
+
+  async exportPdf(id: number): Promise<void> {
+    try {
+      const path = await this.pdf.exportInvoice(id)
+      if (path) this.toast.success(this.i18n.t('pdf.toast.exported'))
+    } catch (e) { this.errors.handle(e) }
   }
 
   async remove(id: number): Promise<boolean> {

@@ -33,6 +33,15 @@
       <app-form-field [label]="'company.defaultVatRate' | t" type="number" [control]="form.controls.defaultVatRate" />
       <app-form-field [label]="'company.paymentTermsDays' | t" type="number" [control]="form.controls.paymentTermsDays" />
     </div>
+    <label class="company-form__select">
+      <span class="company-form__select-label">{{ 'company.vatRegime' | t }}</span>
+      <select class="app-select" [formControl]="form.controls.vatRegime">
+        @for (opt of regimeOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.key | t }}</option>
+        }
+      </select>
+    </label>
+
     <app-form-field [label]="'company.paymentConditions' | t" type="textarea" [control]="form.controls.paymentConditions" />
 
     <app-form-field

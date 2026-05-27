@@ -42,6 +42,7 @@ export default {
   'lineEditor.descriptionPlaceholder': 'Désignation ou choix dans le catalogue…',
   'lineEditor.quantity':               'Qté',
   'lineEditor.unitPrice':              'Prix unit.',
+  'lineEditor.discount':               'Remise',
   'lineEditor.vat':                    'TVA',
   'lineEditor.total':                  'Total',
   'lineEditor.add':                    'Ajouter une ligne',

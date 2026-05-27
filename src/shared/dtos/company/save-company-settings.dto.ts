@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { VatRegime } from './vat-regime.enum'
 
 const NumberFormatSchema = z
   .string()
@@ -7,6 +8,7 @@ const NumberFormatSchema = z
 
 export const SaveCompanySettingsSchema = z.object({
   defaultVatRate:            z.number().min(0).max(100).optional(),
+  vatRegime:                 z.enum(VatRegime).optional(),
   paymentTermsDays:          z.number().int().nonnegative().optional(),
   paymentConditions:         z.string().nullable().optional(),
   invoiceNumberFormat:       NumberFormatSchema.optional(),

@@ -1,6 +1,9 @@
+import type { VatRegime } from './vat-regime.enum'
+
 export interface CompanySettingsDto {
   companyId:                 string
   defaultVatRate:            number
+  vatRegime:                 VatRegime
   paymentTermsDays:          number
   paymentConditions:         string | null
   invoiceNumberFormat:       string

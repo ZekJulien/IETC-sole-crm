@@ -9,6 +9,7 @@ export default {
   'invoice.project':          'Project',
   'invoice.statusLabel':      'Status',
   'invoice.issueDate':        'Issue date',
+  'invoice.supplyDate':       'Supply date',
   'invoice.dueDate':          'Due date',
   'invoice.total':            'Total incl. VAT',
   'invoice.balance':          'Balance due',

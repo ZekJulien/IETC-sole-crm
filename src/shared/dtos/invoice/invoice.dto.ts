@@ -12,6 +12,7 @@ export interface InvoiceDto {
   id:           number
   number:       string
   issueDate:    Date
+  supplyDate:   Date | null
   dueDate:      Date
   status:       InvoiceStatus
   notes:        string | null

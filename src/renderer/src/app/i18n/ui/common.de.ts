@@ -42,6 +42,7 @@ export default {
   'lineEditor.descriptionPlaceholder': 'Beschreibung oder aus Katalog wählen…',
   'lineEditor.quantity':               'Menge',
   'lineEditor.unitPrice':              'Einzelpreis',
+  'lineEditor.discount':               'Rabatt',
   'lineEditor.vat':                    'MwSt.',
   'lineEditor.total':                  'Summe',
   'lineEditor.add':                    'Position hinzufügen',

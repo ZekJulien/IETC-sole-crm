@@ -3,6 +3,7 @@ model CompanySettings {
   company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   defaultVatRate        Float    @default(21)
+  vatRegime             String   @default("NORMAL")
   paymentTermsDays      Int      @default(30)
   paymentConditions     String?
 

@@ -109,6 +109,7 @@ export class ConversionService {
       description: multiRate ? `${label} (${a.rate}%)` : label,
       quantity:    1,
       unitPrice:   a.baseHt,
+      discount:    0,
       vatRate:     a.rate,
       productId:   null,
     }))

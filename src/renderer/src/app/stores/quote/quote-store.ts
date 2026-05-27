@@ -9,6 +9,7 @@ import {
 import { FindManyArgs } from '@shared/types'
 import { QuoteService } from '@app/services/quote/quote'
 import { ConversionService } from '@app/services/conversion/conversion'
+import { PdfService } from '@app/services/pdf'
 import { ToastService } from '@app/services/toast/toast.service'
 import { ErrorService } from '@app/services/error/error.service'
 import { I18nService } from '@app/services/i18n/i18n'
@@ -17,6 +18,7 @@ import { I18nService } from '@app/services/i18n/i18n'
 export class QuoteStore {
   private readonly quoteSvc      = inject(QuoteService)
   private readonly conversionSvc = inject(ConversionService)
+  private readonly pdf           = inject(PdfService)
   private readonly toast         = inject(ToastService)
   private readonly errors        = inject(ErrorService)
   private readonly i18n          = inject(I18nService)
@@ -108,6 +110,13 @@ export class QuoteStore {
     try {
       return await this.conversionSvc.getQuoteBilling(quoteId)
     } catch (e) { this.errors.handle(e); return null }
+  }
+
+  async exportPdf(id: number): Promise<void> {
+    try {
+      const path = await this.pdf.exportQuote(id)
+      if (path) this.toast.success(this.i18n.t('pdf.toast.exported'))
+    } catch (e) { this.errors.handle(e) }
   }
 
   private async refreshCounts(): Promise<void> {

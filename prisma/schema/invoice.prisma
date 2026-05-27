@@ -2,6 +2,7 @@ model Invoice {
   id        Int      @id @default(autoincrement())
   number    String   @unique
   issueDate DateTime @default(now())
+  supplyDate DateTime?
   dueDate   DateTime
   status    String   @default("DRAFT")
   notes     String?

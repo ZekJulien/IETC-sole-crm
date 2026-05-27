@@ -1,5 +1,6 @@
 import { Prisma } from '@db/client'
 import { CompanyDto, SaveCompanyDto, SaveCompanySettingsDto } from '@shared/dtos/company'
+import { VatRegime } from '@shared/dtos/company/vat-regime.enum'
 import { CompanyRepository } from '../../repositories/company/company.repository'
 import { CompanySettingsService } from './company-settings.service'
 import { BaseService } from '../base.service'
@@ -53,6 +54,6 @@ export class CompanyService extends BaseService<CompanyWithSettings, CompanyDto>
   protected toDto(company: CompanyWithSettings): CompanyDto {
     const { settings, ...rest } = company
     if (!settings) throw new AppError('COMPANY_NOT_CONFIGURED')
-    return { ...rest, settings }
+    return { ...rest, settings: { ...settings, vatRegime: settings.vatRegime as VatRegime } }
   }
 }

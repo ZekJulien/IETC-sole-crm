@@ -16,9 +16,14 @@ function toLineData(line: QuoteLineInput): QuoteLineData {
     description: line.description,
     quantity:    line.quantity,
     unitPrice:   line.unitPrice,
+    discount:    line.discount ?? 0,
     vatRate:     line.vatRate,
     productId:   line.productId ?? null,
   }
+}
+
+function lineNet(line: { quantity: number; unitPrice: number; discount: number }): number {
+  return line.quantity * line.unitPrice * (1 - (line.discount ?? 0) / 100)
 }
 
 export class QuoteService extends BaseService<QuoteWithRelations, QuoteDto> {
@@ -82,9 +87,10 @@ export class QuoteService extends BaseService<QuoteWithRelations, QuoteDto> {
       description: l.description,
       quantity:    l.quantity,
       unitPrice:   l.unitPrice,
+      discount:    l.discount,
       vatRate:     l.vatRate,
       productId:   l.productId,
-      total:       round2(l.quantity * l.unitPrice),
+      total:       round2(lineNet(l)),
     }))
 
     const byRate = new Map<number, number>()

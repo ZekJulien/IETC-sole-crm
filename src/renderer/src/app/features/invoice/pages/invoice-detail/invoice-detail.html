@@ -38,6 +38,10 @@
             {{ 'invoice.action.reopen' | t }}
           </app-button>
         }
+        <app-button [variant]="ButtonVariant.OUTLINE" [loading]="exporting()" (clicked)="exportPdf()">
+          <svg lucideDownload [size]="14" />
+          {{ 'pdf.export' | t }}
+        </app-button>
         <app-button [variant]="ButtonVariant.DANGER" (clicked)="confirmOpen.set(true)">
           {{ 'common.delete' | t }}
         </app-button>
@@ -86,6 +90,10 @@
           <div class="field">
             <label class="field__label">{{ 'invoice.issueDate' | t }}</label>
             <input class="field__input" type="date" formControlName="issueDate" />
+          </div>
+          <div class="field">
+            <label class="field__label">{{ 'invoice.supplyDate' | t }}</label>
+            <input class="field__input" type="date" formControlName="supplyDate" />
           </div>
           <div class="field">
             <label class="field__label">{{ ('invoice.dueDate' | t) + ' *' }}</label>

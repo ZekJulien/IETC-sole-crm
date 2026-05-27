@@ -13,6 +13,7 @@ import { VatRateAPI } from '@shared/interfaces/vat-rate'
 import { ProductAPI } from '@shared/interfaces/product'
 import { SeedAPI } from '@shared/interfaces/seed'
 import { ConversionAPI } from '@shared/interfaces/conversion'
+import { PdfAPI } from '@shared/interfaces/pdf'
 import { I18nAPI } from '@shared/interfaces/i18n'
 
 declare global {
@@ -34,6 +35,7 @@ declare global {
       product:  ProductAPI
       seed:     SeedAPI
       conversion: ConversionAPI
+      pdf:      PdfAPI
       i18n:     I18nAPI
     }
   }

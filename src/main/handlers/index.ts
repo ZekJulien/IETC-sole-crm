@@ -14,6 +14,7 @@ import { registerVatRateHandlers } from './vat-rate'
 import { registerProductHandlers } from './product'
 import { registerSeedHandlers } from './seed'
 import { registerConversionHandlers } from './conversion'
+import { registerPdfHandlers } from './pdf'
 import { registerI18nHandlers } from './i18n'
 
 export function registerAllHandlers(deps: AppDependencies): void {
@@ -33,5 +34,6 @@ export function registerAllHandlers(deps: AppDependencies): void {
   registerProductHandlers(deps.productService)
   registerSeedHandlers(deps.seedService)
   registerConversionHandlers(deps.conversionService)
+  registerPdfHandlers(deps.pdfService)
   registerI18nHandlers()
 }

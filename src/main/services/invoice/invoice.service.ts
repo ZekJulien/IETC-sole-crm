@@ -18,12 +18,17 @@ function toLineData(line: InvoiceLineInput): InvoiceLineData {
     description: line.description,
     quantity:    line.quantity,
     unitPrice:   line.unitPrice,
+    discount:    line.discount ?? 0,
     vatRate:     line.vatRate,
     productId:   line.productId ?? null,
   }
 }
 
-interface LineLike { quantity: number; unitPrice: number; vatRate: number }
+interface LineLike { quantity: number; unitPrice: number; discount: number; vatRate: number }
+
+function lineNet(line: LineLike): number {
+  return line.quantity * line.unitPrice * (1 - (line.discount ?? 0) / 100)
+}
 
 function computeTotals(lines: LineLike[]): {
   totalHt: number; totalVat: number; totalTtc: number; vatBreakdown: InvoiceVatBreakdownLine[]
@@ -31,7 +36,7 @@ function computeTotals(lines: LineLike[]): {
   const byRate = new Map<number, number>()
   let totalHt = 0
   for (const l of lines) {
-    const ht = l.quantity * l.unitPrice
+    const ht = lineNet(l)
     totalHt += ht
     byRate.set(l.vatRate, (byRate.get(l.vatRate) ?? 0) + ht)
   }
@@ -101,7 +106,7 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
     const lines = await this.repo.findLinesByQuote(quoteId)
     const byRate = new Map<number, number>()
     for (const l of lines)
-      byRate.set(l.vatRate, round2((byRate.get(l.vatRate) ?? 0) + l.quantity * l.unitPrice))
+      byRate.set(l.vatRate, round2((byRate.get(l.vatRate) ?? 0) + lineNet(l)))
     return byRate
   }
 
@@ -183,9 +188,10 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
       description: l.description,
       quantity:    l.quantity,
       unitPrice:   l.unitPrice,
+      discount:    l.discount,
       vatRate:     l.vatRate,
       productId:   l.productId,
-      total:       round2(l.quantity * l.unitPrice),
+      total:       round2(lineNet(l)),
     }))
 
     const { totalHt, totalVat, totalTtc, vatBreakdown } = computeTotals(inv.lines)
@@ -195,6 +201,7 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
       id:           inv.id,
       number:       inv.number,
       issueDate:    inv.issueDate,
+      supplyDate:   inv.supplyDate,
       dueDate:      inv.dueDate,
       status:       inv.status as InvoiceStatus,
       notes:        inv.notes,

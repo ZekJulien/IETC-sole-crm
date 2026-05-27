@@ -7,6 +7,7 @@ export const CreateInvoiceSchema = z.object({
   projectId: z.number().int().positive().nullable().optional(),
   quoteId:   z.number().int().positive().nullable().optional(),
   issueDate: z.coerce.date().optional(),
+  supplyDate: z.coerce.date().nullable().optional(),
   dueDate:   z.coerce.date(),
   status:    z.enum(InvoiceStatus).optional(),
   notes:     z.string().nullable().optional(),

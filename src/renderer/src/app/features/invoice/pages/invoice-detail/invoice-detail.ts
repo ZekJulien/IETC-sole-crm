@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
-import { LucideArrowLeft, LucideSend, LucideBan, LucideRotateCcw } from '@lucide/angular'
+import { LucideArrowLeft, LucideSend, LucideBan, LucideRotateCcw, LucideDownload } from '@lucide/angular'
 import {
   InvoiceStatus, PaymentMethod, InvoiceDto, PaymentDto,
   CreateInvoiceDto, UpdateInvoiceDto, InvoiceLineInput,
@@ -31,7 +31,7 @@ interface InvoiceTotals {
   selector: 'app-invoice-detail',
   imports: [
     ReactiveFormsModule, Button, ConfirmDialog, StatusBadge, LineItemsEditor, PaymentsPanel, TranslatePipe,
-    LucideArrowLeft, LucideSend, LucideBan, LucideRotateCcw,
+    LucideArrowLeft, LucideSend, LucideBan, LucideRotateCcw, LucideDownload,
   ],
   templateUrl: './invoice-detail.html',
   styleUrl: './invoice-detail.css',
@@ -60,6 +60,7 @@ export class InvoiceDetail implements OnInit {
   readonly paidAmount = signal<number>(0)
   readonly confirmOpen = signal(false)
   readonly loading     = signal(false)
+  readonly exporting   = signal(false)
   readonly savingPayment = signal(false)
   private readonly formTick = signal(0)
   private suppressClientReset = false
@@ -71,12 +72,13 @@ export class InvoiceDetail implements OnInit {
   )
 
   readonly form = this.fb.group({
-    clientId:  [null as number | null, [Validators.required]],
-    projectId: [null as number | null],
-    issueDate: [toInputDate(new Date())],
-    dueDate:   [toInputDate(this.defaultDueDate()), [Validators.required]],
-    notes:     [''],
-    lines:     this.fb.array([] as FormGroup[]),
+    clientId:   [null as number | null, [Validators.required]],
+    projectId:  [null as number | null],
+    issueDate:  [toInputDate(new Date())],
+    supplyDate: [null as string | null],
+    dueDate:    [toInputDate(this.defaultDueDate()), [Validators.required]],
+    notes:      [''],
+    lines:      this.fb.array([] as FormGroup[]),
   })
 
   readonly paymentForm = this.fb.group({
@@ -101,8 +103,8 @@ export class InvoiceDetail implements OnInit {
     const groups = new Map<number, number>()
     let totalHt = 0
     for (const ctrl of this.linesArray.controls) {
-      const { quantity, unitPrice, vatRate } = ctrl.getRawValue()
-      const lineHt = (Number(quantity) || 0) * (Number(unitPrice) || 0)
+      const { quantity, unitPrice, discount, vatRate } = ctrl.getRawValue()
+      const lineHt = (Number(quantity) || 0) * (Number(unitPrice) || 0) * (1 - (Number(discount) || 0) / 100)
       const rate   = Number(vatRate) || 0
       totalHt += lineHt
       groups.set(rate, (groups.get(rate) ?? 0) + lineHt)
@@ -144,11 +146,12 @@ export class InvoiceDetail implements OnInit {
     this.applyInvoice(invoice)
     this.suppressClientReset = true
     this.form.patchValue({
-      clientId:  invoice.clientId,
-      projectId: invoice.projectId,
-      issueDate: toInputDate(invoice.issueDate),
-      dueDate:   toInputDate(invoice.dueDate),
-      notes:     invoice.notes ?? '',
+      clientId:   invoice.clientId,
+      projectId:  invoice.projectId,
+      issueDate:  toInputDate(invoice.issueDate),
+      supplyDate: invoice.supplyDate ? toInputDate(invoice.supplyDate) : null,
+      dueDate:    toInputDate(invoice.dueDate),
+      notes:      invoice.notes ?? '',
     })
     this.suppressClientReset = false
     this.linesArray.clear()
@@ -176,6 +179,14 @@ export class InvoiceDetail implements OnInit {
 
   private addEmptyLine(): void {
     this.linesArray.push(buildLineGroup(this.fb, undefined, this.vatRates.defaultRate()))
+  }
+
+  async exportPdf(): Promise<void> {
+    const id = this.invoiceId()
+    if (id === null) return
+    this.exporting.set(true)
+    await this.store.exportPdf(id)
+    this.exporting.set(false)
   }
 
   async markStatus(status: InvoiceStatus): Promise<void> {
@@ -233,6 +244,7 @@ export class InvoiceDetail implements OnInit {
       description: String(l.description).trim(),
       quantity:    Number(l.quantity),
       unitPrice:   Number(l.unitPrice),
+      discount:    Number(l.discount) || 0,
       vatRate:     Number(l.vatRate),
       productId:   l.productId ?? null,
     }))
@@ -241,10 +253,11 @@ export class InvoiceDetail implements OnInit {
     if (id !== null) {
       const payload: UpdateInvoiceDto = {
         id,
-        clientId:  v.clientId!,
-        projectId: v.projectId ?? null,
-        issueDate: new Date(v.issueDate!),
-        dueDate:   new Date(v.dueDate!),
+        clientId:   v.clientId!,
+        projectId:  v.projectId ?? null,
+        issueDate:  new Date(v.issueDate!),
+        supplyDate: v.supplyDate ? new Date(v.supplyDate) : null,
+        dueDate:    new Date(v.dueDate!),
         notes,
         lines,
       }
@@ -252,10 +265,11 @@ export class InvoiceDetail implements OnInit {
       if (updated) this.router.navigate(['/invoices'])
     } else {
       const payload: CreateInvoiceDto = {
-        clientId:  v.clientId!,
-        projectId: v.projectId ?? null,
-        issueDate: new Date(v.issueDate!),
-        dueDate:   new Date(v.dueDate!),
+        clientId:   v.clientId!,
+        projectId:  v.projectId ?? null,
+        issueDate:  new Date(v.issueDate!),
+        supplyDate: v.supplyDate ? new Date(v.supplyDate) : null,
+        dueDate:    new Date(v.dueDate!),
         notes,
         lines,
       }

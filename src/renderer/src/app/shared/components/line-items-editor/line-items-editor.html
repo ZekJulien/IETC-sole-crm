@@ -3,6 +3,7 @@
     <span>{{ 'lineEditor.description' | t }}</span>
     <span class="lines__num">{{ 'lineEditor.quantity' | t }}</span>
     <span class="lines__num">{{ 'lineEditor.unitPrice' | t }}</span>
+    <span class="lines__num">{{ 'lineEditor.discount' | t }}</span>
     <span>{{ 'lineEditor.vat' | t }}</span>
     <span class="lines__num">{{ 'lineEditor.total' | t }}</span>
     <span class="lines__action"></span>
@@ -20,6 +21,10 @@
       <div class="input-affix lines__num">
         <input class="field__input" type="number" min="0" step="0.01" formControlName="unitPrice" />
         <span class="input-affix__unit">€</span>
+      </div>
+      <div class="input-affix lines__num">
+        <input class="field__input" type="number" min="0" max="100" step="1" formControlName="discount" />
+        <span class="input-affix__unit">%</span>
       </div>
       <select class="app-select" formControlName="vatRate">
         @for (r of vatRates(); track r.id) {

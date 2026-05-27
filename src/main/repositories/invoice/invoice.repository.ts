@@ -17,6 +17,7 @@ export interface InvoiceLineData {
   description: string
   quantity:    number
   unitPrice:   number
+  discount:    number
   vatRate:     number
   productId:   number | null
 }
@@ -64,10 +65,10 @@ export class InvoiceRepository extends BaseRepository<Invoice> {
     return this.delegate.update({ where: { id }, data: { status } })
   }
 
-  findLinesByQuote(quoteId: number): Promise<{ quantity: number; unitPrice: number; vatRate: number }[]> {
+  findLinesByQuote(quoteId: number): Promise<{ quantity: number; unitPrice: number; discount: number; vatRate: number }[]> {
     return this.dbContext.client.invoiceLine.findMany({
       where:  { invoice: { quoteId, status: { not: InvoiceStatus.CANCELLED } } },
-      select: { quantity: true, unitPrice: true, vatRate: true },
+      select: { quantity: true, unitPrice: true, discount: true, vatRate: true },
     })
   }
 

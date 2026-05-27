@@ -2,7 +2,7 @@
 
 .lines__head, .line-row {
   display: grid;
-  grid-template-columns: 1fr 72px 116px 84px 104px 34px;
+  grid-template-columns: 1fr 70px 112px 88px 80px 104px 34px;
   gap: 8px;
   align-items: center;
 }

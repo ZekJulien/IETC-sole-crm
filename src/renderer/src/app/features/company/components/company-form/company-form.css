@@ -49,6 +49,18 @@
   font-size:     12px;
 }
 
+.company-form__select {
+  display:        flex;
+  flex-direction: column;
+  gap:            6px;
+}
+
+.company-form__select-label {
+  font-size:   13px;
+  font-weight: 500;
+  color:       var(--color-text);
+}
+
 .company-form__check {
   display:     flex;
   align-items: center;

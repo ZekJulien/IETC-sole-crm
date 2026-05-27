@@ -28,6 +28,10 @@
             {{ 'quote.action.markRejected' | t }}
           </app-button>
         }
+        <app-button [variant]="ButtonVariant.OUTLINE" [loading]="exporting()" (clicked)="exportPdf()">
+          <svg lucideDownload [size]="14" />
+          {{ 'pdf.export' | t }}
+        </app-button>
         <app-button [variant]="ButtonVariant.DANGER" (clicked)="confirmOpen.set(true)">
           {{ 'common.delete' | t }}
         </app-button>

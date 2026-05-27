@@ -42,6 +42,7 @@ export default {
   'lineEditor.descriptionPlaceholder': 'Omschrijving of kies uit catalogus…',
   'lineEditor.quantity':               'Aantal',
   'lineEditor.unitPrice':              'Eenheidsprijs',
+  'lineEditor.discount':               'Korting',
   'lineEditor.vat':                    'Btw',
   'lineEditor.total':                  'Totaal',
   'lineEditor.add':                    'Regel toevoegen',

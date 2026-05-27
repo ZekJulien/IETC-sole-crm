@@ -9,6 +9,105 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.15.0] — 2026-05-27 — Phase 11 · 3/6 : Génération PDF (facture & devis) + régime TVA / mentions légales
+
+Troisième chantier de la **Phase 11** : export **PDF** d'une facture **ou** d'un devis (même moteur),
+généré **côté main** avec **pdfmake**, sauvegardé via le **dialogue natif** puis ouvert. Intègre le
+**régime de TVA** (assujetti vs **franchise**) reporté de la Phase 10 et l'**autoliquidation intra-UE**.
+**Une migration** (`CompanySettings.vatRegime`) ; **une dépendance** (`pdfmake` + `@types/pdfmake`).
+
+### Parcours
+
+1. Sur le détail d'une facture **ou** d'un devis enregistré, bouton « **Exporter en PDF** » → dialogue
+   natif de sauvegarde (nom pré-rempli `INV-2026-0001.pdf` / `QUO-…`) → écriture du fichier → ouverture
+   via `shell.openPath`. Annuler le dialogue = aucun toast, aucun fichier.
+2. Le PDF porte l'en-tête entreprise (**+ logo** si `logoPath`), le bloc client, les dates (échéance pour
+   la facture / validité pour le devis), la **réf. devis** si la facture en est issue, le tableau des
+   lignes, la **ventilation TVA par taux** (clé du « multi-TVA »), les totaux HT/TVA/TTC, le **payé /
+   solde dû** (facture), l'**IBAN/BIC** + conditions de paiement en pied, et la **mention légale** du régime.
+3. Onglet Paramètres → Entreprise : nouveau sélecteur **« Régime de TVA »** (Assujetti / Franchise).
+
+### Décisions d'architecture
+
+- **pdfmake (MIT, pur JS)** plutôt que puppeteer/Chromium : pas de module natif, **packaging Electron
+  sans souci**. Rendu via les **14 polices PDF standard (Helvetica)** → **aucun fichier de police à
+  embarquer** (le WinAnsi standard couvre FR/EN/NL/DE + €). `pdfmake` **externalisé** dans
+  `vite.main.config.mts` (comme `better-sqlite3`) — ses métriques de police sont lues par `fs` au runtime,
+  on ne le bundle pas. `require('pdfmake')` typé localement (les `@types/pdfmake` ne typent que le build
+  navigateur ; root en `commonjs` → `require` dispo).
+- **`PdfService` = orchestrateur sans repo** (`src/main/services/pdf`, même esprit que `ConversionService`) :
+  compose Invoice/Quote/Company/Client, résout le régime, construit un **modèle normalisé**, délègue le
+  rendu. Découpé en `pdf.service` (données) / `pdf-document` (définition pdfmake pure) / `pdf-printer`
+  (singleton `PdfPrinter` + `renderToBuffer`). Canaux **`pdf:export-invoice`/`-quote`** en
+  **`ipcHandleNoTx`** (lecture seule + dialogue natif > timeout tx) ; le handler fait dialogue + écriture
+  + ouverture, le service ne dépend pas d'Electron (testable, buffer pur).
+- **i18n : libellés passés du renderer au main** (namespace `pdf.*`, 4 langues) avec la `locale` active →
+  **source i18n unique**, le main reste muet (mêmes montants/dates formatés via `Intl` + locale). Suit le
+  précédent du chantier 2 (libellés de lignes construits côté renderer). Évite de dupliquer ~30 chaînes
+  dans le i18n du main (réservé aux erreurs).
+- **Régime TVA = `CompanySettings.vatRegime` TEXT+CHECK** (`NORMAL`/`FRANCHISE`, migration
+  `add_vat_regime` — rebuild de table généré par Prisma, **CHECK ajouté à la main** ; vérifié `node:sqlite` :
+  `NORMAL`/`FRANCHISE` acceptés, valeur hors liste **rejetée**). **Autoliquidation intra-UE** =
+  helper **pur partagé** `resolveVatTreatment` (`src/shared/utils`) piloté par **`Client.country` +
+  `Client.vatNumber`** (code pays UE ≠ BE + n° TVA présent ; repli sur le préfixe du n° TVA), **jamais**
+  par `Client.type`. Franchise **et** autoliquidation → **TVA mise à 0 dans le PDF + mention légale**
+  (franchise art. 56bis CTVA / autoliquidation art. 196 dir. 2006/112/CE) ; le **modèle des lignes reste
+  inchangé** (TVA par ligne) — choix conforme à la décision de Phase 10. ⚠️ conséquence assumée : sous un
+  régime sans TVA, le TTC **affiché au PDF** (= HT) peut différer du TTC **calculé en interne** (lignes à
+  21 %) ; le PDF est une présentation, la mise à 0 effective des lignes n'est pas dans ce chantier.
+- **⚠️ Gotcha bundle (zod hors du bundle initial)** : ajouter l'**enum runtime `VatRegime` au barrel**
+  `@shared/dtos/company` via `export *` forçait esbuild à **matérialiser le barrel** (et ses voisins
+  porteurs de zod) partout où il est importé — y compris le graphe **eager** du Welcome Wizard qui n'en
+  utilisait que les **types** → **+330 kB de zod dans le bundle initial** (782 kB, budget 500 kB dépassé).
+  Correctif : **ne pas exposer l'enum dans le barrel** ; tous les imports **valeur** de `VatRegime`
+  pointent le **module direct** `@shared/dtos/company/vat-regime.enum`, les interfaces l'importent en
+  `import type`. Bundle initial **revenu à 454 kB** (vs 452 kB avant). Règle : pas de **valeur runtime**
+  dans un barrel de DTO ré-exporté par `export *` et consommé pour ses types côté eager.
+
+### Fichiers
+
+- **Dépendances** : `pdfmake` (deps), `@types/pdfmake` (devDeps) ; `vite.main.config.mts` (+`pdfmake`,
+  `/^pdfmake\//` externes).
+- **Prisma** : `schema/company-settings.prisma` (+`vatRegime`), migration `add_vat_regime` (CHECK manuel).
+- **Shared** : `dtos/pdf` (`ExportPdfSchema` + `PdfLabels`), `channels/pdf`, `interfaces/pdf` + barrels ;
+  `dtos/company/vat-regime.enum` (+ `CompanySettingsDto.vatRegime`, `SaveCompanySettingsSchema.vatRegime`) ;
+  `utils/vat-treatment` (`resolveVatTreatment`).
+- **Main** : `services/pdf` (`pdf.service` / `pdf-document` / `pdf-printer`), `handlers/pdf`,
+  `dependencies/pdf` + wire `*/index` ; `services/company/company.service` (cast `vatRegime`).
+- **Preload** : `apis/pdf.api` + `preload/index` + window types.
+- **Renderer** : `services/pdf` (`PdfService` → labels i18n + `window.api.pdf`), `InvoiceStore`/`QuoteStore`
+  (+`exportPdf`), `invoice-detail`/`quote-detail` (bouton « Exporter en PDF »), `company-form`
+  (sélecteur régime), i18n `ui/pdf/pdf.{fr,en,nl,de}` (4 agrégateurs) + clés `company.vatRegime.*` (4 langues).
+
+### Ajustements (retours E2E)
+
+- **Séparateur de milliers cassé au PDF** : `Intl.NumberFormat('fr')` utilise un **espace fine
+  insécable U+202F** comme séparateur de milliers, **absent du WinAnsi** des polices standard → rendu
+  comme un glyphe parasite (« 1 /020,00 € »). Correctif : `normalizeSpaces` remplace U+202F/U+00A0/
+  U+2009/U+2007/U+2008 par une espace normale sur tous les montants/dates formatés.
+- **Métadonnées PDF** : `info.author` = entreprise, `info.creator`/`info.producer` = « Sole » (au lieu
+  de « pdfmake »).
+- **UX éditeur de lignes** : ajouter une ligne **place le focus sur la désignation de la nouvelle
+  ligne** (`afterNextRender` dans `LineItemsEditor`, partagé Devis+Facture) — plus besoin de tabuler
+  toute la page.
+- **Sauts de page PDF** : le bloc totaux, la carte client et l'encart mention légale sont
+  **`unbreakable`** → un bloc qui ne tient pas en bas de page bascule **entier** sur la suivante (au lieu
+  d'être coupé en deux). L'en-tête du tableau de lignes se **répète** sur chaque page.
+- **Conformité (2 gaps comblés)** : **date de prestation** (`Invoice.supplyDate`, optionnelle — mention
+  TVA obligatoire quand elle diffère de la date de facture ; affichée au PDF si renseignée) **et
+  remise % par ligne** (`discount` sur `InvoiceLine`/`QuoteLine`, éditeur partagé → colonne « Remise »,
+  totaux/ventilation TVA recalculés net, colonne « Remise » au PDF **affichée seulement si ≥ 1 ligne en
+  porte**). **Migration `add_supply_date_and_discount`** : `supplyDate` ajoutée par `ADD COLUMN` (table
+  `Invoice` **non reconstruite** → CHECK `status` intact), `discount` via rebuild des tables de lignes
+  (sans CHECK) ; vérifié `node:sqlite`. ⚠️ **Peppol/UBL reste un chantier dédié** (e-facturation
+  structurée EN 16931, hors PDF).
+
+> **À tester E2E** (`npm start`) : configurer l'entreprise (IBAN/BIC/logo), exporter le PDF d'une facture
+> multi-TVA et d'un devis ; passer l'entreprise en **franchise** → TVA à 0 + mention ; client UE hors BE
+> avec n° TVA → **autoliquidation** + mention ; **remise sur une ligne** (colonne « Remise » au PDF +
+> total net) ; **date de prestation** renseignée ; **facture longue** (>1 page) → totaux non coupés.
+> Vérifier l'ouverture native du PDF et l'annulation du dialogue.
+
 ## [0.14.0] — 2026-05-27 — Phase 11 · 2/6 : Conversion Devis → Projet + factures (acompte & solde)
 
 Deuxième chantier de la **Phase 11** : un devis accepté devient un **projet + ses factures**, en
