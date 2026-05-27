@@ -12,6 +12,7 @@ import { InvoiceAPI } from '@shared/interfaces/invoice'
 import { VatRateAPI } from '@shared/interfaces/vat-rate'
 import { ProductAPI } from '@shared/interfaces/product'
 import { SeedAPI } from '@shared/interfaces/seed'
+import { ConversionAPI } from '@shared/interfaces/conversion'
 import { I18nAPI } from '@shared/interfaces/i18n'
 
 declare global {
@@ -32,6 +33,7 @@ declare global {
       vatRate:  VatRateAPI
       product:  ProductAPI
       seed:     SeedAPI
+      conversion: ConversionAPI
       i18n:     I18nAPI
     }
   }

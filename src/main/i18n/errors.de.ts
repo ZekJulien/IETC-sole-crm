@@ -3,6 +3,7 @@ export const errorsDe: Record<string, string> = {
   CATEGORY_NAME_TAKEN:   'Eine Kategorie mit diesem Namen existiert bereits',
   EXPENSE_CATEGORY_NAME_TAKEN: 'Eine Ausgabenkategorie mit diesem Namen existiert bereits',
   COMPANY_NOT_CONFIGURED:'Die Unternehmensdaten sind noch nicht konfiguriert',
+  NOTHING_TO_INVOICE:    'Dieses Angebot ist bereits vollständig in Rechnung gestellt',
   UNIQUE_VIOLATION:      'Das Feld {{field}} existiert bereits',
   VALIDATION_FAILED:     'Ungültige Daten: {{issues}}',
   NOT_FOUND:             'Ressource nicht gefunden',

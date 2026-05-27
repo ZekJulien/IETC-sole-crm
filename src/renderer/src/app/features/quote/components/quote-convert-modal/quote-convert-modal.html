@@ -1,0 +1,47 @@
+<app-modal [open]="open()" [title]="title()" (closed)="cancelled.emit()">
+  <form class="convert-form" [formGroup]="form" (ngSubmit)="submit()">
+    <p class="convert-form__intro">{{ 'conversion.subtitle' | t }}</p>
+
+    @if (reusingProject()) {
+      <div class="linked-note">
+        <span class="linked-note__label">{{ 'conversion.linkedProject' | t }}</span>
+        <strong class="linked-note__name">{{ quote()?.projectName }}</strong>
+        <p class="linked-note__hint">{{ 'conversion.linkedProjectHint' | t }}</p>
+      </div>
+    } @else {
+      <app-form-field
+        [label]="'conversion.projectName' | t"
+        [control]="projectNameControl"
+        [placeholder]="'conversion.projectNamePlaceholder' | t" />
+    }
+
+    <div class="toggle-row">
+      <div class="toggle-row__text">
+        <span class="field__label">{{ 'conversion.depositToggle' | t }}</span>
+        <p class="toggle-row__hint">{{ 'conversion.depositToggleHint' | t }}</p>
+      </div>
+      <app-switch [checked]="createInvoice()" (toggled)="toggleInvoice()" />
+    </div>
+
+    @if (createInvoice()) {
+      <app-form-field
+        type="number"
+        [label]="'conversion.depositPercentage' | t"
+        [control]="depositPercentageControl" />
+
+      <div class="preview">
+        <span class="preview__label">{{ 'conversion.depositAmount' | t }}</span>
+        <span class="preview__amount">{{ formatCurrency(depositAmount()) }}</span>
+      </div>
+    }
+  </form>
+
+  <div modal-actions class="convert-actions">
+    <app-button [variant]="ButtonVariant.GHOST" (clicked)="cancelled.emit()">
+      {{ 'common.cancel' | t }}
+    </app-button>
+    <app-button [variant]="ButtonVariant.PRIMARY" [loading]="saving()" (clicked)="submit()">
+      {{ 'conversion.confirm' | t }}
+    </app-button>
+  </div>
+</app-modal>

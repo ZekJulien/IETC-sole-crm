@@ -19,9 +19,9 @@
           </app-button>
         }
         @if (form.controls.status.value === QuoteStatus.SENT) {
-          <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="markStatus(QuoteStatus.ACCEPTED)">
+          <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="convertOpen.set(true)">
             <svg lucideCheck [size]="14" />
-            {{ 'quote.action.markAccepted' | t }}
+            {{ 'conversion.accept' | t }}
           </app-button>
           <app-button [variant]="ButtonVariant.DANGER" (clicked)="markStatus(QuoteStatus.REJECTED)">
             <svg lucideX [size]="14" />
@@ -40,6 +40,38 @@
   </header>
 
   <div class="quote-detail__scroll">
+    @if (isAccepted() && billing(); as b) {
+      <section class="card billing">
+        <h2 class="card__title">{{ 'conversion.billing.title' | t }}</h2>
+        <div class="billing__body">
+          <div class="billing__rows">
+            <div class="billing__row">
+              <span>{{ 'conversion.billing.total' | t }}</span>
+              <span>{{ formatCurrency(b.totalTtc) }}</span>
+            </div>
+            <div class="billing__row">
+              <span>{{ 'conversion.billing.invoiced' | t }}</span>
+              <span>{{ formatCurrency(b.invoicedTtc) }}</span>
+            </div>
+            <div class="billing__row billing__row--rem">
+              <span>{{ 'conversion.billing.remaining' | t }}</span>
+              <span>{{ formatCurrency(b.remainingTtc) }}</span>
+            </div>
+          </div>
+          <div class="billing__action">
+            @if (b.fullyInvoiced) {
+              <span class="billing__done">{{ 'conversion.balance.fullyInvoiced' | t }}</span>
+            } @else {
+              <app-button [variant]="ButtonVariant.PRIMARY" [loading]="store.saving()" (clicked)="invoiceBalance()">
+                <svg lucideFileText [size]="14" />
+                {{ 'conversion.balance.action' | t }}
+              </app-button>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
     <form class="quote-form" [formGroup]="form" (ngSubmit)="submit()">
 
       <section class="card">
@@ -137,4 +169,11 @@
     [visible]="confirmOpen()"
     (confirmed)="confirmDelete()"
     (cancelled)="confirmOpen.set(false)" />
+
+  <app-quote-convert-modal
+    [open]="convertOpen()"
+    [quote]="quote()"
+    [saving]="store.saving()"
+    (confirmed)="convert($event)"
+    (cancelled)="convertOpen.set(false)" />
 </section>

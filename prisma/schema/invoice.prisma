@@ -14,6 +14,9 @@ model Invoice {
   projectId Int?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
+  quoteId   Int?
+  quote     Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+
   lines     InvoiceLine[]
   payments  Payment[]
 }

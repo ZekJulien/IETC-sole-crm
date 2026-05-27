@@ -84,16 +84,25 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
   }
 
   async add(data: CreateInvoiceDto): Promise<InvoiceDto> {
-    const { lines, projectId, status, ...rest } = data
+    const { lines, projectId, quoteId, status, ...rest } = data
     const number = await this.company.getNextInvoiceNumber()
     const created = await this.repo.create({
       ...rest,
       number,
       projectId: projectId ?? null,
+      quoteId:   quoteId ?? null,
       status:    status ?? InvoiceStatus.DRAFT,
     })
     for (const line of lines) await this.repo.createLine(created.id, toLineData(line))
     return this.getByIdOrThrow(created.id)
+  }
+
+  async sumInvoicedByRate(quoteId: number): Promise<Map<number, number>> {
+    const lines = await this.repo.findLinesByQuote(quoteId)
+    const byRate = new Map<number, number>()
+    for (const l of lines)
+      byRate.set(l.vatRate, round2((byRate.get(l.vatRate) ?? 0) + l.quantity * l.unitPrice))
+    return byRate
   }
 
   async update(data: UpdateInvoiceDto): Promise<InvoiceDto> {
@@ -193,6 +202,8 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
       clientName:   [inv.client.firstName, inv.client.name].filter(Boolean).join(' '),
       projectId:    inv.projectId,
       projectName:  inv.project?.name ?? null,
+      quoteId:      inv.quoteId,
+      quoteNumber:  inv.quote?.number ?? null,
       lines,
       payments:     inv.payments.map(p => ({
         id:        p.id,

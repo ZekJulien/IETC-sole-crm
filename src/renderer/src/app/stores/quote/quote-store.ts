@@ -2,18 +2,24 @@ import { Injectable, computed, inject, signal } from '@angular/core'
 import {
   QuoteDto, CreateQuoteDto, UpdateQuoteDto, UpdateQuoteStatusDto, QuoteStatusCount,
 } from '@shared/dtos/quote'
+import {
+  ConvertQuoteDto, ConvertQuoteResultDto,
+  InvoiceBalanceDto, InvoiceBalanceResultDto, QuoteBillingDto,
+} from '@shared/dtos/conversion'
 import { FindManyArgs } from '@shared/types'
 import { QuoteService } from '@app/services/quote/quote'
+import { ConversionService } from '@app/services/conversion/conversion'
 import { ToastService } from '@app/services/toast/toast.service'
 import { ErrorService } from '@app/services/error/error.service'
 import { I18nService } from '@app/services/i18n/i18n'
 
 @Injectable({ providedIn: 'root' })
 export class QuoteStore {
-  private readonly quoteSvc = inject(QuoteService)
-  private readonly toast    = inject(ToastService)
-  private readonly errors   = inject(ErrorService)
-  private readonly i18n     = inject(I18nService)
+  private readonly quoteSvc      = inject(QuoteService)
+  private readonly conversionSvc = inject(ConversionService)
+  private readonly toast         = inject(ToastService)
+  private readonly errors        = inject(ErrorService)
+  private readonly i18n          = inject(I18nService)
 
   private readonly _counts = signal<QuoteStatusCount>({})
   private readonly _saving = signal<boolean>(false)
@@ -75,6 +81,33 @@ export class QuoteStore {
       this.toast.success(this.i18n.t('quote.toast.deleted'))
       return true
     } catch (e) { this.errors.handle(e); return false }
+  }
+
+  async convertQuote(data: ConvertQuoteDto): Promise<ConvertQuoteResultDto | null> {
+    this._saving.set(true)
+    try {
+      const result = await this.conversionSvc.convertQuote(data)
+      await this.refreshCounts()
+      this.toast.success(this.i18n.t('conversion.toast.success'))
+      return result
+    } catch (e) { this.errors.handle(e); return null }
+    finally { this._saving.set(false) }
+  }
+
+  async invoiceBalance(data: InvoiceBalanceDto): Promise<InvoiceBalanceResultDto | null> {
+    this._saving.set(true)
+    try {
+      const result = await this.conversionSvc.invoiceBalance(data)
+      this.toast.success(this.i18n.t('conversion.balance.toast'))
+      return result
+    } catch (e) { this.errors.handle(e); return null }
+    finally { this._saving.set(false) }
+  }
+
+  async getQuoteBilling(quoteId: number): Promise<QuoteBillingDto | null> {
+    try {
+      return await this.conversionSvc.getQuoteBilling(quoteId)
+    } catch (e) { this.errors.handle(e); return null }
   }
 
   private async refreshCounts(): Promise<void> {

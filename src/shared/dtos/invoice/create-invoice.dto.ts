@@ -5,6 +5,7 @@ import { InvoiceLineInputSchema } from './invoice-line-input.dto'
 export const CreateInvoiceSchema = z.object({
   clientId:  z.number().int().positive(),
   projectId: z.number().int().positive().nullable().optional(),
+  quoteId:   z.number().int().positive().nullable().optional(),
   issueDate: z.coerce.date().optional(),
   dueDate:   z.coerce.date(),
   status:    z.enum(InvoiceStatus).optional(),

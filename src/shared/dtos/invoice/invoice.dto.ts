@@ -19,6 +19,8 @@ export interface InvoiceDto {
   clientName:   string
   projectId:    number | null
   projectName:  string | null
+  quoteId:      number | null
+  quoteNumber:  string | null
   lines:        InvoiceLineDto[]
   payments:     PaymentDto[]
   vatBreakdown: InvoiceVatBreakdownLine[]

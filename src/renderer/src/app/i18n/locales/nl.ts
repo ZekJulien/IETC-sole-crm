@@ -15,9 +15,10 @@ import vatRate from '../ui/vat-rate/vat-rate.nl'
 import product from '../ui/product/product.nl'
 import settings from '../ui/settings/settings.nl'
 import wizard from '../ui/welcome-wizard/welcome-wizard.nl'
+import conversion from '../ui/conversion/conversion.nl'
 
 export default {
   ...validation, ...common, ...client, ...contact, ...company, ...category,
   ...expenseCategory, ...project, ...task, ...time, ...expense, ...quote,
-  ...invoice, ...vatRate, ...product, ...settings, ...wizard,
+  ...invoice, ...vatRate, ...product, ...settings, ...wizard, ...conversion,
 } satisfies Record<string, string>

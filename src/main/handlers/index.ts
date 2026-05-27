@@ -13,6 +13,7 @@ import { registerInvoiceHandlers } from './invoice'
 import { registerVatRateHandlers } from './vat-rate'
 import { registerProductHandlers } from './product'
 import { registerSeedHandlers } from './seed'
+import { registerConversionHandlers } from './conversion'
 import { registerI18nHandlers } from './i18n'
 
 export function registerAllHandlers(deps: AppDependencies): void {
@@ -31,5 +32,6 @@ export function registerAllHandlers(deps: AppDependencies): void {
   registerVatRateHandlers(deps.vatRateService)
   registerProductHandlers(deps.productService)
   registerSeedHandlers(deps.seedService)
+  registerConversionHandlers(deps.conversionService)
   registerI18nHandlers()
 }

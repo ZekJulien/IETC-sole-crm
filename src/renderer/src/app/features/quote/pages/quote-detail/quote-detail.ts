@@ -2,8 +2,9 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
-import { LucideArrowLeft, LucideCheck, LucideX, LucideSend } from '@lucide/angular'
-import { QuoteStatus, CreateQuoteDto, UpdateQuoteDto, QuoteLineInput } from '@shared/dtos/quote'
+import { LucideArrowLeft, LucideCheck, LucideX, LucideSend, LucideFileText } from '@lucide/angular'
+import { QuoteStatus, QuoteDto, CreateQuoteDto, UpdateQuoteDto, QuoteLineInput } from '@shared/dtos/quote'
+import { ConvertQuoteDto, QuoteBillingDto } from '@shared/dtos/conversion'
 import { QuoteStore } from '@app/stores/quote'
 import { ClientStore } from '@app/stores/client/client-store'
 import { ProjectStore } from '@app/stores/project'
@@ -13,7 +14,9 @@ import { Button, ConfirmDialog, LineItemsEditor, buildLineGroup } from '@app/com
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
 import { formatCurrency, toInputDate } from '@app/utils'
+import { I18nService } from '@app/services/i18n/i18n'
 import { QUOTE_STATUSES, quoteStatusKey } from '../../utils/quote-status'
+import { QuoteConvertModal } from '../../components/quote-convert-modal/quote-convert-modal'
 
 interface QuoteTotals {
   totalHt:   number
@@ -25,8 +28,8 @@ interface QuoteTotals {
 @Component({
   selector: 'app-quote-detail',
   imports: [
-    ReactiveFormsModule, Button, ConfirmDialog, LineItemsEditor, TranslatePipe,
-    LucideArrowLeft, LucideCheck, LucideX, LucideSend,
+    ReactiveFormsModule, Button, ConfirmDialog, LineItemsEditor, QuoteConvertModal, TranslatePipe,
+    LucideArrowLeft, LucideCheck, LucideX, LucideSend, LucideFileText,
   ],
   templateUrl: './quote-detail.html',
   styleUrl: './quote-detail.css',
@@ -35,6 +38,7 @@ export class QuoteDetail implements OnInit {
   private readonly fb     = inject(FormBuilder)
   private readonly route  = inject(ActivatedRoute)
   private readonly router = inject(Router)
+  private readonly i18n   = inject(I18nService)
   readonly store    = inject(QuoteStore)
   readonly clients  = inject(ClientStore)
   readonly projects = inject(ProjectStore)
@@ -49,10 +53,15 @@ export class QuoteDetail implements OnInit {
 
   readonly quoteId     = signal<number | null>(null)
   readonly number      = signal<string | null>(null)
+  readonly quote       = signal<QuoteDto | null>(null)
+  readonly billing     = signal<QuoteBillingDto | null>(null)
   readonly confirmOpen = signal(false)
+  readonly convertOpen = signal(false)
   readonly loading     = signal(false)
   private readonly formTick = signal(0)
   private suppressClientReset = false
+
+  readonly isAccepted = computed(() => this.quote()?.status === QuoteStatus.ACCEPTED)
 
   readonly isEdit   = computed(() => this.quoteId() !== null)
   readonly titleKey = computed(() => this.isEdit() ? 'quote.editTitle' : 'quote.createTitle')
@@ -119,6 +128,7 @@ export class QuoteDetail implements OnInit {
     const quote = await this.store.getById(id)
     this.loading.set(false)
     if (!quote) { this.router.navigate(['/quotes']); return }
+    this.quote.set(quote)
     this.number.set(quote.number)
     this.suppressClientReset = true
     this.form.patchValue({
@@ -134,6 +144,7 @@ export class QuoteDetail implements OnInit {
     for (const line of quote.lines)
       this.linesArray.push(buildLineGroup(this.fb, line, this.vatRates.defaultRate()))
     if (quote.lines.length === 0) this.addEmptyLine()
+    if (quote.status === QuoteStatus.ACCEPTED) this.billing.set(await this.store.getQuoteBilling(id))
   }
 
   private addEmptyLine(): void {
@@ -145,6 +156,22 @@ export class QuoteDetail implements OnInit {
     if (id === null) return
     const updated = await this.store.updateStatus({ id, status })
     if (updated) this.form.controls.status.setValue(updated.status)
+  }
+
+  async convert(data: ConvertQuoteDto): Promise<void> {
+    const result = await this.store.convertQuote(data)
+    this.convertOpen.set(false)
+    if (!result) return
+    if (result.invoiceId !== null) this.router.navigate(['/invoices', result.invoiceId])
+    else                           this.router.navigate(['/projects', result.projectId])
+  }
+
+  async invoiceBalance(): Promise<void> {
+    const q = this.quote()
+    if (!q) return
+    const label  = this.i18n.t('conversion.balance.lineLabel', { number: q.number })
+    const result = await this.store.invoiceBalance({ quoteId: q.id, label })
+    if (result) this.router.navigate(['/invoices', result.invoiceId])
   }
 
   async submit(): Promise<void> {

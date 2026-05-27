@@ -54,6 +54,7 @@ export class InvoiceDetail implements OnInit {
 
   readonly invoiceId  = signal<number | null>(null)
   readonly number     = signal<string | null>(null)
+  readonly linkedQuote = signal<{ id: number; number: string } | null>(null)
   readonly status     = signal<InvoiceStatus>(InvoiceStatus.DRAFT)
   readonly payments   = signal<PaymentDto[]>([])
   readonly paidAmount = signal<number>(0)
@@ -161,6 +162,16 @@ export class InvoiceDetail implements OnInit {
     this.status.set(invoice.status)
     this.payments.set(invoice.payments)
     this.paidAmount.set(invoice.paidAmount)
+    this.linkedQuote.set(
+      invoice.quoteId !== null && invoice.quoteNumber
+        ? { id: invoice.quoteId, number: invoice.quoteNumber }
+        : null,
+    )
+  }
+
+  openQuote(): void {
+    const q = this.linkedQuote()
+    if (q) this.router.navigate(['/quotes', q.id])
   }
 
   private addEmptyLine(): void {

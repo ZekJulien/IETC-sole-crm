@@ -11,6 +11,7 @@ import { InvoiceService } from '../services/invoice'
 import { VatRateService } from '../services/vat-rate'
 import { ProductService } from '../services/product'
 import { SeedService } from '../services/seed'
+import { ConversionService } from '../services/conversion'
 import { getClientService, getContactService } from './client'
 import { getCompanyService } from './company'
 import { getCategoryService } from './category'
@@ -24,6 +25,7 @@ import { getInvoiceService } from './invoice'
 import { getVatRateService } from './vat-rate'
 import { getProductService } from './product'
 import { getSeedService } from './seed'
+import { getConversionService } from './conversion'
 
 export interface AppDependencies {
   clientService:  ClientService
@@ -40,6 +42,7 @@ export interface AppDependencies {
   vatRateService: VatRateService
   productService: ProductService
   seedService: SeedService
+  conversionService: ConversionService
 }
 
 export function buildDependencies(): AppDependencies {
@@ -58,5 +61,6 @@ export function buildDependencies(): AppDependencies {
     vatRateService: getVatRateService(),
     productService: getProductService(),
     seedService: getSeedService(),
+    conversionService: getConversionService(),
   }
 }

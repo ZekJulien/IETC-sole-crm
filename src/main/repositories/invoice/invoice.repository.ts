@@ -6,6 +6,7 @@ import { InvoiceStatus, InvoiceStatusCount, PaymentMethod } from '@shared/dtos/i
 const invoiceInclude = {
   client:   true,
   project:  true,
+  quote:    true,
   lines:    true,
   payments: { orderBy: { date: 'asc' } },
 } satisfies Prisma.InvoiceInclude
@@ -61,6 +62,13 @@ export class InvoiceRepository extends BaseRepository<Invoice> {
 
   updateStatus(id: number, status: InvoiceStatus): Promise<Invoice> {
     return this.delegate.update({ where: { id }, data: { status } })
+  }
+
+  findLinesByQuote(quoteId: number): Promise<{ quantity: number; unitPrice: number; vatRate: number }[]> {
+    return this.dbContext.client.invoiceLine.findMany({
+      where:  { invoice: { quoteId, status: { not: InvoiceStatus.CANCELLED } } },
+      select: { quantity: true, unitPrice: true, vatRate: true },
+    })
   }
 
   async findLineIds(invoiceId: number): Promise<number[]> {

@@ -11,6 +11,11 @@
       @if (isEdit()) {
         <app-status-badge [status]="status()" [i18nKey]="statusKey(status())" />
       }
+      @if (linkedQuote(); as q) {
+        <button type="button" class="quote-link" (click)="openQuote()">
+          {{ 'conversion.fromQuote' | t: { number: q.number } }}
+        </button>
+      }
     </div>
 
     <div class="invoice-detail__actions">

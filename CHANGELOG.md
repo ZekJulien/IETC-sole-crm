@@ -9,6 +9,79 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.14.0] — 2026-05-27 — Phase 11 · 2/6 : Conversion Devis → Projet + factures (acompte & solde)
+
+Deuxième chantier de la **Phase 11** : un devis accepté devient un **projet + ses factures**, en
+deux temps comme dans la vraie vie comptable — **facture d'acompte** (30 % par défaut,
+paramétrable) puis **facture de solde** pour le reste. **Zéro nouvelle dépendance** : la
+fonctionnalité **compose les services existants** (`QuoteService` / `ProjectService` /
+`InvoiceService` / `CompanyService`). **Une migration** : un lien `Invoice → Quote`.
+
+### Parcours
+
+1. Sur un devis **`SENT`**, le bouton « **Accepter** » ouvre une **modale de conversion** (nom du
+   projet pré-rempli — masqué si le devis est déjà rattaché ; toggle « facture d'acompte » ;
+   pourcentage ; **aperçu TTC** en direct). Validation → devis **`ACCEPTED`**, `projectId` peuplé,
+   facture d'acompte **`DRAFT`** créée, navigation vers cette facture.
+2. Le devis `ACCEPTED` affiche un **encart « Facturation »** (Total / Déjà facturé / **Restant à
+   facturer**) + bouton « **Facturer le solde** » → crée la **facture de solde** (le HT restant,
+   ventilé par taux) puis y navigue. Une fois tout facturé : badge « **Entièrement facturé** ».
+3. Chaque facture (acompte **et** solde) porte un chip « **Issu du devis QUO-…** » cliquable vers
+   le devis — le lien est explicite **dans les deux sens**.
+
+### Décisions d'architecture
+
+- **Lien `Invoice.quoteId` (FK `SetNull`, migration `add_invoice_quote_link`)** : acompte **et**
+  solde pointent vers le **même devis** (numéros de facture **distincts**, comme l'exige la loi —
+  c'est la **référence** qui les relie, pas le numéro). Permet de calculer « déjà facturé / restant »
+  et de **n'additionner que les factures non `CANCELLED`** (une facture annulée libère le solde).
+  ⚠️ **gotcha TEXT+CHECK** : ajouter la FK **reconstruit la table `Invoice`** → le `CHECK status`
+  régénéré par Prisma est **perdu**, **réajouté à la main** dans la migration (réflexe désormais
+  établi). Vérifié `node:sqlite` sur copie : insert→`quoteId` OK, **suppression du devis → facture
+  conservée, `quoteId` nullé** (SET NULL), **statut invalide rejeté** par le CHECK.
+- **`ConversionService` dédié** (`src/main/services/conversion`, **sans repository**) qui
+  **orchestre** les 4 services plutôt que d'alourdir `QuoteService` de dépendances croisées — même
+  esprit que `SeedService`. Trois opérations : `convertQuote`, `invoiceBalance`, `getQuoteBilling`.
+- **Atomicité via `ipcHandle`** (transactionnel, **pas** `ipcHandleNoTx`) : projet + maj devis +
+  facture + **incréments des compteurs** dans la **même transaction ambient** ; si la numérotation
+  échoue (`COMPANY_NOT_CONFIGURED`), **tout est annulé**.
+- **Solde = net par taux, lignes positives** (choix retenu) : `remaining[taux] = devis[taux] −
+  Σ déjà facturé[taux]`, filtré `> 0`. **Aucune ligne négative** → l'**éditeur de lignes partagé**
+  Devis/Facture (et sa validation `unitPrice ≥ 0`) **reste intact**. La présentation « récap +
+  déduction » est écartée pour ne pas faire fuiter les montants négatifs vers les devis.
+- **Acompte multi-TVA correct** : ventilation **par taux** (1 ligne par entrée du `vatBreakdown`),
+  suffixe `(taux %)` ajouté **seulement** s'il y a plusieurs taux. Même `toLines()` réutilisé par le solde.
+- **Réutilisation du projet lié** : si le devis pointe déjà sur un projet, la conversion **le
+  réutilise** ; sinon crée un projet `IN_PROGRESS`. **Échéance** facture = aujourd'hui +
+  `paymentTermsDays` (source unique `CompanySettings`, fallback 30 j).
+- **`Invoice` enrichie** : `CreateInvoiceSchema.quoteId`, `InvoiceDto.quoteId`/`quoteNumber`
+  (relation `quote` ajoutée à l'`include`). Édition normale d'une facture : `quoteId` **préservé**
+  (jamais dans le payload d'update).
+- **i18n des 4 langues** : namespace `conversion` (`conversion.*` + `conversion.billing.*` /
+  `conversion.balance.*`) FR/EN/NL/DE ; libellés de lignes (acompte/solde) construits **côté
+  renderer** (locale active) puis stockés en clair. Erreur `NOTHING_TO_INVOICE` (main, 4 langues).
+
+### Fichiers
+
+- **Prisma** : `schema/invoice.prisma` (+`quoteId`/`quote`), `schema/quote.prisma` (+`invoices`),
+  migration `add_invoice_quote_link` (CHECK `status` réinjecté à la main).
+- **Shared** : `dtos/conversion` (`ConvertQuote*`, `InvoiceBalance*`, `QuoteBilling`),
+  `dtos/invoice` (+`quoteId`/`quoteNumber`), `channels/conversion` (3 canaux),
+  `interfaces/conversion` + barrels.
+- **Main** : `services/conversion` (orchestrateur), `services/invoice` (+`sumInvoicedByRate`,
+  +`quoteId` au create, +`quoteNumber` au DTO), `repositories/invoice` (+`findLinesByQuote`,
+  include `quote`), `handlers/conversion` + `dependencies/conversion`, wire `*/index`,
+  `i18n/errors.{fr,en,nl,de}` (+`NOTHING_TO_INVOICE`).
+- **Preload** : `apis/conversion.api` (3 méthodes) + `preload/index` + window types.
+- **Renderer** : `services/conversion`, `QuoteStore` (+`convertQuote`/`invoiceBalance`/
+  `getQuoteBilling`), modale `features/quote/components/quote-convert-modal`, `quote-detail`
+  (encart Facturation + « Facturer le solde »), `invoice-detail` (chip « Issu du devis »),
+  i18n `ui/conversion/conversion.{fr,en,nl,de}` dans les 4 agrégateurs.
+
+> **À tester E2E** (`npm start`) : accepter un devis `SENT` (avec/sans acompte) → facture d'acompte ;
+> revenir sur le devis → « Facturer le solde » → facture de solde ; vérifier l'encart « restant »
+> qui tombe à 0 et le badge « Entièrement facturé » ; chip « Issu du devis » sur les deux factures.
+
 ## [0.13.0] — 2026-05-26 — Phase 11 · 1/6 : Welcome Wizard + Seed démo + i18n 4 langues (FR/EN/NL/DE)
 
 Premier chantier (transverse) de la **Phase 11**, livré en **un seul commit** : le **Welcome
