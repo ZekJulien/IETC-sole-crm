@@ -30,4 +30,16 @@ export class CompanyService {
     if (res.error) throw new Error(res.error.message)
     await this.load()
   }
+
+  async getDashboardNote(): Promise<string> {
+    const res = await window.api.company.get()
+    if (res.error) throw new Error(res.error.message)
+    return res.data?.settings.dashboardNote ?? ''
+  }
+
+  async setDashboardNote(note: string): Promise<void> {
+    const res = await window.api.company.setDashboardNote(note)
+    if (res.error) throw new Error(res.error.message)
+    this._company.update(c => c ? { ...c, settings: { ...c.settings, dashboardNote: note } } : c)
+  }
 }

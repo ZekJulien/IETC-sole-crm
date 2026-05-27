@@ -36,6 +36,12 @@ export class InvoiceService {
     return res.data!
   }
 
+  async sumPaymentsByMonth(year: number): Promise<number[]> {
+    const res = await window.api.invoice.sumPaymentsByMonth({ year })
+    if (res.error) throw new Error(res.error.message)
+    return res.data!
+  }
+
   async getById(id: number): Promise<InvoiceDto | null> {
     const res = await window.api.invoice.getById(id)
     if (res.error) throw new Error(res.error.message)

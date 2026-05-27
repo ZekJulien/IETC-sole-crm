@@ -24,6 +24,12 @@ export class ExpenseService {
     return res.data!
   }
 
+  async sumByMonth(year: number): Promise<number[]> {
+    const res = await window.api.expense.sumByMonth({ year })
+    if (res.error) throw new Error(res.error.message)
+    return res.data!
+  }
+
   async add(data: CreateExpenseDto): Promise<ExpenseDto> {
     const res = await window.api.expense.add(data)
     if (res.error) throw new Error(res.error.message)

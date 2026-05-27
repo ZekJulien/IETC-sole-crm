@@ -1,0 +1,42 @@
+export default {
+  'dashboard.title':    'Tableau de bord',
+  'dashboard.subtitle': 'Vue d’ensemble de votre activité',
+  'dashboard.reset':    'Réinitialiser',
+  'dashboard.drag':     'Déplacer le widget',
+  'dashboard.size':     'Largeur',
+  'dashboard.empty':    'Pas encore de données',
+  'dashboard.notePlaceholder': 'Notez ici vos idées, rappels, priorités…',
+
+  'dashboard.widget.note':             'Note rapide',
+  'dashboard.widget.actions':          'Raccourcis',
+  'dashboard.widget.revenueExpenses':  'Revenus vs dépenses',
+  'dashboard.widget.pipeline':         'Pipeline commercial',
+  'dashboard.widget.expensesCategory': 'Dépenses par catégorie',
+  'dashboard.widget.hoursProject':     'Heures par projet',
+  'dashboard.widget.total':            'Total',
+
+  'dashboard.kpi.revenue':        'Encaissé ce mois',
+  'dashboard.kpi.unpaid':         'Total impayé',
+  'dashboard.kpi.quotes':         'Devis en attente',
+  'dashboard.kpi.hours':          'Heures ce mois',
+  'dashboard.kpi.deductible':     'Dépenses déductibles',
+  'dashboard.kpi.revenueHint':    'Paiements reçus ce mois',
+  'dashboard.kpi.unpaidHint':     'Factures envoyées ou en retard',
+  'dashboard.kpi.hoursHint':      'Temps saisi ce mois',
+  'dashboard.kpi.deductibleHint': 'Déductible en {year}',
+  'dashboard.kpi.acceptance':     '{rate}% de devis acceptés',
+  'dashboard.kpi.noDecided':      'Aucun devis tranché',
+
+  'dashboard.chart.revenue':  'Revenus',
+  'dashboard.chart.expenses': 'Dépenses',
+
+  'dashboard.pipeline.quotes':   'Devis',
+  'dashboard.pipeline.invoices': 'Factures',
+
+  'dashboard.action.newQuote':   'Nouveau devis',
+  'dashboard.action.newInvoice': 'Nouvelle facture',
+  'dashboard.action.newProject': 'Nouveau projet',
+  'dashboard.action.newClient':  'Nouveau client',
+  'dashboard.action.newExpense': 'Nouvelle dépense',
+  'dashboard.action.trackTime':  'Saisir du temps',
+} satisfies Record<string, string>

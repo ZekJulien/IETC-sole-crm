@@ -1,12 +1,109 @@
-<section class="dashboard">
-  <header class="dashboard__header">
-    <h2>Bienvenue</h2>
-    <p>Vue d'ensemble de ton activité.</p>
+<section class="dash">
+  <header class="dash__bar">
+    <div class="dash__heading">
+      <h1 class="dash__title">{{ 'dashboard.title' | t }}</h1>
+      <p class="dash__subtitle">{{ 'dashboard.subtitle' | t }}</p>
+    </div>
+    @if (store.isCustomized()) {
+      <button type="button" class="dash__reset" (click)="store.resetLayout()">
+        <svg lucideRotateCcw [size]="14" />
+        {{ 'dashboard.reset' | t }}
+      </button>
+    }
   </header>
 
-  <div class="dashboard__placeholder">
-    <p class="dashboard__hint">
-      hint
-    </p>
+  <div class="dash__grid" cdkDropList cdkDropListOrientation="mixed" (cdkDropListDropped)="onDrop($event)">
+    @for (w of store.layout(); track w.id) {
+      <article class="widget" [class.widget--chart]="isChart(w.id)" cdkDrag [style.--span]="w.span">
+        <header class="widget__bar">
+          <button type="button" class="widget__handle" cdkDragHandle [attr.aria-label]="'dashboard.drag' | t">
+            <svg lucideGripVertical [size]="14" />
+          </button>
+          <span class="widget__title">{{ titleKey(w.id) | t }}</span>
+          <div class="widget__sizes">
+            @for (n of spans; track n) {
+              <button
+                type="button"
+                class="widget__size"
+                [class.widget__size--on]="w.span === n"
+                [attr.aria-label]="('dashboard.size' | t) + ' ' + n"
+                (click)="store.setSpan(w.id, n)">{{ n }}</button>
+            }
+          </div>
+        </header>
+
+        <div class="widget__body">
+          @switch (w.id) {
+            @case ('note') {
+              <textarea
+                class="note"
+                [value]="store.note()"
+                (input)="onNote($event)"
+                [placeholder]="'dashboard.notePlaceholder' | t"></textarea>
+            }
+            @case ('actions') {
+              <nav class="actions">
+                <a class="action" [routerLink]="routes.quoteNew"><svg lucideFileText [size]="16" /><span>{{ 'dashboard.action.newQuote' | t }}</span></a>
+                <a class="action" [routerLink]="routes.invoiceNew"><svg lucideReceiptEuro [size]="16" /><span>{{ 'dashboard.action.newInvoice' | t }}</span></a>
+                <a class="action" [routerLink]="routes.projectNew"><svg lucideFolderKanban [size]="16" /><span>{{ 'dashboard.action.newProject' | t }}</span></a>
+                <a class="action" [routerLink]="routes.clients"><svg lucideUsers [size]="16" /><span>{{ 'dashboard.action.newClient' | t }}</span></a>
+                <a class="action" [routerLink]="routes.expenses"><svg lucideReceiptText [size]="16" /><span>{{ 'dashboard.action.newExpense' | t }}</span></a>
+                <a class="action" [routerLink]="routes.time"><svg lucideClock [size]="16" /><span>{{ 'dashboard.action.trackTime' | t }}</span></a>
+              </nav>
+            }
+            @case ('kpi-revenue') {
+              <app-kpi-card accent="green" [value]="formatCurrency(store.stats().revenueThisMonth)" [hint]="'dashboard.kpi.revenueHint' | t">
+                <svg icon lucideEuro [size]="22" />
+              </app-kpi-card>
+            }
+            @case ('kpi-unpaid') {
+              <app-kpi-card accent="red" [value]="formatCurrency(store.stats().unpaid)" [hint]="'dashboard.kpi.unpaidHint' | t">
+                <svg icon lucideWallet [size]="22" />
+              </app-kpi-card>
+            }
+            @case ('kpi-quotes') {
+              <app-kpi-card accent="blue" [value]="quotesPending()" [hint]="quotesHint()">
+                <svg icon lucideFileText [size]="22" />
+              </app-kpi-card>
+            }
+            @case ('kpi-hours') {
+              <app-kpi-card accent="mauve" [value]="formatHours(store.hoursThisMonth())" [hint]="'dashboard.kpi.hoursHint' | t">
+                <svg icon lucideClock [size]="22" />
+              </app-kpi-card>
+            }
+            @case ('kpi-deductible') {
+              <app-kpi-card accent="yellow" [value]="formatCurrency(store.deductibleThisYear())" [hint]="deductibleHint()">
+                <svg icon lucideReceiptText [size]="22" />
+              </app-kpi-card>
+            }
+            @case ('chart-revenue-expenses') {
+              <app-bar-chart
+                [categories]="monthLabels()"
+                [series]="revenueExpensesSeries()"
+                [formatValue]="formatCurrency"
+                [formatTick]="formatCompact"
+                [emptyLabel]="'dashboard.empty' | t" />
+            }
+            @case ('chart-pipeline') {
+              <app-pipeline-chart [rows]="pipelineRows()" />
+            }
+            @case ('chart-expenses-category') {
+              <app-donut-chart
+                [items]="expenseCategoryItems()"
+                [formatValue]="formatCurrency"
+                [centerLabel]="'dashboard.widget.total' | t"
+                [emptyLabel]="'dashboard.empty' | t" />
+            }
+            @case ('chart-hours-project') {
+              <app-bars-chart
+                [items]="hoursProjectItems()"
+                [formatValue]="formatHours"
+                accent="var(--color-accent)"
+                [emptyLabel]="'dashboard.empty' | t" />
+            }
+          }
+        </div>
+      </article>
+    }
   </div>
 </section>

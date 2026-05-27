@@ -2,7 +2,7 @@ import { ExpenseRepository, ExpenseWithRelations } from '../../repositories/expe
 import { BaseService } from '../base.service'
 import {
   ExpenseDto, CreateExpenseDto, UpdateExpenseDto,
-  ExpenseFilter, SumDeductibleDto, CategoryAmountCount,
+  ExpenseFilter, SumDeductibleDto, ExpenseSumByMonthDto, CategoryAmountCount,
 } from '@shared/dtos/expense'
 
 export interface ReceiptInput { name: string; path: string }
@@ -24,6 +24,10 @@ export class ExpenseService extends BaseService<ExpenseWithRelations, ExpenseDto
 
   sumDeductible(arg: SumDeductibleDto): Promise<number> {
     return this.repo.sumDeductible(arg.year)
+  }
+
+  sumByMonth(arg: ExpenseSumByMonthDto): Promise<number[]> {
+    return this.repo.sumByMonth(arg.year)
   }
 
   async getReceipts(expenseId: number): Promise<{ id: number; path: string }[]> {

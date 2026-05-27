@@ -3,4 +3,5 @@ export enum COMPANY_CHANNELS {
   SAVE                  = 'company:save',
   RESET_INVOICE_COUNTER = 'company:resetInvoiceCounter',
   RESET_QUOTE_COUNTER   = 'company:resetQuoteCounter',
+  SET_DASHBOARD_NOTE    = 'company:set-dashboard-note',
 }

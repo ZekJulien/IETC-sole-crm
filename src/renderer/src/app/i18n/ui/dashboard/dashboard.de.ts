@@ -1,0 +1,42 @@
+export default {
+  'dashboard.title':    'Dashboard',
+  'dashboard.subtitle': 'Überblick über Ihre Tätigkeit',
+  'dashboard.reset':    'Zurücksetzen',
+  'dashboard.drag':     'Widget verschieben',
+  'dashboard.size':     'Breite',
+  'dashboard.empty':    'Noch keine Daten',
+  'dashboard.notePlaceholder': 'Notieren Sie Ideen, Erinnerungen, Prioritäten…',
+
+  'dashboard.widget.note':             'Schnellnotiz',
+  'dashboard.widget.actions':          'Schnellzugriffe',
+  'dashboard.widget.revenueExpenses':  'Einnahmen vs. Ausgaben',
+  'dashboard.widget.pipeline':         'Vertriebspipeline',
+  'dashboard.widget.expensesCategory': 'Ausgaben nach Kategorie',
+  'dashboard.widget.hoursProject':     'Stunden nach Projekt',
+  'dashboard.widget.total':            'Gesamt',
+
+  'dashboard.kpi.revenue':        'Diesen Monat erhalten',
+  'dashboard.kpi.unpaid':         'Offener Gesamtbetrag',
+  'dashboard.kpi.quotes':         'Offene Angebote',
+  'dashboard.kpi.hours':          'Stunden diesen Monat',
+  'dashboard.kpi.deductible':     'Absetzbare Ausgaben',
+  'dashboard.kpi.revenueHint':    'Diesen Monat erhaltene Zahlungen',
+  'dashboard.kpi.unpaidHint':     'Versendete oder überfällige Rechnungen',
+  'dashboard.kpi.hoursHint':      'Diesen Monat erfasste Zeit',
+  'dashboard.kpi.deductibleHint': 'Absetzbar in {year}',
+  'dashboard.kpi.acceptance':     '{rate}% der Angebote angenommen',
+  'dashboard.kpi.noDecided':      'Noch kein Angebot entschieden',
+
+  'dashboard.chart.revenue':  'Einnahmen',
+  'dashboard.chart.expenses': 'Ausgaben',
+
+  'dashboard.pipeline.quotes':   'Angebote',
+  'dashboard.pipeline.invoices': 'Rechnungen',
+
+  'dashboard.action.newQuote':   'Neues Angebot',
+  'dashboard.action.newInvoice': 'Neue Rechnung',
+  'dashboard.action.newProject': 'Neues Projekt',
+  'dashboard.action.newClient':  'Neuer Kunde',
+  'dashboard.action.newExpense': 'Neue Ausgabe',
+  'dashboard.action.trackTime':  'Zeit erfassen',
+} satisfies Record<string, string>

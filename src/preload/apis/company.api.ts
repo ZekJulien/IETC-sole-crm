@@ -7,4 +7,5 @@ export const companyApi: CompanyAPI = {
   save:                (input) => ipcRenderer.invoke(COMPANY_CHANNELS.SAVE, input),
   resetInvoiceCounter: (value) => ipcRenderer.invoke(COMPANY_CHANNELS.RESET_INVOICE_COUNTER, value),
   resetQuoteCounter:   (value) => ipcRenderer.invoke(COMPANY_CHANNELS.RESET_QUOTE_COUNTER, value),
+  setDashboardNote:    (note)  => ipcRenderer.invoke(COMPANY_CHANNELS.SET_DASHBOARD_NOTE, note),
 }

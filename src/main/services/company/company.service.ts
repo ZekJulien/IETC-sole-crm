@@ -45,6 +45,10 @@ export class CompanyService extends BaseService<CompanyWithSettings, CompanyDto>
     return this.settingsService.resetQuoteCounter(value)
   }
 
+  setDashboardNote(note: string): Promise<void> {
+    return this.settingsService.setDashboardNote(note)
+  }
+
   private async requireCompany(): Promise<CompanyWithSettings & { settings: NonNullable<CompanyWithSettings['settings']> }> {
     const company = await this.repo.get()
     if (!company || !company.settings) throw new AppError('COMPANY_NOT_CONFIGURED')

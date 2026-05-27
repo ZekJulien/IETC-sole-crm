@@ -1,0 +1,42 @@
+export default {
+  'dashboard.title':    'Dashboard',
+  'dashboard.subtitle': 'Overzicht van je activiteit',
+  'dashboard.reset':    'Herstellen',
+  'dashboard.drag':     'Widget verplaatsen',
+  'dashboard.size':     'Breedte',
+  'dashboard.empty':    'Nog geen gegevens',
+  'dashboard.notePlaceholder': 'Noteer ideeën, herinneringen, prioriteiten…',
+
+  'dashboard.widget.note':             'Snelle notitie',
+  'dashboard.widget.actions':          'Snelkoppelingen',
+  'dashboard.widget.revenueExpenses':  'Inkomsten vs uitgaven',
+  'dashboard.widget.pipeline':         'Verkooppijplijn',
+  'dashboard.widget.expensesCategory': 'Uitgaven per categorie',
+  'dashboard.widget.hoursProject':     'Uren per project',
+  'dashboard.widget.total':            'Totaal',
+
+  'dashboard.kpi.revenue':        'Ontvangen deze maand',
+  'dashboard.kpi.unpaid':         'Totaal onbetaald',
+  'dashboard.kpi.quotes':         'Offertes in afwachting',
+  'dashboard.kpi.hours':          'Uren deze maand',
+  'dashboard.kpi.deductible':     'Aftrekbare uitgaven',
+  'dashboard.kpi.revenueHint':    'Ontvangen betalingen deze maand',
+  'dashboard.kpi.unpaidHint':     'Verzonden of vervallen facturen',
+  'dashboard.kpi.hoursHint':      'Geregistreerde tijd deze maand',
+  'dashboard.kpi.deductibleHint': 'Aftrekbaar in {year}',
+  'dashboard.kpi.acceptance':     '{rate}% offertes aanvaard',
+  'dashboard.kpi.noDecided':      'Nog geen offerte beslist',
+
+  'dashboard.chart.revenue':  'Inkomsten',
+  'dashboard.chart.expenses': 'Uitgaven',
+
+  'dashboard.pipeline.quotes':   'Offertes',
+  'dashboard.pipeline.invoices': 'Facturen',
+
+  'dashboard.action.newQuote':   'Nieuwe offerte',
+  'dashboard.action.newInvoice': 'Nieuwe factuur',
+  'dashboard.action.newProject': 'Nieuw project',
+  'dashboard.action.newClient':  'Nieuwe klant',
+  'dashboard.action.newExpense': 'Nieuwe uitgave',
+  'dashboard.action.trackTime':  'Tijd registreren',
+} satisfies Record<string, string>

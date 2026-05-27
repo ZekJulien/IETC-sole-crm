@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  height:  100%;
+}
+
+.pipeline {
+  display:         flex;
+  flex-direction:  column;
+  justify-content: center;
+  gap:             18px;
+  height:          100%;
+}
+
+.pipeline__head {
+  display:         flex;
+  justify-content: space-between;
+  margin-bottom:   6px;
+}
+
+.pipeline__label {
+  font-size:   .85rem;
+  font-weight: 600;
+  color:       var(--color-text);
+}
+
+.pipeline__total {
+  font-size:            .8rem;
+  color:                var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.pipeline__bar {
+  display:       flex;
+  gap:           2px;
+  height:        14px;
+  background:    var(--color-bg-elevated);
+  border-radius: 999px;
+  overflow:      hidden;
+}
+
+.pipeline__seg {
+  min-width:  3px;
+  transition: flex-basis var(--transition);
+}
+
+.pipeline__seg--empty {
+  flex:       1;
+  background: var(--color-bg-elevated);
+}
+
+.pipeline__legend {
+  display:   flex;
+  flex-wrap: wrap;
+  gap:       8px 12px;
+  margin-top: 8px;
+}
+
+.pipeline__chip {
+  display:     inline-flex;
+  align-items: center;
+  gap:         5px;
+  font-size:   .72rem;
+  color:       var(--color-text-muted);
+}
+
+.pipeline__chip i {
+  display:       inline-block;
+  width:         8px;
+  height:        8px;
+  border-radius: 2px;
+}

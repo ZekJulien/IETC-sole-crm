@@ -41,6 +41,13 @@ export class CompanySettingsRepository {
     })
   }
 
+  async setDashboardNote(note: string): Promise<void> {
+    await this.dbContext.client.companySettings.update({
+      where: { companyId: COMPANY_ID },
+      data: { dashboardNote: note },
+    })
+  }
+
   private async incrementCounter(
     counterField: 'invoiceNumberCounter' | 'quoteNumberCounter',
     resetYearlyField: 'invoiceCounterResetYearly' | 'quoteCounterResetYearly',

@@ -1,0 +1,66 @@
+:host {
+  display: block;
+  height:  100%;
+}
+
+.chart {
+  display:        flex;
+  flex-direction: column;
+  gap:            8px;
+  height:         100%;
+}
+
+.chart__svg {
+  flex:       1;
+  width:      100%;
+  min-height: 0;
+  height:     auto;
+}
+
+.chart__grid line {
+  stroke:       var(--color-border);
+  stroke-width: 1;
+}
+
+.chart__ytick,
+.chart__xtick {
+  fill:      var(--color-text-subtle);
+  font-size: 10px;
+}
+
+.chart__bar {
+  transition: opacity var(--transition);
+}
+
+.chart__bar:hover {
+  opacity: .82;
+}
+
+.chart__legend {
+  display:         flex;
+  flex-wrap:       wrap;
+  gap:             16px;
+  justify-content: center;
+}
+
+.chart__legend-item {
+  display:     inline-flex;
+  align-items: center;
+  gap:         6px;
+  font-size:   .8rem;
+  color:       var(--color-text-muted);
+}
+
+.chart__legend-item i {
+  display:       inline-block;
+  width:         10px;
+  height:        10px;
+  border-radius: 3px;
+}
+
+.chart__empty {
+  margin:     auto;
+  font-size:  .85rem;
+  text-align: center;
+  color:      var(--color-text-subtle);
+}

@@ -6,6 +6,7 @@ export interface CompanySettingsDto {
   vatRegime:                 VatRegime
   paymentTermsDays:          number
   paymentConditions:         string | null
+  dashboardNote:             string | null
   invoiceNumberFormat:       string
   invoiceNumberCounter:      number
   invoiceCounterResetYearly: boolean

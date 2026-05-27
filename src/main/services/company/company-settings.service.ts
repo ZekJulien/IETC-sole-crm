@@ -18,4 +18,8 @@ export class CompanySettingsService {
   resetQuoteCounter(value: number): Promise<void> {
     return this.repo.resetQuoteCounter(value)
   }
+
+  setDashboardNote(note: string): Promise<void> {
+    return this.repo.setDashboardNote(note)
+  }
 }

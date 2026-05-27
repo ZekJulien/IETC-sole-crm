@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { EXPENSE_CHANNELS } from '@shared/channels/expense'
 import {
   CreateExpenseSchema, UpdateExpenseSchema, ExpenseFilterSchema, SumDeductibleSchema,
+  ExpenseSumByMonthSchema,
 } from '@shared/dtos/expense'
 import { IdSchema } from '@shared/types'
 import { ipcHandle, ipcHandleNoTx } from '../../core/ipc.handle'
@@ -15,6 +16,7 @@ export function registerExpenseHandlers(service: ExpenseService): void {
   ipcHandle(EXPENSE_CHANNELS.GET_ALL,        ExpenseFilterSchema, (filter) => service.getAll(filter))
   ipcHandle(EXPENSE_CHANNELS.SUM_BY_CATEGORY,                     ()       => service.sumByCategory())
   ipcHandle(EXPENSE_CHANNELS.SUM_DEDUCTIBLE,  SumDeductibleSchema, (arg)    => service.sumDeductible(arg))
+  ipcHandle(EXPENSE_CHANNELS.SUM_BY_MONTH,    ExpenseSumByMonthSchema, (arg) => service.sumByMonth(arg))
 
   ipcHandleNoTx(EXPENSE_CHANNELS.ADD, CreateExpenseSchema, (data) => {
     const { receiptPaths, ...scalar } = data

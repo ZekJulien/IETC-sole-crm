@@ -6,4 +6,5 @@ export interface CompanyAPI {
   save:                (input: SaveCompanyInput) => Promise<IpcResponse<CompanyDto>>
   resetInvoiceCounter: (value: number)           => Promise<IpcResponse<void>>
   resetQuoteCounter:   (value: number)           => Promise<IpcResponse<void>>
+  setDashboardNote:    (note: string)            => Promise<IpcResponse<void>>
 }

@@ -1,0 +1,42 @@
+export default {
+  'dashboard.title':    'Dashboard',
+  'dashboard.subtitle': 'Overview of your business',
+  'dashboard.reset':    'Reset',
+  'dashboard.drag':     'Move widget',
+  'dashboard.size':     'Width',
+  'dashboard.empty':    'No data yet',
+  'dashboard.notePlaceholder': 'Jot down ideas, reminders, priorities…',
+
+  'dashboard.widget.note':             'Quick note',
+  'dashboard.widget.actions':          'Shortcuts',
+  'dashboard.widget.revenueExpenses':  'Revenue vs expenses',
+  'dashboard.widget.pipeline':         'Sales pipeline',
+  'dashboard.widget.expensesCategory': 'Expenses by category',
+  'dashboard.widget.hoursProject':     'Hours by project',
+  'dashboard.widget.total':            'Total',
+
+  'dashboard.kpi.revenue':        'Collected this month',
+  'dashboard.kpi.unpaid':         'Total unpaid',
+  'dashboard.kpi.quotes':         'Pending quotes',
+  'dashboard.kpi.hours':          'Hours this month',
+  'dashboard.kpi.deductible':     'Deductible expenses',
+  'dashboard.kpi.revenueHint':    'Payments received this month',
+  'dashboard.kpi.unpaidHint':     'Sent or overdue invoices',
+  'dashboard.kpi.hoursHint':      'Time logged this month',
+  'dashboard.kpi.deductibleHint': 'Deductible in {year}',
+  'dashboard.kpi.acceptance':     '{rate}% of quotes accepted',
+  'dashboard.kpi.noDecided':      'No quotes decided yet',
+
+  'dashboard.chart.revenue':  'Revenue',
+  'dashboard.chart.expenses': 'Expenses',
+
+  'dashboard.pipeline.quotes':   'Quotes',
+  'dashboard.pipeline.invoices': 'Invoices',
+
+  'dashboard.action.newQuote':   'New quote',
+  'dashboard.action.newInvoice': 'New invoice',
+  'dashboard.action.newProject': 'New project',
+  'dashboard.action.newClient':  'New client',
+  'dashboard.action.newExpense': 'New expense',
+  'dashboard.action.trackTime':  'Track time',
+} satisfies Record<string, string>

@@ -7,6 +7,7 @@ export const invoiceApi: InvoiceAPI = {
   getById:       (id)   => ipcRenderer.invoke(INVOICE_CHANNELS.GET_BY_ID, id),
   countByStatus: ()     => ipcRenderer.invoke(INVOICE_CHANNELS.COUNT_BY_STATUS),
   getStats:      ()     => ipcRenderer.invoke(INVOICE_CHANNELS.GET_STATS),
+  sumPaymentsByMonth: (arg) => ipcRenderer.invoke(INVOICE_CHANNELS.SUM_PAYMENTS_BY_MONTH, arg),
   add:           (data) => ipcRenderer.invoke(INVOICE_CHANNELS.ADD, data),
   update:        (data) => ipcRenderer.invoke(INVOICE_CHANNELS.UPDATE, data),
   updateStatus:  (data) => ipcRenderer.invoke(INVOICE_CHANNELS.UPDATE_STATUS, data),

@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  height:  100%;
+}
+
+.bars {
+  display:        flex;
+  flex-direction: column;
+  gap:            10px;
+  height:         100%;
+  overflow-y:     auto;
+}
+
+.bars__row {
+  display:               grid;
+  grid-template-columns: 92px 1fr auto;
+  align-items:           center;
+  gap:                   10px;
+}
+
+.bars__label {
+  font-size:     .8rem;
+  color:         var(--color-text-muted);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.bars__track {
+  height:        10px;
+  background:    var(--color-bg-elevated);
+  border-radius: 999px;
+  overflow:      hidden;
+}
+
+.bars__fill {
+  display:       block;
+  height:        100%;
+  border-radius: 999px;
+  transition:    width var(--transition);
+}
+
+.bars__value {
+  font-size:            .8rem;
+  color:                var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.bars__empty {
+  margin:     auto;
+  font-size:  .85rem;
+  text-align: center;
+  color:      var(--color-text-subtle);
+}

@@ -125,6 +125,9 @@ export async function seedDemoData(s: SeedServices): Promise<void> {
     { projectId: reservation.id, taskId: taskId['API de réservation'],   duration: 360, billable: true,  day: -1,  description: 'Documentation API', pomodoro: false },
     { projectId: brand.id,       taskId: taskId['Déclinaisons papeterie'], duration: 150, billable: true, day: 0, description: 'Charte typographique', pomodoro: false },
     { projectId: maintenance.id, taskId: null,                          duration: 75,  billable: true,  day: 0,   description: 'Mise à jour des dépendances', pomodoro: false },
+    { projectId: site.id,        taskId: null,                          duration: 510, billable: true,  day: -130, description: 'Maquettes initiales', pomodoro: false },
+    { projectId: maintenance.id, taskId: null,                          duration: 120, billable: true,  day: -100, description: 'Audit serveur', pomodoro: false },
+    { projectId: reservation.id, taskId: null,                          duration: 300, billable: true,  day: -70,  description: 'Architecture technique', pomodoro: false },
   ]
   for (const e of timeSpecs)
     await s.timeEntry.add({ projectId: e.projectId, taskId: e.taskId, duration: e.duration, billable: e.billable, pomodoro: e.pomodoro, date: at(e.day), description: e.description })
@@ -141,6 +144,13 @@ export async function seedDemoData(s: SeedServices): Promise<void> {
     { label: 'Banque d\'images',            amount: 45,   category: 'Logiciel / SaaS', projectId: brand.id,        day: -7 },
     { label: 'Fournitures de bureau',       amount: 38,   category: 'Divers',          projectId: null,            day: -3 },
     { label: 'Parking',                     amount: 12,   category: 'Déplacement',     projectId: reservation.id,  day: -1 },
+    { label: 'Honoraires comptable',        amount: 240,  category: 'Sous-traitance',  projectId: null,            day: -132 },
+    { label: 'Abonnement outils SaaS',      amount: 29,   category: 'Logiciel / SaaS', projectId: null,            day: -125 },
+    { label: 'Nom de domaine + SSL',        amount: 35,   category: 'Logiciel / SaaS', projectId: null,            day: -104 },
+    { label: 'Clavier mécanique',           amount: 95,   category: 'Matériel',        projectId: null,            day: -73 },
+    { label: 'Formation en ligne',          amount: 129,  category: 'Logiciel / SaaS', projectId: null,            day: -42 },
+    { label: 'Péage & carburant',           amount: 48,   category: 'Déplacement',     projectId: reservation.id,  day: -42 },
+    { label: 'Repas séminaire',             amount: 75,   category: 'Restauration',    projectId: null,            day: -35 },
   ]
   for (const e of expenseSpecs)
     await s.expense.add({ label: e.label, amount: e.amount, expenseCategoryId: expCatId(e.category), projectId: e.projectId, date: at(e.day) }, [])
@@ -172,6 +182,11 @@ export async function seedDemoData(s: SeedServices): Promise<void> {
     clientId: bakery.id, projectId: maintenance.id, status: QuoteStatus.SENT,
     issueDate: at(-3), validUntil: at(18),
     lines: [{ description: 'Forfait maintenance annuel', quantity: 12, unitPrice: advice.unitPrice, vatRate: 21, productId: advice.id }],
+  })
+  await s.quote.add({
+    clientId: marie.id, status: QuoteStatus.EXPIRED,
+    issueDate: at(-80), validUntil: at(-20),
+    lines: [{ description: 'Accompagnement mensuel', quantity: 6, unitPrice: advice.unitPrice, vatRate: 21, productId: advice.id }],
   })
 
   const payFull = (inv: InvoiceDto, day: number): Promise<InvoiceDto> =>
@@ -231,4 +246,24 @@ export async function seedDemoData(s: SeedServices): Promise<void> {
     lines: [{ description: 'Forfait maquette UI', quantity: 1, unitPrice: mockup.unitPrice, vatRate: 21, productId: mockup.id }],
   })
   await payFull(i8, -10)
+
+  const iJan = await s.invoice.add({
+    clientId: studio.id, status: InvoiceStatus.SENT,
+    issueDate: at(-162), dueDate: at(-132),
+    lines: [{ description: 'Développement — lot initial', quantity: 8, unitPrice: dev.unitPrice, vatRate: 21, productId: dev.id }],
+  })
+  await payFull(iJan, -132)
+
+  const iFeb = await s.invoice.add({
+    clientId: bakery.id, status: InvoiceStatus.SENT,
+    issueDate: at(-130), dueDate: at(-100),
+    lines: [{ description: 'Conseil & cadrage', quantity: 15, unitPrice: advice.unitPrice, vatRate: 21, productId: advice.id }],
+  })
+  await payFull(iFeb, -104)
+
+  await s.invoice.add({
+    clientId: marie.id, status: InvoiceStatus.CANCELLED,
+    issueDate: at(-50), dueDate: at(-20),
+    lines: [{ description: 'Prestation annulée', quantity: 2, unitPrice: advice.unitPrice, vatRate: 21, productId: advice.id }],
+  })
 }

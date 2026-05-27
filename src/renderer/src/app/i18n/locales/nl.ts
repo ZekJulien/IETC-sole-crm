@@ -17,9 +17,11 @@ import settings from '../ui/settings/settings.nl'
 import wizard from '../ui/welcome-wizard/welcome-wizard.nl'
 import conversion from '../ui/conversion/conversion.nl'
 import pdf from '../ui/pdf/pdf.nl'
+import dashboard from '../ui/dashboard/dashboard.nl'
 
 export default {
   ...validation, ...common, ...client, ...contact, ...company, ...category,
   ...expenseCategory, ...project, ...task, ...time, ...expense, ...quote,
   ...invoice, ...vatRate, ...product, ...settings, ...wizard, ...conversion, ...pdf,
+  ...dashboard,
 } satisfies Record<string, string>

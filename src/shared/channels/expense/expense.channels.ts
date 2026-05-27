@@ -2,6 +2,7 @@ export enum EXPENSE_CHANNELS {
   GET_ALL         = 'expense:get-all',
   SUM_BY_CATEGORY = 'expense:sum-by-category',
   SUM_DEDUCTIBLE  = 'expense:sum-deductible',
+  SUM_BY_MONTH    = 'expense:sum-by-month',
   ADD             = 'expense:add',
   UPDATE          = 'expense:update',
   REMOVE          = 'expense:remove',

@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  height:  100%;
+}
+
+.donut {
+  display:     flex;
+  align-items: center;
+  gap:         16px;
+  height:      100%;
+}
+
+.donut__viz {
+  flex:      0 0 150px;
+  max-width: 48%;
+}
+
+.donut__viz svg {
+  width:  100%;
+  height: auto;
+}
+
+.donut__total {
+  fill:        var(--color-text);
+  font-size:   20px;
+  font-weight: 700;
+}
+
+.donut__caption {
+  fill:      var(--color-text-subtle);
+  font-size: 10px;
+}
+
+.donut__legend {
+  flex:           1;
+  min-width:      0;
+  max-height:     100%;
+  overflow-y:     auto;
+  list-style:     none;
+  display:        flex;
+  flex-direction: column;
+  gap:            8px;
+}
+
+.donut__legend-item {
+  display:               grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items:           center;
+  gap:                   8px;
+}
+
+.donut__legend-item i {
+  width:         10px;
+  height:        10px;
+  border-radius: 3px;
+}
+
+.donut__legend-label {
+  font-size:     .8rem;
+  color:         var(--color-text-muted);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.donut__legend-val {
+  font-size:             .8rem;
+  color:                 var(--color-text);
+  font-variant-numeric:  tabular-nums;
+}
+
+.donut__empty {
+  margin:     auto;
+  font-size:  .85rem;
+  text-align: center;
+  color:      var(--color-text-subtle);
+}

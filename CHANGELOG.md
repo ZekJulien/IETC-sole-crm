@@ -9,6 +9,101 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.16.0] — 2026-05-27 — Phase 11 · 4/6 : Dashboard KPIs + graphes SVG + grille personnalisable
+
+Quatrième chantier de la **Phase 11** : la page d'accueil (route `''`, déjà déclarée mais vide) devient un
+**vrai tableau de bord** — vue d'ensemble freelance composée de **widgets déplaçables et redimensionnables**
+(note rapide, raccourcis, KPIs, graphes). **Zéro dépendance de graphes** : tout est **dessiné main en SVG**
+(barres groupées, donut) ou en HTML/CSS (barres horizontales, pipeline). Deux agrégats « par mois sur
+l'année » ajoutés côté main (CA encaissé, dépenses) et **une migration** (note rapide persistée en base).
+
+### Parcours
+
+1. À l'ouverture, la route `/` affiche le Dashboard : en-tête + **grille de widgets** (note rapide en haut,
+   raccourcis, 5 cartes KPI, 4 graphes).
+2. **KPIs** : **CA encaissé du mois**, **total impayé**, **devis en attente (SENT) + taux d'acceptation**,
+   **heures du mois**, **dépenses déductibles de l'année**.
+3. **Graphes** : **Revenus vs dépenses par mois** (barres verticales groupées, 12 mois), **pipeline
+   devis & factures par statut** (barres empilées segmentées + légende), **dépenses par catégorie**
+   (donut SVG, couleurs des catégories), **heures par projet** (barres horizontales).
+4. **Personnalisation** : chaque widget se **déplace** par glisser-déposer (poignée `⠿`, `@angular/cdk/drag-drop`)
+   et **change de largeur** (1/2/3 colonnes via les boutons du chrome). La disposition (ordre + largeur) est
+   **persistée en `localStorage`** (préférence d'affichage) ; bouton **« Réinitialiser »** dès qu'une perso existe.
+   La **note rapide**, elle, est **persistée en base** (`CompanySettings.dashboardNote`) — c'est une vraie donnée
+   (un n° de tél, un rappel client) qui doit **survivre à un reset/réinstall**, pas une simple préférence.
+5. **Raccourcis** : nouveau devis / facture / projet / client / dépense / saisir du temps (liens `routerLink`).
+
+### Décisions d'architecture
+
+- **Graphes en SVG/CSS hand-rollés, 0 dépendance** (recharts = React, exclu ; pas de lib lazy non plus) →
+  **aucun risque sur le budget bundle** (cf. [[barrel-runtime-value-pulls-zod-eager]]). 4 composants *dumb*
+  réutilisables sous `pages/dashboard/components/` : `bar-chart` (SVG, barres groupées + grille + ticks `niceMax`),
+  `donut-chart` (SVG, arcs `path` calculés ; cas mono-segment rendu via `<circle>` stroke), `bars-chart` (HTML/CSS,
+  barres horizontales triées + top 8), `pipeline-chart` (HTML/CSS, segments `flex-basis %`). **Couleurs passées
+  en `var(--color-*)` via `[style.fill]`/`[style.background]`** (les **attributs SVG ne résolvent pas `var()`**,
+  contrairement au style inline). `formatValue` injecté en **`input` fonction** (montants/durées formatés par le parent).
+- **Dashboard = route lazy** (`loadComponent` sur `''`) → tout le graphe (DashboardStore + services + 5 composants)
+  tombe dans un **chunk lazy `dashboard` (~32 kB)**, **bundle initial inchangé à 457 kB** (budget 500). Aucun enum
+  importé depuis un barrel de DTO dans cette feature : **listes de statuts locales** (clé i18n + couleur) pour le
+  pipeline, par prudence vis-à-vis du piège zod.
+- **`DashboardStore` (`@app/stores/dashboard`)** orchestre la lecture : injecte les services renderer
+  (`Invoice`/`Quote`/`Expense`/`TimeEntry`) + les stores `Project`/`ExpenseCategory` (pour les noms/couleurs),
+  charge **tous les agrégats en parallèle** (`Promise.all`) dans `load()`, expose des **signals en lecture seule**.
+  Gère le **layout** (`DashboardWidget[] = { id, span }`) en `localStorage` avec **fusion robuste** au chargement
+  (ids inconnus ignorés, widgets manquants ré-append → résiste à un layout obsolète), `setSpan`/`reorder`/`resetLayout`.
+  La **note** est lue/écrite via `CompanyService` (DB) ; écriture **debouncée 500 ms** pour ne pas marteler la base à
+  chaque frappe. Les **datasets de graphes** (libellés i18n + couleurs) sont assemblés en `computed()` **dans la page**
+  (réactifs à la locale via `i18n.locale()`/`i18n.t`), pas dans le store.
+- **Note rapide en base, pas en `localStorage`** : décision tranchée — la disposition/la langue sont des préférences
+  d'affichage (perte tolérable, `localStorage`), mais la note peut contenir une **vraie donnée** → champ
+  **`CompanySettings.dashboardNote` TEXT?** (singleton, **pas de nouvelle table**), sauvegardé avec `dev.db`.
+  Migration **`add_dashboard_note`** = simple **`ADD COLUMN`** (colonne nullable → **table non reconstruite** → le
+  **CHECK `vatRegime` reste intact**, vérifié `node:sqlite`). Canal léger **`company:set-dashboard-note`** (`z.string()`,
+  `ipcHandle`) + `CompanySettingsService.setDashboardNote` (update ciblé, comme les compteurs) ; la lecture passe par
+  `CompanyService.getCompany().settings.dashboardNote`.
+- **2 nouveaux agrégats « par mois sur l'année »** (les `getStats`/`sumByMonth(year,month)` existants ne donnaient
+  que le mois courant) : `InvoiceService.sumPaymentsByMonth(year)` et `ExpenseService.sumByMonth(year)` →
+  `number[12]`, **une requête `findMany` + réduction JS par mois** (pas 12 `aggregate`), arrondi 2 décimales.
+  Câblés sur les **8 couches** habituelles (DTO zod `{year}`, canal, interface, repo, service, handler `ipcHandle`,
+  preload, service renderer). Les autres KPIs/graphes **réutilisent l'existant** (`getStats`, `countByStatus`
+  devis+facture, `sumByCategory` — **all-time, choix de réutilisation**, `sumDeductible(year)`, `sumByMonth`,
+  `sumByProject`). Vérifs : `tsc` main + preload OK, `build:renderer` OK (templates stricts + budgets).
+
+### Fichiers
+
+- **Shared** : `dtos/invoice/sum-by-month.dto` (`InvoiceSumByMonthSchema`) + `dtos/expense/sum-by-month.dto`
+  (`ExpenseSumByMonthSchema`) + barrels ; `channels/invoice` (+`SUM_PAYMENTS_BY_MONTH`), `channels/expense`
+  (+`SUM_BY_MONTH`) ; `interfaces/invoice` (+`sumPaymentsByMonth`), `interfaces/expense` (+`sumByMonth`).
+- **Main** : `repositories/invoice` (+`sumPaymentsByMonth`), `repositories/expense` (+`sumByMonth`),
+  `services/invoice` + `services/expense` (pass-through), `handlers/invoice` + `handlers/expense` (+`ipcHandle`).
+- **Note en base** : `schema/company-settings.prisma` (+`dashboardNote String?`), migration `add_dashboard_note` ;
+  `channels/company` (+`SET_DASHBOARD_NOTE`), `interfaces/company`, `dtos/company/company-settings.dto`
+  (+`dashboardNote`) ; `repositories/company/company-settings` + `services/company/{company-settings,company}.service`
+  (+`setDashboardNote`), `handlers/company` ; `preload/apis/company.api` ; `services/company/company` renderer
+  (+`getDashboardNote`/`setDashboardNote`).
+- **Seed démo enrichi** (`seed/demo-data`) pour que les graphes parlent : paiements répartis **Jan→Mai**
+  (factures payées ajoutées), dépenses sur **chaque mois** + plus de catégories (donut), quelques heures plus
+  tôt dans l'année, **devis EXPIRED** + **facture CANCELLED** → les **5 classes de statut** présentes au pipeline.
+- **Preload** : `apis/invoice.api` + `apis/expense.api` (+ méthode).
+- **Renderer** : `services/invoice` + `services/expense` (+ méthode) ; **`stores/dashboard/dashboard-store`**
+  (+ barrel + wire `stores/index`) ; **page** `pages/dashboard/dashboard.{ts,html,css}` (réécrite) + **composants**
+  `pages/dashboard/components/{kpi-card,bar-chart,donut-chart,bars-chart,pipeline-chart}` (+ barrel) ;
+  i18n `ui/dashboard/dashboard.{fr,en,nl,de}` enregistrés dans les 4 locales.
+
+### Ajustements (retours E2E)
+
+- **Note rapide déplacée de `localStorage` vers la base** (`CompanySettings.dashboardNote`) — voir décision ci-dessus.
+- **Axe Y du graphe Revenus/Dépenses coupé** : les graduations formatées en montant complet (« 10 000,00 € »)
+  débordaient la marge gauche et étaient rognées. Correctif : nouvel `input` **`formatTick`** sur `bar-chart`
+  (format **compact** « 10 k € », via `Intl.NumberFormat notation:'compact'`) pour l'axe seulement ; les **tooltips
+  et la légende gardent le montant complet** (`formatValue`).
+
+> **À tester E2E** (`npm start`) : ouvrir `/`, vérifier les 5 KPIs et les 4 graphes (avec le seed démo) ;
+> **glisser** un widget par sa poignée pour réordonner, **changer la largeur** (1/2/3), **recharger** l'app →
+> disposition conservée ; **écrire dans la note** puis recharger / **réinitialiser** → la note **persiste** (base) ;
+> **« Réinitialiser »** revient à la disposition par défaut ; **changer de langue** → libellés, noms de mois et
+> légendes mis à jour ; axe Y du grand graphe **lisible** (labels compacts non coupés) ; DB vide → états vides sans crash.
+
 ## [0.15.0] — 2026-05-27 — Phase 11 · 3/6 : Génération PDF (facture & devis) + régime TVA / mentions légales
 
 Troisième chantier de la **Phase 11** : export **PDF** d'une facture **ou** d'un devis (même moteur),

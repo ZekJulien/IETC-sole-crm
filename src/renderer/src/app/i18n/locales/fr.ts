@@ -17,9 +17,11 @@ import settings from '../ui/settings/settings.fr'
 import wizard from '../ui/welcome-wizard/welcome-wizard.fr'
 import conversion from '../ui/conversion/conversion.fr'
 import pdf from '../ui/pdf/pdf.fr'
+import dashboard from '../ui/dashboard/dashboard.fr'
 
 export default {
   ...validation, ...common, ...client, ...contact, ...company, ...category,
   ...expenseCategory, ...project, ...task, ...time, ...expense, ...quote,
   ...invoice, ...vatRate, ...product, ...settings, ...wizard, ...conversion, ...pdf,
+  ...dashboard,
 } satisfies Record<string, string>

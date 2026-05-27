@@ -7,6 +7,7 @@ import { FindManyArgs, PaginatedResult } from '@shared/types'
 import {
   InvoiceDto, CreateInvoiceDto, UpdateInvoiceDto, UpdateInvoiceStatusDto, RecordPaymentDto,
   InvoiceStatus, InvoiceStatusCount, InvoiceStats, InvoiceLineInput, InvoiceVatBreakdownLine,
+  InvoiceSumByMonthDto,
 } from '@shared/dtos/invoice'
 
 function round2(value: number): number {
@@ -86,6 +87,10 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
     const { start, end } = monthRange()
     const revenueThisMonth = await this.repo.sumPaymentsBetween(start, end)
     return { unpaid: round2(unpaid), revenueThisMonth: round2(revenueThisMonth) }
+  }
+
+  sumPaymentsByMonth(arg: InvoiceSumByMonthDto): Promise<number[]> {
+    return this.repo.sumPaymentsByMonth(arg.year)
   }
 
   async add(data: CreateInvoiceDto): Promise<InvoiceDto> {

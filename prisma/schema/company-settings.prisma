@@ -6,6 +6,7 @@ model CompanySettings {
   vatRegime             String   @default("NORMAL")
   paymentTermsDays      Int      @default(30)
   paymentConditions     String?
+  dashboardNote         String?
 
   invoiceNumberFormat        String   @default("INV-{YYYY}-{####}")
   invoiceNumberCounter       Int      @default(0)

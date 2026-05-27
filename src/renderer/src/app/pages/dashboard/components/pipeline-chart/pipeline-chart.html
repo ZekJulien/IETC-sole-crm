@@ -1,0 +1,29 @@
+<div class="pipeline">
+  @for (r of rows(); track r.label) {
+    <div class="pipeline__row">
+      <div class="pipeline__head">
+        <span class="pipeline__label">{{ r.label }}</span>
+        <span class="pipeline__total">{{ total(r) }}</span>
+      </div>
+      <div class="pipeline__bar">
+        @for (s of r.segments; track s.label) {
+          @if (s.value > 0) {
+            <span
+              class="pipeline__seg"
+              [style.flex-basis.%]="pct(s, r)"
+              [style.background]="s.color"
+              [title]="s.label + ' : ' + s.value"></span>
+          }
+        }
+        @if (total(r) === 0) {
+          <span class="pipeline__seg pipeline__seg--empty"></span>
+        }
+      </div>
+      <div class="pipeline__legend">
+        @for (s of r.segments; track s.label) {
+          <span class="pipeline__chip"><i [style.background]="s.color"></i>{{ s.label }} · {{ s.value }}</span>
+        }
+      </div>
+    </div>
+  }
+</div>

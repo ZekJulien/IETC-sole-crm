@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  height:  100%;
+}
+
+.kpi {
+  display:         flex;
+  flex-direction:  column;
+  justify-content: center;
+  gap:             6px;
+  height:          100%;
+}
+
+.kpi[data-accent="mauve"]  { --kpi-accent: var(--color-accent); }
+.kpi[data-accent="blue"]   { --kpi-accent: var(--color-info); }
+.kpi[data-accent="green"]  { --kpi-accent: var(--color-success); }
+.kpi[data-accent="yellow"] { --kpi-accent: var(--color-warning); }
+.kpi[data-accent="red"]    { --kpi-accent: var(--color-danger); }
+
+.kpi__icon {
+  display: inline-flex;
+  color:   var(--kpi-accent, var(--color-accent));
+}
+
+.kpi__icon svg {
+  width:  22px;
+  height: 22px;
+}
+
+.kpi__value {
+  font-size:      1.6rem;
+  font-weight:    700;
+  letter-spacing: -.02em;
+  color:          var(--color-text);
+}
+
+.kpi__hint {
+  font-size: .76rem;
+  color:     var(--color-text-subtle);
+}

@@ -1,0 +1,7 @@
+<div class="kpi" [attr.data-accent]="accent()">
+  <span class="kpi__icon"><ng-content select="[icon]" /></span>
+  <strong class="kpi__value">{{ value() }}</strong>
+  @if (hint()) {
+    <span class="kpi__hint">{{ hint() }}</span>
+  }
+</div>

@@ -61,6 +61,18 @@ export class InvoiceRepository extends BaseRepository<Invoice> {
     return res._sum.amount ?? 0
   }
 
+  async sumPaymentsByMonth(year: number): Promise<number[]> {
+    const start = new Date(year, 0, 1)
+    const end   = new Date(year + 1, 0, 1)
+    const payments: { date: Date; amount: number }[] = await this.dbContext.client.payment.findMany({
+      where:  { date: { gte: start, lt: end } },
+      select: { date: true, amount: true },
+    })
+    const months = new Array<number>(12).fill(0)
+    for (const p of payments) months[new Date(p.date).getMonth()] += p.amount
+    return months.map(v => Math.round(v * 100) / 100)
+  }
+
   updateStatus(id: number, status: InvoiceStatus): Promise<Invoice> {
     return this.delegate.update({ where: { id }, data: { status } })
   }

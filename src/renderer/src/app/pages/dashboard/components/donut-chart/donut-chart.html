@@ -1,0 +1,30 @@
+<div class="donut">
+  @if (isEmpty()) {
+    <p class="donut__empty">{{ emptyLabel() }}</p>
+  } @else {
+    <div class="donut__viz">
+      <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet" role="img">
+        @for (s of slices(); track s.label) {
+          @if (s.isFull) {
+            <circle [attr.cx]="CX" [attr.cy]="CY" [attr.r]="ringR" fill="none" [style.stroke]="s.color" [attr.stroke-width]="ringW">
+              <title>{{ s.title }}</title>
+            </circle>
+          } @else {
+            <path [attr.d]="s.d" [style.fill]="s.color"><title>{{ s.title }}</title></path>
+          }
+        }
+        <text class="donut__total" [attr.x]="CX" [attr.y]="CY - 2" text-anchor="middle">{{ fmt(total()) }}</text>
+        <text class="donut__caption" [attr.x]="CX" [attr.y]="CY + 16" text-anchor="middle">{{ centerLabel() }}</text>
+      </svg>
+    </div>
+    <ul class="donut__legend">
+      @for (s of slices(); track s.label) {
+        <li class="donut__legend-item">
+          <i [style.background]="s.color"></i>
+          <span class="donut__legend-label" [title]="s.label">{{ s.label }}</span>
+          <span class="donut__legend-val">{{ fmt(s.value) }}</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

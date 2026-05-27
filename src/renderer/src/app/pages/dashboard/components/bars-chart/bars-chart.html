@@ -1,0 +1,15 @@
+<div class="bars">
+  @if (isEmpty()) {
+    <p class="bars__empty">{{ emptyLabel() }}</p>
+  } @else {
+    @for (it of rows(); track it.label) {
+      <div class="bars__row">
+        <span class="bars__label" [title]="it.label">{{ it.label }}</span>
+        <span class="bars__track">
+          <span class="bars__fill" [style.width.%]="pct(it)" [style.background]="it.color || accent()"></span>
+        </span>
+        <span class="bars__value">{{ fmt(it.value) }}</span>
+      </div>
+    }
+  }
+</div>
