@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core'
-import { CompanyDto, SaveCompanyInput } from '@shared/dtos/company'
+import { CompanyDto, SaveCompanyInput, SavePomodoroSettingsDto } from '@shared/dtos/company'
 
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
@@ -41,5 +41,20 @@ export class CompanyService {
     const res = await window.api.company.setDashboardNote(note)
     if (res.error) throw new Error(res.error.message)
     this._company.update(c => c ? { ...c, settings: { ...c.settings, dashboardNote: note } } : c)
+  }
+
+  async setPomodoroSettings(settings: SavePomodoroSettingsDto): Promise<void> {
+    const res = await window.api.company.setPomodoroSettings(settings)
+    if (res.error) throw new Error(res.error.message)
+    this._company.update(c => c ? {
+      ...c,
+      settings: {
+        ...c.settings,
+        pomodoroWorkMinutes:       settings.workMinutes,
+        pomodoroShortBreakMinutes: settings.shortBreakMinutes,
+        pomodoroLongBreakMinutes:  settings.longBreakMinutes,
+        pomodoroLongBreakInterval: settings.longBreakInterval,
+      },
+    } : c)
   }
 }

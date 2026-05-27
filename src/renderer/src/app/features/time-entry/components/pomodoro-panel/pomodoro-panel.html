@@ -1,0 +1,3 @@
+<app-modal [open]="store.panelOpen()" [title]="'time.view.pomodoro'" [width]="'380px'" (closed)="store.closePanel()">
+  <app-pomodoro-timer [projects]="projects.projects()" />
+</app-modal>

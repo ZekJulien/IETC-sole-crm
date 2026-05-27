@@ -1,0 +1,46 @@
+.pomo-settings {
+  display:        flex;
+  flex-direction: column;
+  gap:            12px;
+}
+
+.pomo-settings__field {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             16px;
+}
+
+.pomo-settings__label {
+  font-size: 13px;
+  color:     var(--color-text-muted);
+}
+
+.pomo-settings__input {
+  width:         84px;
+  padding:       7px 10px;
+  background:    var(--color-bg-base);
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius);
+  color:         var(--color-text);
+  font-size:     13px;
+  text-align:    right;
+}
+
+.pomo-settings__input:focus {
+  outline:      none;
+  border-color: var(--color-accent);
+}
+
+.pomo-settings__hint {
+  margin:     4px 0 0;
+  font-size:  12px;
+  color:      var(--color-text-subtle);
+  line-height: 1.4;
+}
+
+.pomo-settings__actions {
+  display:         flex;
+  justify-content: flex-end;
+  gap:             8px;
+}

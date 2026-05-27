@@ -9,6 +9,156 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.18.0] — 2026-05-27 — Phase 11 · 6/6 : Notifications OS natives + arrêt du Pomodoro avec enregistrement
+
+Sixième et **dernier chantier de la Phase 11** : les **notifications système natives** (Win11 / Linux / macOS)
+branchées sur le point d'accroche `PomodoroStore.notify()` laissé au 5/6, **+** un correctif d'usage du minuteur
+demandé en test : pouvoir **arrêter** un pomodoro en cours **et enregistrer le temps déjà fait** (avant, on ne
+pouvait que mettre en pause ou réinitialiser-sans-logger). **Aucune dépendance** (API `Notification` d'Electron),
+**aucune migration**.
+
+### Parcours
+
+1. **Notifications natives** : à chaque **fin de phase**, en plus du toast in-app, une **vraie notification OS**
+   s'affiche (même quand l'app n'est pas au premier plan) — fin de travail → titre « Pause courte/longue » + détail
+   « X min enregistrées — pause de Y min » ; fin de pause → titre « Travail » + « Au travail — X min ». C'est exactement
+   le comportement attendu en test (Ubuntu : via le démon de notifications du bureau).
+2. **Bouton « Terminer »** (popup) : arrête la session **et enregistre le pomodoro de travail en cours au prorata**
+   (durée = temps écoulé arrondi à la minute, `pomodoro:true`) puis revient à l'état initial. **« Réinitialiser »**
+   reste l'option qui **annule sans rien enregistrer**. Pendant une pause, « Terminer » arrête simplement (rien à logger).
+
+### Décisions d'architecture
+
+- **Notification côté main, pas côté renderer** : nouveau **`notification:show`** en **`ipcHandleNoTx`** (pas de DB →
+  variante non-transactionnelle, comme PDF/dialogue) + `NotificationService` (main) qui appelle
+  **`new Notification({title, body}).show()`** d'Electron, gardé par **`Notification.isSupported()`**. C'est l'API
+  recommandée (cross-platform fiable) vs l'API web `Notification` du renderer. Handler **standalone** (sans entrée
+  `AppDependencies`, comme `i18n`/`log`) car service sans repo.
+- **Renderer `NotificationService`** (`@app/services/notification`, root) = fin wrapper `window.api.notification.show`,
+  **fire-and-forget** (les échecs de notif ne lèvent pas de toast d'erreur). `PomodoroStore.notify(titleKey, bodyKey,
+  params)` émet désormais **toast in-app ET notif native** ; **titres réutilisent les libellés de phase existants**
+  (`time.pomo.phase.*`) → notif « titre = phase suivante / corps = détail », **zéro nouvelle clé i18n** pour ça.
+- **Arrêt avec log au prorata** (`PomodoroStore.finish()`) : si on est en phase **travail**, log d'une `TimeEntry`
+  (`duration = round((phaseTotal − restant) / 60)`, ≥ 1 min, `pomodoro:true`) + toast « X min enregistrées », puis
+  `reset()`. **Ne compte pas** dans le total « pomodoros du jour » (ce n'est pas un pomodoro complet) mais **le temps
+  est tracé**. `Réinitialiser` = `reset()` pur (annulation). Bundle initial 477 → **478 kB** (budget 500).
+
+### Fichiers
+
+- **Shared** : `channels/notification` (`NOTIFICATION_CHANNELS.SHOW`) + barrel + wire `channels/index` ;
+  `dtos/notification` (`NotificationPayloadSchema` `{title, body}`) + barrel ; `interfaces/notification`
+  (`NotificationAPI`) + barrel + wire `interfaces/index`.
+- **Main** : `services/notification/notification.service` (Electron `Notification`) + barrel ;
+  `handlers/notification` (`registerNotificationHandlers`, `ipcHandleNoTx`) + barrel + wire `handlers/index`
+  (standalone, sans dépendance).
+- **Preload** : `apis/notification.api` + wire `preload/index` + `types/electron/index.d.ts` (+`NotificationAPI`).
+- **Renderer** : `services/notification/notification` (+ barrel) ; `stores/pomodoro/pomodoro-store`
+  (inject `NotificationService`, `notify()` → toast + natif, **+`finish()`**) ;
+  `features/time-entry/components/pomodoro-timer` (bouton **« Terminer »** + Réinitialiser en `variant="danger"`) ;
+  i18n `ui/time-entry/time.{fr,en,nl,de}` (+`time.pomo.finish`, +`time.pomo.toast.stopped`).
+
+> **À tester E2E** (`npm start`, Ubuntu) : démarrer un pomodoro avec une **durée courte**, attendre la fin →
+> **notification système** « Pause courte » s'affiche (même app en arrière-plan) ; fin de pause → notif « Travail » ;
+> en plein travail, cliquer **« Terminer »** → entrée `pomodoro:true` au prorata dans le Journal + toast, retour à
+> l'état initial ; **« Réinitialiser »** → rien d'enregistré. (Si aucune notif sous Ubuntu : vérifier qu'un démon de
+> notifications tourne ; en dev l'app peut apparaître sous le nom « Electron ».)
+
+## [0.17.0] — 2026-05-27 — Phase 11 · 5/6 : Timer Pomodoro (→ TimeEntry.pomodoro)
+
+Cinquième chantier de la **Phase 11** : un vrai **minuteur Pomodoro** qui rend enfin utile le flag
+`TimeEntry.pomodoro` (réservé depuis la Phase 7, écrit `false` jusqu'ici). Le timer **enchaîne** travail /
+pause courte / pause longue, **logge automatiquement une `TimeEntry` (`pomodoro:true`)** à chaque pomodoro de
+travail terminé, **survit à la navigation ET au redémarrage** de l'app, et ses durées sont **configurables**
+(stockées en `CompanySettings`). **Une migration** (4 colonnes de config) ; **aucune dépendance** (minuteur =
+`setInterval` maison + `localStorage`).
+
+### Parcours
+
+1. Le minuteur est une **popup globale** ouvrable de **3 endroits** : le **raccourci « Pomodoro » du dashboard**
+   (remplace l'ancien « Saisir du temps »), la **pastille navbar** (quand un minuteur tourne), et un **bouton
+   « Pomodoro » sur `/time`**. Un clic → la popup s'ouvre **directement**.
+2. Dans la popup : on choisit **projet (+ tâche optionnelle)** AVANT de démarrer, on coche *facturable* et on note
+   une description ; **anneau de progression SVG** (compte à rebours `mm:ss`), **Démarrer / Pause / Reprendre /
+   Réinitialiser**, **nb de pomodoros du jour**, **compteur avant la longue pause**. **Fermer la popup n'arrête pas
+   le minuteur** (état dans un service root) — il continue en fond, la pastille l'affiche, on rouvre quand on veut.
+3. **Fin d'un pomodoro de travail** → `TimeEntry` créée (`pomodoro:true`, `duration` = durée du pomodoro, projet/
+   tâche/facturable/description courants) + **toast** « Pomodoro terminé · X min enregistrées — pause de Y min » →
+   la **pause démarre toute seule** ; fin de pause → retour au travail automatique. Seules les phases **travail**
+   créent une entrée (les pauses ne polluent pas le journal). Le journal `/time` se **rafraîchit en direct**.
+4. **Pastille navbar** : un petit indicateur `⏱ 24:13 · Travail` apparaît dans la barre **uniquement quand un
+   minuteur tourne** (couleur par phase, glyphe pause si en pause) ; **clic → rouvre la popup**.
+5. **Réglages** (icône engrenage du panneau) : modale **Travail / Pause courte / Longue pause / Longue pause tous
+   les N** → enregistrés en base.
+
+### Décisions d'architecture
+
+- **État dans un service root singleton `PomodoroStore`** (`@app/stores/pomodoro`, `providedIn: 'root'`) → **survit
+  à la navigation** entre pages. Pur état client : signals + `setInterval` (tick 250 ms), **aucune valeur runtime
+  importée d'un barrel de DTO** sur le chemin eager (cf. [[barrel-runtime-value-pulls-zod-eager]]) — seuls des
+  **types** `CreateTimeEntryDto` (effacés au build). Crée les entrées via `TimeEntryStore.logPomodoro()` (ajout +
+  refresh **sans toast**, le `PomodoroStore` émet son propre toast).
+- **Emplacement = popup globale (lazy via `@defer`) + pastille navbar (eager, légère)**. Le panneau
+  (`PomodoroPanel` = `app-modal` + `PomodoroTimer` + anneau + modale réglages) est **monté une fois à la racine**
+  (`app.html`) dans un **`@defer (when pomodoro.panelOpen())`** → tout part dans un **chunk lazy `pomodoro-panel`
+  (~14 kB)** chargé au **premier ouverture** (instantané en Electron local). Seuls `PomodoroStore` + `PomodoroIndicator`
+  (et, par dépendance, `TimeEntryStore`/`TimeEntryService`) sont eager. **Bundle initial 457 → 477 kB** (budget 500,
+  **zod absent** — le renderer ne valide jamais en zod, vérifié). La pastille est `:host:empty { display:none }`
+  (zéro espace quand inactive). **Choix popup vs onglet** : un raccourci dashboard → popup directe est plus immédiat ;
+  la popup n'est qu'une **surface de contrôle** (le minuteur vit dans le store root, tourne même popup fermée).
+- **Anti-drift** : le compte à rebours se recalcule depuis un **timestamp de fin** (`endsAt`) à chaque tick, jamais
+  par décrément cumulatif. Le **total de la phase est figé à son démarrage** (`_phaseTotal`, persisté) → changer les
+  durées en plein run ne casse pas l'anneau (s'applique à la phase suivante ; en `IDLE`, l'affichage suit la config).
+- **Survie au redémarrage (`localStorage` `sole.pomodoro`)** : on persiste statut/phase/`endsAt`/projet/tâche/… À
+  l'ouverture : si **RUNNING** et `endsAt` futur → on **reprend le compte à rebours** ; si la phase a **expiré pendant
+  la fermeture** → retour propre à `IDLE` (pas de log rétroactif, on ne peut pas prouver le travail) ; si **PAUSED** →
+  on restaure le restant. Le **compteur du jour** se réinitialise si la date stockée n'est pas aujourd'hui.
+- **Durées configurables en base, pas en `localStorage`** (décision Q2) : **4 colonnes `CompanySettings`**
+  (`pomodoroWorkMinutes` 25 / `pomodoroShortBreakMinutes` 5 / `pomodoroLongBreakMinutes` 15 /
+  `pomodoroLongBreakInterval` 4) — ce sont des **réglages métier** qui doivent survivre à un reset, comme la note du
+  dashboard. Canal léger **`company:set-pomodoro-settings`** (`ipcHandle` + `SavePomodoroSettingsSchema` borné),
+  calqué sur `setDashboardNote`. Édition **dans le panneau timer** (où on s'en sert), pas dans le formulaire Entreprise
+  (budget CSS).
+- **⚠️ Gotcha TEXT+CHECK reconfirmé** : `prisma migrate dev` a **reconstruit** la table `CompanySettings`
+  (RedefineTables, pas un simple `ADD COLUMN`) car le **`CHECK vatRegime` n'est pas modélisable côté Prisma** →
+  régénération **sans** le CHECK. **Réinjecté à la main** dans la migration (`CHECK ("vatRegime" IN
+  ('NORMAL','FRANCHISE'))`) puis dev.db remis d'aplomb. Vérifié `node:sqlite` (cf. [[verify-db-constraints-node-sqlite]])
+  sur une **copie** : défauts 25/5/15/4 OK, CHECK `vatRegime` rejette bien une valeur invalide, colonnes éditables.
+- **Notif de fin = toast in-app** pour ce chantier ; la **notif OS native** (Win11/Linux/macOS) du **6/6** branchera
+  simplement sur la méthode **`PomodoroStore.notify()`** (déjà appelée à chaque frontière de phase = point d'accroche).
+- **Composants extraits pour rester sous le budget 4 kB/CSS** (cf. [[extract-components-not-relax-budgets]]) :
+  `PomodoroPanel` (wrapper `app-modal`, monté à la racine via `@defer`), `PomodoroTimer` (vue smart, sans chrome de
+  carte — la modale fournit la surface), `PomodoroRing` (anneau SVG dumb, `<ng-content>` au centre, couleur par phase
+  via `[style.stroke]`), `PomodoroSettingsModal` (form réactif borné), `PomodoroIndicator` (pastille navbar = bouton).
+  Helper générique **`formatClock(s) → mm:ss`** déplacé en **`@app/utils`** (réutilisé par le timer ET la pastille
+  eager, pas dans la feature time-entry).
+
+### Fichiers
+
+- **Migration** : `schema/company-settings.prisma` (+4 champs `Int`), `migrations/…add_pomodoro_settings`
+  (RedefineTables + **CHECK `vatRegime` réinjecté à la main**).
+- **Shared** : `dtos/company/save-pomodoro-settings.dto` (`SavePomodoroSettingsSchema`, bornes) + barrel ;
+  `dtos/company/company-settings.dto` (+4 champs) ; `channels/company` (+`SET_POMODORO_SETTINGS`) ;
+  `interfaces/company` (+`setPomodoroSettings`).
+- **Main** : `repositories/company/company-settings.repository` + `services/company/{company-settings,company}.service`
+  (+`setPomodoroSettings`) ; `handlers/company` (+`ipcHandle`).
+- **Preload** : `apis/company.api` (+`setPomodoroSettings`).
+- **Renderer** : `services/company/company` + `stores/company/company-store` (+`setPomodoroSettings` /
+  `savePomodoroSettings`) ; **`stores/pomodoro/pomodoro-store`** (signals + `panelOpen`/`openPanel`/`closePanel`,
+  + barrel + wire `stores/index`) ; `stores/time-entry/time-entry-store` (+`logPomodoro`) ;
+  **`features/time-entry/components/{pomodoro-panel,pomodoro-timer,pomodoro-ring,pomodoro-settings-modal}`** ;
+  **`layout/pomodoro-indicator`** (bouton, + wire `navbar`) ; **`app.{ts,html}`** (`@defer` du `PomodoroPanel` à la
+  racine) ; **`pages/dashboard/dashboard.{ts,html,css}`** (raccourci « Saisir du temps » → bouton « Pomodoro » qui
+  ouvre la popup) + i18n `ui/dashboard/dashboard.{fr,en,nl,de}` (+`dashboard.action.pomodoro`) ;
+  `features/time-entry/pages/time-journal` (bouton « Pomodoro » au lieu d'une bascule d'onglet) ;
+  `shared/utils/format-clock` (+ barrel) ; i18n `ui/time-entry/time.{fr,en,nl,de}` (clés `time.view.*` + `time.pomo.*`).
+
+> **À tester E2E** (`npm start`) : **dashboard → raccourci « Pomodoro »** (ou pastille navbar, ou bouton sur `/time`)
+> → la **popup s'ouvre direct** ; choisir un projet, **Démarrer** (réduire les durées dans les réglages pour tester
+> vite) ; **fermer la popup → le minuteur continue** (pastille navbar visible en naviguant ailleurs, clic → rouvre la
+> popup) ; à la fin du pomodoro → entrée `pomodoro:true` créée et **visible dans le Journal `/time`**, toast, **pause
+> auto** ; **Pause/Reprendre/Réinitialiser** ; **fermer/rouvrir l'app** pendant un run → le minuteur **reprend** ;
+> changer les durées → persiste en base et survit au reload ; changer de langue → libellés OK (FR/EN/NL/DE).
+
 ## [0.16.0] — 2026-05-27 — Phase 11 · 4/6 : Dashboard KPIs + graphes SVG + grille personnalisable
 
 Quatrième chantier de la **Phase 11** : la page d'accueil (route `''`, déjà déclarée mais vide) devient un

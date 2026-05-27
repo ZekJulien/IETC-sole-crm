@@ -8,10 +8,16 @@
       </div>
     </div>
     @if (hasProjects()) {
-      <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
-        <svg lucidePlus [size]="15" />
-        {{ 'time.new' | t }}
-      </app-button>
+      <div class="time-page__header-actions">
+        <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="pomodoro.openPanel()">
+          <svg lucideTimer [size]="15" />
+          {{ 'time.view.pomodoro' | t }}
+        </app-button>
+        <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+          <svg lucidePlus [size]="15" />
+          {{ 'time.new' | t }}
+        </app-button>
+      </div>
     }
   </header>
 

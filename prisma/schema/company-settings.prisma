@@ -8,6 +8,11 @@ model CompanySettings {
   paymentConditions     String?
   dashboardNote         String?
 
+  pomodoroWorkMinutes        Int      @default(25)
+  pomodoroShortBreakMinutes  Int      @default(5)
+  pomodoroLongBreakMinutes   Int      @default(15)
+  pomodoroLongBreakInterval  Int      @default(4)
+
   invoiceNumberFormat        String   @default("INV-{YYYY}-{####}")
   invoiceNumberCounter       Int      @default(0)
   invoiceCounterResetYearly  Boolean  @default(true)

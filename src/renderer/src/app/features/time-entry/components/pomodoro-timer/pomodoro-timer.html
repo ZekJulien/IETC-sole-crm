@@ -1,0 +1,68 @@
+<div class="pomo">
+  <div class="pomo__bar">
+    <span class="pomo__chip pomo__chip--{{ store.phase() }}" [class.pomo__chip--idle]="store.status() === 'IDLE'">
+      {{ phaseLabelKey() | t }}
+    </span>
+    <app-icon-button [title]="'time.pomo.settings.title' | t" (clicked)="settingsOpen.set(true)">
+      <svg lucideSettings [size]="16" />
+    </app-icon-button>
+  </div>
+
+  <div class="pomo__selectors">
+    <select class="app-select" [value]="store.projectId() ?? ''" (change)="onProject($any($event.target).value)">
+      <option value="">{{ 'time.pomo.chooseProject' | t }}</option>
+      @for (p of projects(); track p.id) {
+        <option [value]="p.id">{{ p.name }}</option>
+      }
+    </select>
+    <select class="app-select" [value]="store.taskId() ?? ''" (change)="onTask($any($event.target).value)" [disabled]="!tasks().length">
+      <option value="">{{ 'time.noTask' | t }}</option>
+      @for (t of tasks(); track t.id) {
+        <option [value]="t.id">{{ t.title }}</option>
+      }
+    </select>
+  </div>
+
+  <app-pomodoro-ring [progress]="store.progress()" [phase]="store.phase()">
+    <span class="pomo__time">{{ clock() }}</span>
+    <span class="pomo__today">{{ 'time.pomo.todayCount' | t : { count: store.completedToday() } }}</span>
+  </app-pomodoro-ring>
+
+  <div class="pomo__controls">
+    <app-button [variant]="ButtonVariant.PRIMARY" [disabled]="store.projectId() === null" (clicked)="primary()">
+      @if (store.isRunning()) { <svg lucidePause [size]="15" /> } @else { <svg lucidePlay [size]="15" /> }
+      {{ primaryLabelKey() | t }}
+    </app-button>
+    @if (store.isActive()) {
+      <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="store.finish()">
+        <svg lucideSquare [size]="14" />
+        {{ 'time.pomo.finish' | t }}
+      </app-button>
+      <app-icon-button [title]="'time.pomo.reset' | t" variant="danger" (clicked)="store.reset()">
+        <svg lucideRotateCcw [size]="16" />
+      </app-icon-button>
+    }
+  </div>
+
+  <div class="pomo__meta">
+    <label class="pomo__billable">
+      <app-switch [checked]="store.billable()" (toggled)="onBillable()" />
+      <span>{{ 'time.billable' | t }}</span>
+    </label>
+    <span class="pomo__until">{{ 'time.pomo.untilLong' | t : { current: cyclePosition(), total: cycleTarget() } }}</span>
+  </div>
+
+  <input
+    class="pomo__desc"
+    type="text"
+    [value]="store.description()"
+    (input)="onDescription($any($event.target).value)"
+    [placeholder]="'time.descriptionPlaceholder' | t" />
+</div>
+
+<app-pomodoro-settings-modal
+  [open]="settingsOpen()"
+  [initial]="initialSettings()"
+  [saving]="savingSettings()"
+  (submitted)="saveSettings($event)"
+  (cancelled)="settingsOpen.set(false)" />

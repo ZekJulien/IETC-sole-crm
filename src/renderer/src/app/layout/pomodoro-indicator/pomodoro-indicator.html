@@ -1,0 +1,17 @@
+@if (store.isActive()) {
+  <button
+    type="button"
+    class="pomo-indicator"
+    [class.pomo-indicator--work]="store.phase() === 'WORK'"
+    [class.pomo-indicator--paused]="!store.isRunning()"
+    [title]="phaseLabelKey() | t"
+    (click)="store.openPanel()">
+    @if (store.isRunning()) {
+      <svg lucideTimer [size]="14" />
+    } @else {
+      <svg lucidePause [size]="14" />
+    }
+    <span class="pomo-indicator__time">{{ clock() }}</span>
+    <span class="pomo-indicator__phase">{{ phaseLabelKey() | t }}</span>
+  </button>
+}

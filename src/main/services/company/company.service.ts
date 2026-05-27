@@ -1,5 +1,5 @@
 import { Prisma } from '@db/client'
-import { CompanyDto, SaveCompanyDto, SaveCompanySettingsDto } from '@shared/dtos/company'
+import { CompanyDto, SaveCompanyDto, SaveCompanySettingsDto, SavePomodoroSettingsDto } from '@shared/dtos/company'
 import { VatRegime } from '@shared/dtos/company/vat-regime.enum'
 import { CompanyRepository } from '../../repositories/company/company.repository'
 import { CompanySettingsService } from './company-settings.service'
@@ -47,6 +47,10 @@ export class CompanyService extends BaseService<CompanyWithSettings, CompanyDto>
 
   setDashboardNote(note: string): Promise<void> {
     return this.settingsService.setDashboardNote(note)
+  }
+
+  setPomodoroSettings(settings: SavePomodoroSettingsDto): Promise<void> {
+    return this.settingsService.setPomodoroSettings(settings)
   }
 
   private async requireCompany(): Promise<CompanyWithSettings & { settings: NonNullable<CompanyWithSettings['settings']> }> {

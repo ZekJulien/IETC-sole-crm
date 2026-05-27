@@ -16,6 +16,7 @@ import { productApi } from './apis/product.api'
 import { seedApi } from './apis/seed.api'
 import { conversionApi } from './apis/conversion.api'
 import { pdfApi } from './apis/pdf.api'
+import { notificationApi } from './apis/notification.api'
 import { i18nApi } from './apis/i18n.api'
 
 contextBridge.exposeInMainWorld('logService', logApi)
@@ -36,5 +37,6 @@ contextBridge.exposeInMainWorld('api', {
   seed:     seedApi,
   conversion: conversionApi,
   pdf:      pdfApi,
+  notification: notificationApi,
   i18n:     i18nApi,
 })

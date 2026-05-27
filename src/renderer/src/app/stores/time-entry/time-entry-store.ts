@@ -60,6 +60,14 @@ export class TimeEntryStore {
     finally { this._saving.set(false) }
   }
 
+  async logPomodoro(data: CreateTimeEntryDto): Promise<TimeEntryDto | null> {
+    try {
+      const created = await this.timeSvc.add(data)
+      await this.refresh()
+      return created
+    } catch (e) { this.errors.handle(e); return null }
+  }
+
   async remove(id: number): Promise<boolean> {
     try {
       await this.timeSvc.remove(id)

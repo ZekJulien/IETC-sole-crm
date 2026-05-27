@@ -43,7 +43,7 @@ Ce projet est le travail de fin d'unité du cours SGBD. Il démontre la maîtris
 - **Notes de frais** — catégories, montant déductible, justificatif, total annuel
 
 ### Features différenciantes
-- **Pomodoro intégré** — cycle 25/5 min loggé automatiquement dans `TempsPasse` avec flag `methodePomodoro`
+- **Pomodoro intégré** — cycles configurables (défaut 25/5/15 min) loggés automatiquement dans `TempsPasse` avec flag `methodePomodoro`
 - **Génération PDF** — factures et devis en PDF mis en page côté main process
 - **Dashboard analytics** — CA mensuel, répartition par client, heures facturables vs non-facturables, KPIs
 - **Notifications natives Electron** — facture en retard, deadline approche, fin de Pomodoro

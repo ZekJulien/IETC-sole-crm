@@ -1,0 +1,14 @@
+<div class="ring">
+  <svg class="ring__svg" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="ring__track" cx="60" cy="60" r="52" />
+    <circle
+      class="ring__progress"
+      cx="60" cy="60" r="52"
+      [style.stroke]="color()"
+      [style.stroke-dasharray]="circumference"
+      [style.stroke-dashoffset]="dashOffset()" />
+  </svg>
+  <div class="ring__center">
+    <ng-content />
+  </div>
+</div>

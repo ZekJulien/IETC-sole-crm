@@ -1,3 +1,4 @@
+import { SavePomodoroSettingsDto } from '@shared/dtos/company'
 import { CompanySettingsRepository } from '../../repositories/company/company-settings.repository'
 
 export class CompanySettingsService {
@@ -21,5 +22,9 @@ export class CompanySettingsService {
 
   setDashboardNote(note: string): Promise<void> {
     return this.repo.setDashboardNote(note)
+  }
+
+  setPomodoroSettings(settings: SavePomodoroSettingsDto): Promise<void> {
+    return this.repo.setPomodoroSettings(settings)
   }
 }

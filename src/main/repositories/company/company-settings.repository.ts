@@ -48,6 +48,23 @@ export class CompanySettingsRepository {
     })
   }
 
+  async setPomodoroSettings(settings: {
+    workMinutes: number
+    shortBreakMinutes: number
+    longBreakMinutes: number
+    longBreakInterval: number
+  }): Promise<void> {
+    await this.dbContext.client.companySettings.update({
+      where: { companyId: COMPANY_ID },
+      data: {
+        pomodoroWorkMinutes:       settings.workMinutes,
+        pomodoroShortBreakMinutes: settings.shortBreakMinutes,
+        pomodoroLongBreakMinutes:  settings.longBreakMinutes,
+        pomodoroLongBreakInterval: settings.longBreakInterval,
+      },
+    })
+  }
+
   private async incrementCounter(
     counterField: 'invoiceNumberCounter' | 'quoteNumberCounter',
     resetYearlyField: 'invoiceCounterResetYearly' | 'quoteCounterResetYearly',

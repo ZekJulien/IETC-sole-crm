@@ -13,6 +13,7 @@
   padding: 24px 28px 0;
 }
 
+.time-page__header-actions { display: flex; align-items: center; gap: 10px; }
 .time-page__heading { display: flex; align-items: center; gap: 12px; }
 .time-page__icon { color: var(--color-accent); }
 .time-page__title { font-size: 20px; font-weight: 700; color: var(--color-text); }

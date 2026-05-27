@@ -15,6 +15,7 @@ import { registerProductHandlers } from './product'
 import { registerSeedHandlers } from './seed'
 import { registerConversionHandlers } from './conversion'
 import { registerPdfHandlers } from './pdf'
+import { registerNotificationHandlers } from './notification'
 import { registerI18nHandlers } from './i18n'
 
 export function registerAllHandlers(deps: AppDependencies): void {
@@ -35,5 +36,6 @@ export function registerAllHandlers(deps: AppDependencies): void {
   registerSeedHandlers(deps.seedService)
   registerConversionHandlers(deps.conversionService)
   registerPdfHandlers(deps.pdfService)
+  registerNotificationHandlers()
   registerI18nHandlers()
 }

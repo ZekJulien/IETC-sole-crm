@@ -39,4 +39,5 @@ export default {
   'dashboard.action.newClient':  'New client',
   'dashboard.action.newExpense': 'New expense',
   'dashboard.action.trackTime':  'Track time',
+  'dashboard.action.pomodoro':   'Pomodoro',
 } satisfies Record<string, string>

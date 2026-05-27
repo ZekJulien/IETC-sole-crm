@@ -48,7 +48,7 @@
                 <a class="action" [routerLink]="routes.projectNew"><svg lucideFolderKanban [size]="16" /><span>{{ 'dashboard.action.newProject' | t }}</span></a>
                 <a class="action" [routerLink]="routes.clients"><svg lucideUsers [size]="16" /><span>{{ 'dashboard.action.newClient' | t }}</span></a>
                 <a class="action" [routerLink]="routes.expenses"><svg lucideReceiptText [size]="16" /><span>{{ 'dashboard.action.newExpense' | t }}</span></a>
-                <a class="action" [routerLink]="routes.time"><svg lucideClock [size]="16" /><span>{{ 'dashboard.action.trackTime' | t }}</span></a>
+                <button type="button" class="action" (click)="pomodoro.openPanel()"><svg lucideTimer [size]="16" /><span>{{ 'dashboard.action.pomodoro' | t }}</span></button>
               </nav>
             }
             @case ('kpi-revenue') {

@@ -184,11 +184,15 @@
   gap:             8px;
   padding:         10px;
   font-size:       .82rem;
+  font-family:     inherit;
+  text-align:      left;
   color:           var(--color-text);
   background:      var(--color-bg-base);
   border:          1px solid var(--color-border);
   border-radius:   var(--radius);
   text-decoration: none;
+  cursor:          pointer;
+  appearance:      none;
   transition:      var(--transition);
 }
 

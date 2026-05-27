@@ -14,6 +14,7 @@ import { ProductAPI } from '@shared/interfaces/product'
 import { SeedAPI } from '@shared/interfaces/seed'
 import { ConversionAPI } from '@shared/interfaces/conversion'
 import { PdfAPI } from '@shared/interfaces/pdf'
+import { NotificationAPI } from '@shared/interfaces/notification'
 import { I18nAPI } from '@shared/interfaces/i18n'
 
 declare global {
@@ -36,6 +37,7 @@ declare global {
       seed:     SeedAPI
       conversion: ConversionAPI
       pdf:      PdfAPI
+      notification: NotificationAPI
       i18n:     I18nAPI
     }
   }

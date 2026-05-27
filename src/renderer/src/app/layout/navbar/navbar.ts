@@ -5,10 +5,11 @@ import { LucideLayoutDashboard, LucideUsers, LucideFolderKanban, LucideListTodo,
 import { TranslatePipe } from '@app/pipes'
 import { NavItem } from '@app/interfaces'
 import { AppRoutes } from '@app/core/routes/app-routes.const'
+import { PomodoroIndicator } from '../pomodoro-indicator/pomodoro-indicator'
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive, NgComponentOutlet, LucideSettings, LucideUserCircle2, TranslatePipe],
+  imports: [RouterLink, RouterLinkActive, NgComponentOutlet, LucideSettings, LucideUserCircle2, TranslatePipe, PomodoroIndicator],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })

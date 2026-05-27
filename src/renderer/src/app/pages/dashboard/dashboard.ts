@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router'
 import { CdkDropList, CdkDrag, CdkDragHandle, CdkDragDrop } from '@angular/cdk/drag-drop'
 import {
   LucideEuro, LucideWallet, LucideFileText, LucideClock, LucideReceiptText,
-  LucideUsers, LucideFolderKanban, LucideReceiptEuro, LucideGripVertical, LucideRotateCcw,
+  LucideUsers, LucideFolderKanban, LucideReceiptEuro, LucideGripVertical, LucideRotateCcw, LucideTimer,
 } from '@lucide/angular'
 import { TranslatePipe } from '@app/pipes'
 import { I18nService } from '@app/services/i18n/i18n'
 import { DashboardStore, DashboardWidgetId } from '@app/stores/dashboard'
+import { PomodoroStore } from '@app/stores/pomodoro'
 import { AppRoutes } from '@app/core/routes/app-routes.const'
 import { formatCurrency } from '@app/utils'
 import { KpiCard, BarChart, DonutChart, BarsChart, PipelineChart } from './components'
@@ -53,7 +54,7 @@ const TITLES: Record<DashboardWidgetId, string> = {
   imports: [
     RouterLink, CdkDropList, CdkDrag, CdkDragHandle, TranslatePipe,
     LucideEuro, LucideWallet, LucideFileText, LucideClock, LucideReceiptText,
-    LucideUsers, LucideFolderKanban, LucideReceiptEuro, LucideGripVertical, LucideRotateCcw,
+    LucideUsers, LucideFolderKanban, LucideReceiptEuro, LucideGripVertical, LucideRotateCcw, LucideTimer,
     KpiCard, BarChart, DonutChart, BarsChart, PipelineChart,
   ],
   templateUrl: './dashboard.html',
@@ -61,6 +62,7 @@ const TITLES: Record<DashboardWidgetId, string> = {
 })
 export class Dashboard implements OnInit {
   readonly store = inject(DashboardStore)
+  readonly pomodoro = inject(PomodoroStore)
   private readonly i18n = inject(I18nService)
 
   readonly spans = [1, 2, 3]
@@ -83,7 +85,6 @@ export class Dashboard implements OnInit {
     projectNew: '/' + AppRoutes.paths.projectNew,
     clients:    AppRoutes.nav.clients,
     expenses:   AppRoutes.nav.expenses,
-    time:       AppRoutes.nav.time,
   }
 
   readonly monthLabels = computed<string[]>(() => {

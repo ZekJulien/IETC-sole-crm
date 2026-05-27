@@ -1,9 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { LucideClock, LucidePlus, LucideFolderKanban } from '@lucide/angular'
+import { LucideClock, LucidePlus, LucideFolderKanban, LucideTimer } from '@lucide/angular'
 import { TimeEntryDto, TimeEntryFilter } from '@shared/dtos/time-entry'
 import { TimeEntryStore } from '@app/stores/time-entry'
 import { ProjectStore } from '@app/stores/project'
+import { PomodoroStore } from '@app/stores/pomodoro'
 import { Button, ConfirmDialog } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
@@ -16,7 +17,7 @@ import { TimeEntryFormModal, TimeEntryFormValue } from '../../components/time-en
   selector: 'app-time-journal',
   imports: [
     RouterLink, Button, ConfirmDialog, TimeEntryList, TimeEntryFormModal, TranslatePipe,
-    LucideClock, LucidePlus, LucideFolderKanban,
+    LucideClock, LucidePlus, LucideFolderKanban, LucideTimer,
   ],
   templateUrl: './time-journal.html',
   styleUrl: './time-journal.css',
@@ -24,6 +25,7 @@ import { TimeEntryFormModal, TimeEntryFormValue } from '../../components/time-en
 export class TimeJournal implements OnInit {
   readonly store    = inject(TimeEntryStore)
   readonly projects = inject(ProjectStore)
+  readonly pomodoro = inject(PomodoroStore)
 
   readonly ButtonVariant   = ButtonVariant
   readonly formatDuration  = formatDuration

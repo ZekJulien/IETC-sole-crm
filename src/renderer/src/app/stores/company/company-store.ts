@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core'
-import { CompanyDto, SaveCompanyInput } from '@shared/dtos/company'
+import { CompanyDto, SaveCompanyInput, SavePomodoroSettingsDto } from '@shared/dtos/company'
 import { CompanyService } from '@app/services/company/company'
 import { ToastService } from '@app/services/toast/toast.service'
 import { ErrorService } from '@app/services/error/error.service'
@@ -55,5 +55,14 @@ export class CompanyStore {
       this._company.set(this.companySvc.company())
       this.toast.success(this.i18n.t('company.toast.counterReset'))
     } catch (e) { this.errors.handle(e) }
+  }
+
+  async savePomodoroSettings(settings: SavePomodoroSettingsDto): Promise<boolean> {
+    try {
+      await this.companySvc.setPomodoroSettings(settings)
+      this._company.set(this.companySvc.company())
+      this.toast.success(this.i18n.t('time.pomo.toast.settingsSaved'))
+      return true
+    } catch (e) { this.errors.handle(e); return false }
   }
 }

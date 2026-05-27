@@ -7,6 +7,10 @@ export interface CompanySettingsDto {
   paymentTermsDays:          number
   paymentConditions:         string | null
   dashboardNote:             string | null
+  pomodoroWorkMinutes:       number
+  pomodoroShortBreakMinutes: number
+  pomodoroLongBreakMinutes:  number
+  pomodoroLongBreakInterval: number
   invoiceNumberFormat:       string
   invoiceNumberCounter:      number
   invoiceCounterResetYearly: boolean
