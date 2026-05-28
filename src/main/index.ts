@@ -25,13 +25,15 @@ function createWindow(): BrowserWindow {
     },
   })
 
-  if (app.isPackaged) {
+  const devServerUrl = process.env.NG_DEV_SERVER
+
+  if (devServerUrl) {
+    win.loadURL(devServerUrl)
+    win.webContents.openDevTools({ mode: 'detach' })
+  } else {
     win.loadFile(
       path.join(__dirname, '../../src/renderer/dist/renderer/browser/index.html')
     )
-  } else {
-    win.loadURL('http://localhost:4200')
-    win.webContents.openDevTools({ mode: 'detach' })
   }
 
   return win
@@ -68,7 +70,7 @@ app.whenReady().then(async () => {
   const prisma = await bootstrap()
   const win = createWindow()
 
-  if (!app.isPackaged) watchRendererSources(win)
+  if (process.env.NG_DEV_SERVER) watchRendererSources(win)
 
   app.on('before-quit', async () => {
     await prisma.$disconnect()
