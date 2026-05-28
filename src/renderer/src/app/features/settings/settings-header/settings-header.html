@@ -9,33 +9,6 @@
     </div>
   </div>
 
-  <nav class="settings-header__tabs" aria-label="Sections des paramètres">
-    <a class="settings-header__tab" [routerLink]="companyRoute" routerLinkActive="settings-header__tab--active">
-      <svg lucideBuilding2 [size]="15" />
-      <span>{{ 'settings.tab.company' | t }}</span>
-    </a>
-    <a class="settings-header__tab" [routerLink]="categoriesRoute" routerLinkActive="settings-header__tab--active">
-      <svg lucideTags [size]="15" />
-      <span>{{ 'settings.tab.categories' | t }}</span>
-    </a>
-    <a class="settings-header__tab" [routerLink]="expenseCategoriesRoute" routerLinkActive="settings-header__tab--active">
-      <svg lucideReceipt [size]="15" />
-      <span>{{ 'settings.tab.expenseCategories' | t }}</span>
-    </a>
-    <a class="settings-header__tab" [routerLink]="vatRatesRoute" routerLinkActive="settings-header__tab--active">
-      <svg lucidePercent [size]="15" />
-      <span>{{ 'settings.tab.vatRates' | t }}</span>
-    </a>
-    <a class="settings-header__tab" [routerLink]="productsRoute" routerLinkActive="settings-header__tab--active">
-      <svg lucidePackage [size]="15" />
-      <span>{{ 'settings.tab.products' | t }}</span>
-    </a>
-    <a class="settings-header__tab" [routerLink]="preferencesRoute" routerLinkActive="settings-header__tab--active">
-      <svg lucideLanguages [size]="15" />
-      <span>{{ 'settings.tab.preferences' | t }}</span>
-    </a>
-  </nav>
-
   <div class="settings-header__actions">
     <ng-content select="[actions]" />
   </div>

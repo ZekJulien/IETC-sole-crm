@@ -1,0 +1,12 @@
+<nav class="settings-tabs" aria-label="Sections des paramètres">
+  @for (tab of tabs; track tab.route) {
+    <a class="settings-tab" [routerLink]="tab.route" routerLinkActive="settings-tab--active">
+      <ng-container [ngComponentOutlet]="tab.icon" />
+      <span>{{ tab.labelKey | t }}</span>
+    </a>
+  }
+</nav>
+
+<div class="settings-layout__content">
+  <router-outlet />
+</div>
