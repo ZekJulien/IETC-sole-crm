@@ -3,6 +3,7 @@ import {
   QuoteDto, CreateQuoteDto, UpdateQuoteDto, UpdateQuoteStatusDto, QuoteStatusCount,
 } from '@shared/dtos/quote'
 import { FindManyArgs } from '@shared/types'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class QuoteService {
@@ -15,50 +16,41 @@ export class QuoteService {
   async load(args?: FindManyArgs): Promise<void> {
     this._loading.set(true)
     try {
-      const res = await window.api.quote.get(args)
-      if (res.error) throw new Error(res.error.message)
-      this._quotes.set(res.data!.data)
+      const result = unwrap(await window.api.quote.get(args))
+      this._quotes.set(result.data)
     } finally {
       this._loading.set(false)
     }
   }
 
   async countByStatus(): Promise<QuoteStatusCount> {
-    const res = await window.api.quote.countByStatus()
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.quote.countByStatus())
   }
 
   async getById(id: number): Promise<QuoteDto | null> {
-    const res = await window.api.quote.getById(id)
-    if (res.error) throw new Error(res.error.message)
-    return res.data
+    return unwrap(await window.api.quote.getById(id))
   }
 
   async add(data: CreateQuoteDto): Promise<QuoteDto> {
-    const res = await window.api.quote.add(data)
-    if (res.error) throw new Error(res.error.message)
-    this._quotes.update(list => [res.data!, ...list])
-    return res.data!
+    const created = unwrap(await window.api.quote.add(data))
+    this._quotes.update(list => [created, ...list])
+    return created
   }
 
   async update(data: UpdateQuoteDto): Promise<QuoteDto> {
-    const res = await window.api.quote.update(data)
-    if (res.error) throw new Error(res.error.message)
-    this._quotes.update(list => list.map(q => q.id === data.id ? res.data! : q))
-    return res.data!
+    const updated = unwrap(await window.api.quote.update(data))
+    this._quotes.update(list => list.map(q => q.id === data.id ? updated : q))
+    return updated
   }
 
   async updateStatus(data: UpdateQuoteStatusDto): Promise<QuoteDto> {
-    const res = await window.api.quote.updateStatus(data)
-    if (res.error) throw new Error(res.error.message)
-    this._quotes.update(list => list.map(q => q.id === data.id ? res.data! : q))
-    return res.data!
+    const updated = unwrap(await window.api.quote.updateStatus(data))
+    this._quotes.update(list => list.map(q => q.id === data.id ? updated : q))
+    return updated
   }
 
   async remove(id: number): Promise<void> {
-    const res = await window.api.quote.remove(id)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.quote.remove(id))
     this._quotes.update(list => list.filter(q => q.id !== id))
   }
 }

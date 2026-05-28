@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core'
 import { ProjectDto, CreateProjectDto, UpdateProjectDto } from '@shared/dtos/project'
 import { FindManyArgs } from '@shared/types'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
@@ -13,34 +14,26 @@ export class ProjectService {
   async load(args?: FindManyArgs): Promise<void> {
     this._loading.set(true)
     try {
-      const res = await window.api.project.get(args)
-      if (res.error) throw new Error(res.error.message)
-      this._projects.set(res.data!.data)
+      const result = unwrap(await window.api.project.get(args))
+      this._projects.set(result.data)
     } finally {
       this._loading.set(false)
     }
   }
 
   async getById(id: number): Promise<ProjectDto | null> {
-    const res = await window.api.project.getById(id)
-    if (res.error) throw new Error(res.error.message)
-    return res.data
+    return unwrap(await window.api.project.getById(id))
   }
 
   async add(data: CreateProjectDto): Promise<ProjectDto> {
-    const res = await window.api.project.add(data)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.project.add(data))
   }
 
   async update(data: UpdateProjectDto): Promise<ProjectDto> {
-    const res = await window.api.project.update(data)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.project.update(data))
   }
 
   async remove(id: number): Promise<void> {
-    const res = await window.api.project.remove(id)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.project.remove(id))
   }
 }

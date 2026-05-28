@@ -3,58 +3,43 @@ import {
   ExpenseDto, CreateExpenseDto, UpdateExpenseDto,
   ExpenseFilter, CategoryAmountCount,
 } from '@shared/dtos/expense'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class ExpenseService {
   async getAll(filter?: ExpenseFilter): Promise<ExpenseDto[]> {
-    const res = await window.api.expense.getAll(filter)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.expense.getAll(filter))
   }
 
   async sumByCategory(): Promise<CategoryAmountCount> {
-    const res = await window.api.expense.sumByCategory()
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.expense.sumByCategory())
   }
 
   async sumDeductible(year: number): Promise<number> {
-    const res = await window.api.expense.sumDeductible({ year })
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.expense.sumDeductible({ year }))
   }
 
   async sumByMonth(year: number): Promise<number[]> {
-    const res = await window.api.expense.sumByMonth({ year })
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.expense.sumByMonth({ year }))
   }
 
   async add(data: CreateExpenseDto): Promise<ExpenseDto> {
-    const res = await window.api.expense.add(data)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.expense.add(data))
   }
 
   async update(data: UpdateExpenseDto): Promise<ExpenseDto> {
-    const res = await window.api.expense.update(data)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.expense.update(data))
   }
 
   async remove(id: number): Promise<void> {
-    const res = await window.api.expense.remove(id)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.expense.remove(id))
   }
 
   async pickReceipt(): Promise<string | null> {
-    const res = await window.api.expense.pickReceipt()
-    if (res.error) throw new Error(res.error.message)
-    return res.data ?? null
+    return unwrap(await window.api.expense.pickReceipt()) ?? null
   }
 
   async openReceipt(path: string): Promise<void> {
-    const res = await window.api.expense.openReceipt(path)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.expense.openReceipt(path))
   }
 }

@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, output } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { ProductDto } from '@shared/dtos/product'
 import { VatRateDto } from '@shared/dtos/vat-rate'
+import { DEFAULT_VAT_RATE } from '@shared/utils/vat-defaults'
 import { Button, FormField, Modal } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
@@ -45,7 +46,7 @@ export class ProductFormModal {
   readonly isEdit      = computed(() => !!this.product())
   readonly titleKey    = computed(() => this.isEdit() ? 'product.modal.editTitle' : 'product.modal.createTitle')
   readonly defaultRate = computed(() =>
-    this.vatRates().find(r => r.isDefault)?.rate ?? this.vatRates()[0]?.rate ?? 21
+    this.vatRates().find(r => r.isDefault)?.rate ?? this.vatRates()[0]?.rate ?? DEFAULT_VAT_RATE
   )
 
   get nameControl()  { return this.form.controls.name }

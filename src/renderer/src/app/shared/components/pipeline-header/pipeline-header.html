@@ -1,0 +1,21 @@
+<div class="pipeline">
+  <button
+    type="button"
+    class="pipe-chip"
+    [class.pipe-chip--on]="selected() === ''"
+    (click)="select.emit('')">
+    <span class="pipe-chip__label">{{ allLabelKey() | t }}</span>
+    <span class="pipe-chip__count">{{ totalCount() }}</span>
+  </button>
+  @for (s of statuses(); track s) {
+    <button
+      type="button"
+      class="pipe-chip"
+      [class.pipe-chip--on]="selected() === s"
+      [attr.data-status]="s"
+      (click)="select.emit(s)">
+      <span class="pipe-chip__label">{{ labelKey(s) | t }}</span>
+      <span class="pipe-chip__count">{{ count(s) }}</span>
+    </button>
+  }
+</div>

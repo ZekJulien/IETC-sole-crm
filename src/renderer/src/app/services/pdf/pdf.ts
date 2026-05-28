@@ -1,21 +1,18 @@
 import { Injectable, inject } from '@angular/core'
 import type { PdfLabels } from '@shared/dtos/pdf'
 import { I18nService } from '@app/services/i18n/i18n'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class PdfService {
   private readonly i18n = inject(I18nService)
 
   async exportInvoice(id: number): Promise<string | null> {
-    const res = await window.api.pdf.exportInvoice({ id, locale: this.i18n.locale(), labels: this.labels('invoice') })
-    if (res.error) throw new Error(res.error.message)
-    return res.data
+    return unwrap(await window.api.pdf.exportInvoice({ id, locale: this.i18n.locale(), labels: this.labels('invoice') }))
   }
 
   async exportQuote(id: number): Promise<string | null> {
-    const res = await window.api.pdf.exportQuote({ id, locale: this.i18n.locale(), labels: this.labels('quote') })
-    if (res.error) throw new Error(res.error.message)
-    return res.data
+    return unwrap(await window.api.pdf.exportQuote({ id, locale: this.i18n.locale(), labels: this.labels('quote') }))
   }
 
   private labels(kind: 'invoice' | 'quote'): PdfLabels {

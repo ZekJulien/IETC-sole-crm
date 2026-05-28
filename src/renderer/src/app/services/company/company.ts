@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core'
 import { CompanyDto, SaveCompanyInput, SavePomodoroSettingsDto } from '@shared/dtos/company'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
@@ -7,45 +8,38 @@ export class CompanyService {
   readonly company = this._company.asReadonly()
 
   async load(): Promise<void> {
-    const res = await window.api.company.get()
-    if (res.error) throw new Error(res.error.message)
-    this._company.set(res.data)
+    const company = unwrap(await window.api.company.get())
+    this._company.set(company)
   }
 
   async save(input: SaveCompanyInput): Promise<CompanyDto> {
-    const res = await window.api.company.save(input)
-    if (res.error) throw new Error(res.error.message)
-    this._company.set(res.data!)
-    return res.data!
+    const saved = unwrap(await window.api.company.save(input))
+    this._company.set(saved)
+    return saved
   }
 
   async resetInvoiceCounter(value: number): Promise<void> {
-    const res = await window.api.company.resetInvoiceCounter(value)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.company.resetInvoiceCounter(value))
     await this.load()
   }
 
   async resetQuoteCounter(value: number): Promise<void> {
-    const res = await window.api.company.resetQuoteCounter(value)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.company.resetQuoteCounter(value))
     await this.load()
   }
 
   async getDashboardNote(): Promise<string> {
-    const res = await window.api.company.get()
-    if (res.error) throw new Error(res.error.message)
-    return res.data?.settings.dashboardNote ?? ''
+    const company = unwrap(await window.api.company.get())
+    return company?.settings.dashboardNote ?? ''
   }
 
   async setDashboardNote(note: string): Promise<void> {
-    const res = await window.api.company.setDashboardNote(note)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.company.setDashboardNote(note))
     this._company.update(c => c ? { ...c, settings: { ...c.settings, dashboardNote: note } } : c)
   }
 
   async setPomodoroSettings(settings: SavePomodoroSettingsDto): Promise<void> {
-    const res = await window.api.company.setPomodoroSettings(settings)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.company.setPomodoroSettings(settings))
     this._company.update(c => c ? {
       ...c,
       settings: {

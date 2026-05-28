@@ -1,4 +1,5 @@
 import { ProjectStatus } from '@shared/dtos/project'
+import { statusKey } from '@app/utils'
 
 export const PROJECT_STATUSES: ProjectStatus[] = [
   ProjectStatus.PROSPECT,
@@ -9,5 +10,5 @@ export const PROJECT_STATUSES: ProjectStatus[] = [
 ]
 
 export function projectStatusKey(status: ProjectStatus | string): string {
-  return 'project.status.' + String(status).toLowerCase()
+  return statusKey('project.status.', status)
 }

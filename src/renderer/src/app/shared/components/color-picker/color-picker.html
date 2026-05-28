@@ -1,0 +1,14 @@
+<div class="field">
+  <label class="field__label">{{ labelKey() | t }}</label>
+  <div class="palette">
+    @for (c of palette(); track c) {
+      <button
+        type="button"
+        class="swatch"
+        [class.swatch--selected]="selected() === c"
+        [style.background-color]="c"
+        [attr.aria-label]="c"
+        (click)="pick.emit(c)"></button>
+    }
+  </div>
+</div>

@@ -9,6 +9,26 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.20.0] — 2026-05-29 — Qualité (passe 2) : helpers partagés + composants extraits + classe de base
+
+Deuxième passe de **dette technique** (suite de l'audit interne), **sans nouvelle feature, sans migration, sans changement de comportement**. Objectif : éliminer les duplications restantes signalées.
+
+### Helpers / single source of truth
+- **`formatClientName`** (`@shared/utils`) : `[firstName, name].filter(Boolean).join(' ')` était recopié dans 3 services main (quote/invoice/pdf) → 1 fonction.
+- **`DEFAULT_VAT_RATE`** (`@shared/utils`) : le fallback `?? 21` (4 sites) → 1 constante.
+- **`parseDate`** + **`statusKey`** + **`unwrap`** (`@app/utils`, renderer) : `parseDate` (2 pages) factorisé ; `statusKey(prefix, value)` générique consommé par les 6 utils `*StatusKey` ; **`unwrap<T>(IpcResponse<T>)`** remplace le motif `if (res.error) throw…` répété **85 fois** dans les **16 services** front.
+
+### Composants / classe de base extraits
+- **`PipelineHeader`** (`shared/components`) : l'en-tête pipeline (chips de statut cliquables + compteurs) était dupliqué entre `quote-list` et `invoice-list` (TS + HTML + ~45 lignes CSS identiques) → composant commun (`statuses`/`counts`/`selected`/`statusPrefix`/`allLabelKey` + output `select`).
+- **`ColorPicker`** (`shared/components`) : la grille de pastilles couleur (+ CSS `.swatch*`) dupliquée entre les modales Catégorie et Catégorie-de-dépense → composant commun (`labelKey`/`palette`/`selected` + output `pick`).
+- **`CrudSettingsPage<TDto>`** (`shared/`) : classe de base abstraite pour les 4 pages settings de référence (Catégorie/Dépense/TVA/Produit) ; factorise les 3 signals (`modalOpen`/`editing`/`confirmOpen`) + `openCreate`/`openEdit`/`closeModal`/`confirmDelete` (strictement identiques aux 4). `onSubmit`/`onSearch`/`ngOnInit` restent **par page** (divergent : Produit transforme la valeur + charge 2 stores, TVA n'a pas de recherche).
+
+### Décision assumée (anti « mauvaise abstraction »)
+- **`PageHeader` et `SettingsHeader` NON fusionnés** : `SettingsHeader` porte une barre d'onglets que `PageHeader` n'a pas → ce n'est pas une duplication mais deux responsabilités proches ; les fusionner créerait un composant fourre-tout à onglets optionnels. Laissés séparés (composition > abstraction forcée).
+- **Sécurité** : `isManagedFile` durci (`path.resolve` + frontière `sep`) contre les `..` — renforce aussi `deleteManagedFile`.
+
+> Vérifs : `tsc` main/preload OK, `build:renderer` OK (bundle initial 489 kB < budget 500, budgets CSS tenus). Net : **−170 lignes** environ malgré les nouveaux fichiers partagés.
+
 ## [0.19.0] — 2026-05-29 — Qualité : source unique des totaux (shared kernel), durcissement IPC, dédup CSS/commentaires
 
 Passe de **dette technique** post-Phase 11 (préparation soutenance), **sans nouvelle feature, sans migration**.

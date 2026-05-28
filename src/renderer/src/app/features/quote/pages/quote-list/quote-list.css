@@ -5,51 +5,6 @@
   overflow:       hidden;
 }
 
-
-.quotes-page__pipeline {
-  display:     flex;
-  align-items: center;
-  gap:         10px;
-  flex-wrap:   wrap;
-  padding:     18px 28px 0;
-}
-
-.pipe-chip {
-  display:       inline-flex;
-  align-items:   center;
-  gap:           8px;
-  height:        34px;
-  padding:       0 12px;
-  border:        1px solid var(--color-border);
-  border-radius: 99px;
-  background:    var(--color-bg-surface);
-  color:         var(--color-text-muted);
-  font-size:     13px;
-  font-weight:   600;
-  cursor:        pointer;
-  transition:    all var(--transition);
-}
-.pipe-chip:hover { border-color: var(--color-text-subtle); color: var(--color-text); }
-.pipe-chip--on   { border-color: var(--color-accent); color: var(--color-text); }
-
-.pipe-chip__count {
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
-  min-width:       20px;
-  height:          20px;
-  padding:         0 6px;
-  border-radius:   99px;
-  background:      var(--color-bg-elevated);
-  color:           var(--color-text-muted);
-  font-size:       11px;
-  font-weight:     700;
-}
-.pipe-chip--on .pipe-chip__count {
-  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
-  color:      var(--color-accent);
-}
-
 .quotes-page__content {
   flex:           1;
   min-height:     0;

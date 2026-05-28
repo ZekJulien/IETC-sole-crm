@@ -10,6 +10,7 @@ import { CompanyDto } from '@shared/dtos/company'
 import { ClientDto } from '@shared/dtos/client'
 import { resolveVatTreatment, VatTreatment } from '@shared/utils/vat-treatment'
 import { round2, lineNet } from '@shared/utils/document-totals'
+import { formatClientName } from '@shared/utils/format-client-name'
 import { renderToBuffer } from './pdf-printer'
 import { buildDocument, PdfCompanyParty, PdfLineModel, PdfModel, PdfParty } from './pdf-document'
 
@@ -134,7 +135,7 @@ export class PdfService {
 
   private clientParty(client: ClientDto): PdfParty {
     return {
-      name:          [client.firstName, client.name].filter(Boolean).join(' ') || client.name,
+      name:          formatClientName(client),
       addressLines:  addressLines(client.street, client.zipCode, client.city, client.country),
       vatNumber:     client.vatNumber,
       companyNumber: client.companyNumber,

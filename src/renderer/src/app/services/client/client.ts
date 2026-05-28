@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core'
 import { ClientDto, CreateClientDto, UpdateClientDto } from '@shared/dtos/client'
 import { FindManyArgs } from '@shared/types'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
@@ -15,36 +16,30 @@ export class ClientService {
 
   async load(args?: FindManyArgs): Promise<void> {
     this._loading.set(true)
-    const res = await window.api.client.get(args)
-    if (res.error) throw new Error(res.error.message)
-    this._clients.set(res.data!.data)
-    this._total.set(res.data!.total ?? 0)
+    const result = unwrap(await window.api.client.get(args))
+    this._clients.set(result.data)
+    this._total.set(result.total ?? 0)
     this._loading.set(false)
   }
 
   async getById(id: number): Promise<ClientDto | null> {
-    const res = await window.api.client.getById(id)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.client.getById(id))
   }
 
   async add(data: CreateClientDto): Promise<ClientDto> {
-    const res = await window.api.client.add(data)
-    if (res.error) throw new Error(res.error.message)
-    this._clients.update(list => [...list, res.data!])
-    return res.data!
+    const created = unwrap(await window.api.client.add(data))
+    this._clients.update(list => [...list, created])
+    return created
   }
 
   async update(data: UpdateClientDto): Promise<ClientDto> {
-    const res = await window.api.client.update(data)
-    if (res.error) throw new Error(res.error.message)
-    this._clients.update(list => list.map(c => c.id === data.id ? res.data! : c))
-    return res.data!
+    const updated = unwrap(await window.api.client.update(data))
+    this._clients.update(list => list.map(c => c.id === data.id ? updated : c))
+    return updated
   }
 
   async remove(id: number): Promise<void> {
-    const res = await window.api.client.remove(id)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.client.remove(id))
     this._clients.update(list => list.filter(c => c.id !== id))
   }
 }

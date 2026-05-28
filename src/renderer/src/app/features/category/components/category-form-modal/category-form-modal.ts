@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input, output } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { CategoryDto } from '@shared/dtos/category'
-import { Button, FormField, Modal } from '@app/components'
+import { Button, FormField, Modal, ColorPicker } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
 import { CATEGORY_PALETTE } from '../../utils/category-colors'
@@ -14,7 +14,7 @@ export interface CategoryFormValue {
 
 @Component({
   selector: 'app-category-form-modal',
-  imports: [ReactiveFormsModule, FormField, Button, Modal, TranslatePipe],
+  imports: [ReactiveFormsModule, FormField, Button, Modal, ColorPicker, TranslatePipe],
   templateUrl: './category-form-modal.html',
   styleUrl: './category-form-modal.css',
 })

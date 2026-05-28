@@ -1,4 +1,5 @@
 import { TaskPriority } from '@shared/dtos/task'
+import { statusKey } from '@app/utils'
 
 export const TASK_PRIORITIES: TaskPriority[] = [
   TaskPriority.LOW,
@@ -8,5 +9,5 @@ export const TASK_PRIORITIES: TaskPriority[] = [
 ]
 
 export function taskPriorityKey(priority: TaskPriority | string): string {
-  return 'task.priority.' + String(priority).toLowerCase()
+  return statusKey('task.priority.', priority)
 }

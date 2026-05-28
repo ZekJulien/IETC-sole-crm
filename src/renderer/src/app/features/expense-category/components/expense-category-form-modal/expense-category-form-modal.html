@@ -5,20 +5,11 @@
       [control]="nameControl"
       [placeholder]="'expenseCategory.namePlaceholder' | t" />
 
-    <div class="field">
-      <label class="field__label">{{ 'expenseCategory.color' | t }}</label>
-      <div class="palette">
-        @for (c of palette; track c) {
-          <button
-            type="button"
-            class="swatch"
-            [class.swatch--selected]="currentColor() === c"
-            [style.background-color]="c"
-            [attr.aria-label]="c"
-            (click)="selectColor(c)"></button>
-        }
-      </div>
-    </div>
+    <app-color-picker
+      labelKey="expenseCategory.color"
+      [palette]="palette"
+      [selected]="currentColor()"
+      (pick)="selectColor($event)" />
 
     <div class="toggle-row">
       <div class="toggle-row__text">

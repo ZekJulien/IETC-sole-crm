@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { LucidePackage, LucidePlus } from '@lucide/angular'
 import { ProductDto } from '@shared/dtos/product'
 import { ProductStore } from '@app/stores/product'
@@ -7,6 +7,7 @@ import { Button, SearchBar, DataTable, ConfirmDialog } from '@app/components'
 import { TableColumn } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
+import { CrudSettingsPage } from '../../../../shared/crud-settings-page'
 import { ProductFormModal, ProductFormValue } from '../../components'
 import { SettingsHeader } from '../../../settings/settings-header/settings-header'
 
@@ -16,15 +17,11 @@ import { SettingsHeader } from '../../../settings/settings-header/settings-heade
   templateUrl: './product-settings.html',
   styleUrl: './product-settings.css',
 })
-export class ProductSettings implements OnInit {
+export class ProductSettings extends CrudSettingsPage<ProductDto> implements OnInit {
   readonly store    = inject(ProductStore)
   readonly vatRates = inject(VatRateStore)
   readonly ButtonVariant = ButtonVariant
   readonly headerIcon = LucidePackage
-
-  readonly modalOpen   = signal(false)
-  readonly editing     = signal<ProductDto | null>(null)
-  readonly confirmOpen = signal(false)
 
   readonly columns: TableColumn<ProductDto>[] = [
     { key: 'name',      labelKey: 'product.name',         sortable: true },
@@ -41,21 +38,6 @@ export class ProductSettings implements OnInit {
     this.store.load(term ? { search: term } : undefined)
   }
 
-  openCreate(): void {
-    this.editing.set(null)
-    this.modalOpen.set(true)
-  }
-
-  openEdit(product: ProductDto): void {
-    this.editing.set(product)
-    this.modalOpen.set(true)
-  }
-
-  closeModal(): void {
-    this.modalOpen.set(false)
-    this.editing.set(null)
-  }
-
   async onSubmit(value: ProductFormValue): Promise<void> {
     const payload = {
       name:        value.name,
@@ -69,12 +51,5 @@ export class ProductSettings implements OnInit {
       ? await this.store.update({ id: editing.id, ...payload })
       : await this.store.add(payload)
     if (result) this.closeModal()
-  }
-
-  async confirmDelete(): Promise<void> {
-    const editing = this.editing()
-    if (editing) await this.store.remove(editing.id)
-    this.confirmOpen.set(false)
-    this.closeModal()
   }
 }

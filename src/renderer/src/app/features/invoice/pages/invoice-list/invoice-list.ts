@@ -4,11 +4,11 @@ import { LucidePlus, LucideReceiptEuro } from '@lucide/angular'
 import { InvoiceStatus } from '@shared/dtos/invoice'
 import { InvoiceStore } from '@app/stores/invoice'
 import { ClientStore } from '@app/stores/client/client-store'
-import { Button, SearchBar, DataTable, PageHeader } from '@app/components'
+import { Button, SearchBar, DataTable, PageHeader, PipelineHeader } from '@app/components'
 import { TableColumn } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
-import { INVOICE_STATUSES, invoiceStatusKey } from '../../utils/invoice-status'
+import { INVOICE_STATUSES } from '../../utils/invoice-status'
 
 interface InvoiceRow {
   id:         number
@@ -23,7 +23,7 @@ interface InvoiceRow {
 
 @Component({
   selector: 'app-invoice-list',
-  imports: [SearchBar, DataTable, Button, PageHeader, TranslatePipe, LucidePlus],
+  imports: [SearchBar, DataTable, Button, PageHeader, PipelineHeader, TranslatePipe, LucidePlus],
   templateUrl: './invoice-list.html',
   styleUrl: './invoice-list.css',
 })
@@ -36,19 +36,10 @@ export class InvoiceList implements OnInit {
 
   readonly ButtonVariant  = ButtonVariant
   readonly statuses       = INVOICE_STATUSES
-  readonly statusKey      = invoiceStatusKey
 
   readonly searchTerm   = signal<string>('')
   readonly statusFilter = signal<InvoiceStatus | ''>('')
   readonly clientFilter = signal<number | null>(null)
-
-  readonly totalCount = computed(() =>
-    Object.values(this.store.counts()).reduce((sum, n) => sum + n, 0)
-  )
-
-  count(status: InvoiceStatus): number {
-    return this.store.counts()[status] ?? 0
-  }
 
   readonly rows = computed<InvoiceRow[]>(() =>
     this.store.invoices().map(i => ({
@@ -82,8 +73,8 @@ export class InvoiceList implements OnInit {
     this.reload()
   }
 
-  selectStatus(status: InvoiceStatus | ''): void {
-    this.statusFilter.set(status)
+  selectStatus(status: string): void {
+    this.statusFilter.set(status as InvoiceStatus | '')
     this.reload()
   }
 

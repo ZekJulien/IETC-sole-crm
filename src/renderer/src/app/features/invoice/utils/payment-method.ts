@@ -1,4 +1,5 @@
 import { PaymentMethod } from '@shared/dtos/invoice'
+import { statusKey } from '@app/utils'
 
 export const PAYMENT_METHODS: PaymentMethod[] = [
   PaymentMethod.TRANSFER,
@@ -8,5 +9,5 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
 ]
 
 export function paymentMethodKey(method: PaymentMethod | string): string {
-  return 'invoice.method.' + String(method).toLowerCase()
+  return statusKey('invoice.method.', method)
 }

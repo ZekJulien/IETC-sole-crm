@@ -8,7 +8,7 @@ import { Button, DataTable, ConfirmDialog, PageHeader } from '@app/components'
 import { TableColumn, TableTag } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
-import { formatCurrency } from '@app/utils'
+import { formatCurrency, parseDate } from '@app/utils'
 import { ExpenseFormModal, ExpenseFormValue } from '../../components/expense-form-modal/expense-form-modal'
 
 interface ExpenseRow {
@@ -96,7 +96,7 @@ export class ExpenseList implements OnInit {
   }
 
   async submit(value: ExpenseFormValue): Promise<void> {
-    const date = value.date ? this.parseDate(value.date) : undefined
+    const date = value.date ? parseDate(value.date) : undefined
     const notes = value.notes.trim() || null
     const editing = this.editing()
     if (editing) {
@@ -136,14 +136,9 @@ export class ExpenseList implements OnInit {
   private applyFilter(): void {
     const filter: ExpenseFilter = {
       expenseCategoryId: this.categoryFilter() ?? undefined,
-      from: this.fromDate() ? this.parseDate(this.fromDate()) : undefined,
-      to:   this.toDate()   ? this.parseDate(this.toDate())   : undefined,
+      from: this.fromDate() ? parseDate(this.fromDate()) : undefined,
+      to:   this.toDate()   ? parseDate(this.toDate())   : undefined,
     }
     this.store.load(filter)
-  }
-
-  private parseDate(value: string): Date {
-    const [y, m, d] = value.split('-').map(Number)
-    return new Date(y, m - 1, d)
   }
 }

@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, output } from '@angular/core'
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { VatRateDto } from '@shared/dtos/vat-rate'
+import { DEFAULT_VAT_RATE } from '@shared/utils/vat-defaults'
 import { Button, FormField, Modal, Switch } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
@@ -49,7 +50,7 @@ export class VatRateFormModal {
       const r = this.vatRate()
       this.form.reset({
         label:     r?.label     ?? '',
-        rate:      r?.rate      ?? 21,
+        rate:      r?.rate      ?? DEFAULT_VAT_RATE,
         isDefault: r?.isDefault ?? false,
       })
     })

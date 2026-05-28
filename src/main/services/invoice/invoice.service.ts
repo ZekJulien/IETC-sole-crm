@@ -10,6 +10,7 @@ import {
   InvoiceSumByMonthDto,
 } from '@shared/dtos/invoice'
 import { round2, lineNet, computeDocumentTotals } from '@shared/utils/document-totals'
+import { formatClientName } from '@shared/utils/format-client-name'
 
 function toLineData(line: InvoiceLineInput): InvoiceLineData {
   return {
@@ -185,7 +186,7 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
       status:       inv.status as InvoiceStatus,
       notes:        inv.notes,
       clientId:     inv.clientId,
-      clientName:   [inv.client.firstName, inv.client.name].filter(Boolean).join(' '),
+      clientName:   formatClientName(inv.client),
       projectId:    inv.projectId,
       projectName:  inv.project?.name ?? null,
       quoteId:      inv.quoteId,

@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core'
 import { ExpenseCategoryDto, CreateExpenseCategoryDto, UpdateExpenseCategoryDto } from '@shared/dtos/expense-category'
 import { FindManyArgs } from '@shared/types'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class ExpenseCategoryService {
@@ -13,29 +14,25 @@ export class ExpenseCategoryService {
 
   async load(args?: FindManyArgs): Promise<void> {
     this._loading.set(true)
-    const res = await window.api.expenseCategory.get(args)
-    if (res.error) throw new Error(res.error.message)
-    this._categories.set(res.data!.data)
+    const result = unwrap(await window.api.expenseCategory.get(args))
+    this._categories.set(result.data)
     this._loading.set(false)
   }
 
   async add(data: CreateExpenseCategoryDto): Promise<ExpenseCategoryDto> {
-    const res = await window.api.expenseCategory.add(data)
-    if (res.error) throw new Error(res.error.message)
-    this._categories.update(list => [...list, res.data!])
-    return res.data!
+    const created = unwrap(await window.api.expenseCategory.add(data))
+    this._categories.update(list => [...list, created])
+    return created
   }
 
   async update(data: UpdateExpenseCategoryDto): Promise<ExpenseCategoryDto> {
-    const res = await window.api.expenseCategory.update(data)
-    if (res.error) throw new Error(res.error.message)
-    this._categories.update(list => list.map(c => c.id === data.id ? res.data! : c))
-    return res.data!
+    const updated = unwrap(await window.api.expenseCategory.update(data))
+    this._categories.update(list => list.map(c => c.id === data.id ? updated : c))
+    return updated
   }
 
   async remove(id: number): Promise<void> {
-    const res = await window.api.expenseCategory.remove(id)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.expenseCategory.remove(id))
     this._categories.update(list => list.filter(c => c.id !== id))
   }
 }

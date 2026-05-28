@@ -7,6 +7,7 @@ import {
   QuoteStatus, QuoteStatusCount, QuoteLineInput,
 } from '@shared/dtos/quote'
 import { round2, lineNet, computeDocumentTotals } from '@shared/utils/document-totals'
+import { formatClientName } from '@shared/utils/format-client-name'
 
 function toLineData(line: QuoteLineInput): QuoteLineData {
   return {
@@ -96,7 +97,7 @@ export class QuoteService extends BaseService<QuoteWithRelations, QuoteDto> {
       status:       q.status as QuoteStatus,
       notes:        q.notes,
       clientId:     q.clientId,
-      clientName:   [q.client.firstName, q.client.name].filter(Boolean).join(' '),
+      clientName:   formatClientName(q.client),
       projectId:    q.projectId,
       projectName:  q.project?.name ?? null,
       lines,

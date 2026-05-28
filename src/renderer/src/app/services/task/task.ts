@@ -1,40 +1,30 @@
 import { Injectable } from '@angular/core'
 import { TaskDto, CreateTaskDto, UpdateTaskDto, TaskStatusCount } from '@shared/dtos/task'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
   async getByProject(projectId: number): Promise<TaskDto[]> {
-    const res = await window.api.task.getByProject(projectId)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.task.getByProject(projectId))
   }
 
   async countByStatus(projectId: number): Promise<TaskStatusCount> {
-    const res = await window.api.task.countByStatus(projectId)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.task.countByStatus(projectId))
   }
 
   async add(data: CreateTaskDto): Promise<TaskDto> {
-    const res = await window.api.task.add(data)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.task.add(data))
   }
 
   async update(data: UpdateTaskDto): Promise<TaskDto> {
-    const res = await window.api.task.update(data)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.task.update(data))
   }
 
   async toggleStatus(id: number): Promise<TaskDto> {
-    const res = await window.api.task.toggleStatus(id)
-    if (res.error) throw new Error(res.error.message)
-    return res.data!
+    return unwrap(await window.api.task.toggleStatus(id))
   }
 
   async remove(id: number): Promise<void> {
-    const res = await window.api.task.remove(id)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.task.remove(id))
   }
 }

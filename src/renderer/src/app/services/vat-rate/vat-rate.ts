@@ -1,6 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core'
 import { VatRateDto, CreateVatRateDto, UpdateVatRateDto } from '@shared/dtos/vat-rate'
 import { FindManyArgs } from '@shared/types'
+import { DEFAULT_VAT_RATE } from '@shared/utils/vat-defaults'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class VatRateService {
@@ -10,29 +12,24 @@ export class VatRateService {
   readonly items       = this._items.asReadonly()
   readonly loading     = this._loading.asReadonly()
   readonly defaultRate = computed(() =>
-    this._items().find(r => r.isDefault)?.rate ?? this._items()[0]?.rate ?? 21
+    this._items().find(r => r.isDefault)?.rate ?? this._items()[0]?.rate ?? DEFAULT_VAT_RATE
   )
 
   async load(args?: FindManyArgs): Promise<void> {
     this._loading.set(true)
-    const res = await window.api.vatRate.get(args)
-    if (res.error) throw new Error(res.error.message)
-    this._items.set(res.data!.data)
+    const result = unwrap(await window.api.vatRate.get(args))
+    this._items.set(result.data)
     this._loading.set(false)
   }
 
   async add(data: CreateVatRateDto): Promise<VatRateDto> {
-    const res = await window.api.vatRate.add(data)
-    if (res.error) throw new Error(res.error.message)
-    const created = res.data!
+    const created = unwrap(await window.api.vatRate.add(data))
     this._items.update(list => [...this.clearOtherDefaults(list, created), created])
     return created
   }
 
   async update(data: UpdateVatRateDto): Promise<VatRateDto> {
-    const res = await window.api.vatRate.update(data)
-    if (res.error) throw new Error(res.error.message)
-    const updated = res.data!
+    const updated = unwrap(await window.api.vatRate.update(data))
     this._items.update(list =>
       this.clearOtherDefaults(list, updated).map(r => r.id === updated.id ? updated : r)
     )
@@ -40,8 +37,7 @@ export class VatRateService {
   }
 
   async remove(id: number): Promise<void> {
-    const res = await window.api.vatRate.remove(id)
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.vatRate.remove(id))
     this._items.update(list => list.filter(r => r.id !== id))
   }
 

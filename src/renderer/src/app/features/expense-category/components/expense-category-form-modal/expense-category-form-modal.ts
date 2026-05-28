@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input, output } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ExpenseCategoryDto } from '@shared/dtos/expense-category'
-import { Button, FormField, Modal, Switch } from '@app/components'
+import { Button, FormField, Modal, Switch, ColorPicker } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
 import { EXPENSE_CATEGORY_PALETTE } from '../../utils/expense-category-colors'
@@ -15,7 +15,7 @@ export interface ExpenseCategoryFormValue {
 
 @Component({
   selector: 'app-expense-category-form-modal',
-  imports: [ReactiveFormsModule, FormField, Button, Modal, Switch, TranslatePipe],
+  imports: [ReactiveFormsModule, FormField, Button, Modal, Switch, ColorPicker, TranslatePipe],
   templateUrl: './expense-category-form-modal.html',
   styleUrl: './expense-category-form-modal.css',
 })

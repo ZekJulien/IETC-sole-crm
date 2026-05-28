@@ -1,19 +1,17 @@
 import { Injectable } from '@angular/core'
+import { unwrap } from '@app/utils'
 
 @Injectable({ providedIn: 'root' })
 export class SeedService {
   async requiredDefaults(): Promise<void> {
-    const res = await window.api.seed.requiredDefaults()
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.seed.requiredDefaults())
   }
 
   async demo(): Promise<void> {
-    const res = await window.api.seed.demo()
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.seed.demo())
   }
 
   async reset(): Promise<void> {
-    const res = await window.api.seed.reset()
-    if (res.error) throw new Error(res.error.message)
+    unwrap(await window.api.seed.reset())
   }
 }

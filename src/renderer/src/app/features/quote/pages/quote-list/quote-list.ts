@@ -4,12 +4,12 @@ import { LucidePlus, LucideFileText } from '@lucide/angular'
 import { QuoteStatus } from '@shared/dtos/quote'
 import { QuoteStore } from '@app/stores/quote'
 import { ClientStore } from '@app/stores/client/client-store'
-import { Button, SearchBar, DataTable, PageHeader } from '@app/components'
+import { Button, SearchBar, DataTable, PageHeader, PipelineHeader } from '@app/components'
 import { TableColumn } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
 import { formatCurrency } from '@app/utils'
-import { QUOTE_STATUSES, quoteStatusKey } from '../../utils/quote-status'
+import { QUOTE_STATUSES } from '../../utils/quote-status'
 
 interface QuoteRow {
   id:         number
@@ -23,7 +23,7 @@ interface QuoteRow {
 
 @Component({
   selector: 'app-quote-list',
-  imports: [SearchBar, DataTable, Button, PageHeader, TranslatePipe, LucidePlus],
+  imports: [SearchBar, DataTable, Button, PageHeader, PipelineHeader, TranslatePipe, LucidePlus],
   templateUrl: './quote-list.html',
   styleUrl: './quote-list.css',
 })
@@ -37,19 +37,10 @@ export class QuoteList implements OnInit {
   readonly ButtonVariant  = ButtonVariant
   readonly formatCurrency = formatCurrency
   readonly statuses       = QUOTE_STATUSES
-  readonly statusKey      = quoteStatusKey
 
   readonly searchTerm   = signal<string>('')
   readonly statusFilter = signal<QuoteStatus | ''>('')
   readonly clientFilter = signal<number | null>(null)
-
-  readonly totalCount = computed(() =>
-    Object.values(this.store.counts()).reduce((sum, n) => sum + n, 0)
-  )
-
-  count(status: QuoteStatus): number {
-    return this.store.counts()[status] ?? 0
-  }
 
   readonly rows = computed<QuoteRow[]>(() =>
     this.store.quotes().map(q => ({
@@ -81,8 +72,8 @@ export class QuoteList implements OnInit {
     this.reload()
   }
 
-  selectStatus(status: QuoteStatus | ''): void {
-    this.statusFilter.set(status)
+  selectStatus(status: string): void {
+    this.statusFilter.set(status as QuoteStatus | '')
     this.reload()
   }
 

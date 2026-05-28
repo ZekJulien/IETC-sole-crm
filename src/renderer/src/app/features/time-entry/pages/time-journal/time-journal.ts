@@ -9,6 +9,7 @@ import { Button, ConfirmDialog, PageHeader } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
 import { AppRoutes } from '@app/core/routes/app-routes.const'
+import { parseDate } from '@app/utils'
 import { formatDuration } from '../../utils/format-duration'
 import { TimeEntryList } from '../../components/time-entry-list/time-entry-list'
 import { TimeEntryFormModal, TimeEntryFormValue } from '../../components/time-entry-form-modal/time-entry-form-modal'
@@ -79,7 +80,7 @@ export class TimeJournal implements OnInit {
   }
 
   async submit(value: TimeEntryFormValue): Promise<void> {
-    const date = value.date ? this.parseDate(value.date) : undefined
+    const date = value.date ? parseDate(value.date) : undefined
     const desc = value.description.trim()
     const editing = this.editing()
     if (editing) {
@@ -115,14 +116,9 @@ export class TimeJournal implements OnInit {
   private applyFilter(): void {
     const filter: TimeEntryFilter = {
       projectId: this.filterProjectId() ?? undefined,
-      from:      this.fromDate() ? this.parseDate(this.fromDate()) : undefined,
-      to:        this.toDate()   ? this.parseDate(this.toDate())   : undefined,
+      from:      this.fromDate() ? parseDate(this.fromDate()) : undefined,
+      to:        this.toDate()   ? parseDate(this.toDate())   : undefined,
     }
     this.store.load(filter)
-  }
-
-  private parseDate(value: string): Date {
-    const [y, m, d] = value.split('-').map(Number)
-    return new Date(y, m - 1, d)
   }
 }

@@ -1,4 +1,5 @@
 import { QuoteStatus } from '@shared/dtos/quote'
+import { statusKey } from '@app/utils'
 
 export const QUOTE_STATUSES: QuoteStatus[] = [
   QuoteStatus.DRAFT,
@@ -9,5 +10,5 @@ export const QUOTE_STATUSES: QuoteStatus[] = [
 ]
 
 export function quoteStatusKey(status: QuoteStatus | string): string {
-  return 'quote.status.' + String(status).toLowerCase()
+  return statusKey('quote.status.', status)
 }

@@ -1,4 +1,5 @@
 import { TaskDto, TaskStatus } from '@shared/dtos/task'
+import { statusKey } from '@app/utils'
 
 export const TASK_STATUSES: TaskStatus[] = [
   TaskStatus.TODO,
@@ -8,7 +9,7 @@ export const TASK_STATUSES: TaskStatus[] = [
 ]
 
 export function taskStatusKey(status: TaskStatus | string): string {
-  return 'task.status.' + String(status).toLowerCase()
+  return statusKey('task.status.', status)
 }
 
 export function isTaskOverdue(task: TaskDto): boolean {

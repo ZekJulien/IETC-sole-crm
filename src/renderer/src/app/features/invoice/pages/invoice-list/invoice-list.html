@@ -6,27 +6,13 @@
     </app-button>
   </app-page-header>
 
-  <div class="invoices-page__pipeline">
-    <button
-      type="button"
-      class="pipe-chip"
-      [class.pipe-chip--on]="statusFilter() === ''"
-      (click)="selectStatus('')">
-      <span class="pipe-chip__label">{{ 'invoice.filter.allStatuses' | t }}</span>
-      <span class="pipe-chip__count">{{ totalCount() }}</span>
-    </button>
-    @for (s of statuses; track s) {
-      <button
-        type="button"
-        class="pipe-chip"
-        [class.pipe-chip--on]="statusFilter() === s"
-        [attr.data-status]="s"
-        (click)="selectStatus(s)">
-        <span class="pipe-chip__label">{{ statusKey(s) | t }}</span>
-        <span class="pipe-chip__count">{{ count(s) }}</span>
-      </button>
-    }
-  </div>
+  <app-pipeline-header
+    [statuses]="statuses"
+    [counts]="store.counts()"
+    [selected]="statusFilter()"
+    statusPrefix="invoice.status."
+    allLabelKey="invoice.filter.allStatuses"
+    (select)="selectStatus($event)" />
 
   <div class="invoices-page__content">
     <div class="invoices-page__filters">

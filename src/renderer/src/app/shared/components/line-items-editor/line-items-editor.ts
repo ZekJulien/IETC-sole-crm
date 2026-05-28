@@ -4,6 +4,7 @@ import { LucidePlus, LucideTrash2 } from '@lucide/angular'
 import { VatRateDto } from '@shared/dtos/vat-rate'
 import { ProductDto } from '@shared/dtos/product'
 import { lineNet } from '@shared/utils/document-totals'
+import { DEFAULT_VAT_RATE } from '@shared/utils/vat-defaults'
 import { Combobox } from '../combobox'
 import { TranslatePipe } from '../../pipes/translate-pipe'
 import { formatCurrency } from '../../utils'
@@ -21,7 +22,7 @@ export interface LineItemValue {
 export function buildLineGroup(
   fb: FormBuilder,
   line?: Partial<LineItemValue>,
-  defaultRate = 21,
+  defaultRate = DEFAULT_VAT_RATE,
 ): FormGroup {
   return fb.group({
     id:          [line?.id ?? null as number | null],
@@ -52,7 +53,7 @@ export class LineItemsEditor {
   readonly formatCurrency = formatCurrency
 
   readonly productNames = computed(() => this.products().map(p => p.name))
-  readonly defaultRate  = computed(() => this.vatRates().find(v => v.isDefault)?.rate ?? 21)
+  readonly defaultRate  = computed(() => this.vatRates().find(v => v.isDefault)?.rate ?? DEFAULT_VAT_RATE)
 
   addLine(): void {
     this.lines().push(buildLineGroup(this.fb, undefined, this.defaultRate()))

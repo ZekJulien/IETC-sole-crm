@@ -1,4 +1,5 @@
 import { InvoiceStatus } from '@shared/dtos/invoice'
+import { statusKey } from '@app/utils'
 
 export const INVOICE_STATUSES: InvoiceStatus[] = [
   InvoiceStatus.DRAFT,
@@ -9,5 +10,5 @@ export const INVOICE_STATUSES: InvoiceStatus[] = [
 ]
 
 export function invoiceStatusKey(status: InvoiceStatus | string): string {
-  return 'invoice.status.' + String(status).toLowerCase()
+  return statusKey('invoice.status.', status)
 }
