@@ -24,9 +24,10 @@ export interface TaskFormValue {
 export class TaskFormModal {
   private readonly fb = inject(FormBuilder)
 
-  readonly open   = input<boolean>(false)
-  readonly task   = input<TaskDto | null>(null)
-  readonly saving = input<boolean>(false)
+  readonly open          = input<boolean>(false)
+  readonly task          = input<TaskDto | null>(null)
+  readonly initialStatus = input<TaskStatus>(TaskStatus.TODO)
+  readonly saving        = input<boolean>(false)
 
   readonly submitted = output<TaskFormValue>()
   readonly cancelled = output<void>()
@@ -59,7 +60,7 @@ export class TaskFormModal {
       this.form.reset({
         title:       t?.title       ?? '',
         description: t?.description  ?? '',
-        status:      t?.status       ?? TaskStatus.TODO,
+        status:      t?.status       ?? this.initialStatus(),
         priority:    t?.priority     ?? TaskPriority.MEDIUM,
         dueDate:     this.toDateInput(t?.dueDate ?? null),
       })

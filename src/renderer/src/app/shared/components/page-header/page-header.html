@@ -1,18 +1,16 @@
 <header class="page-header">
-  @if (title()) {
-    <h2 class="page-header__title">{{ title() }}</h2>
-  }
+  <div class="page-header__heading">
+    @if (icon()) {
+      <span class="page-header__icon"><ng-container [ngComponentOutlet]="icon()" /></span>
+    }
+    <div class="page-header__text">
+      <h2 class="page-header__title">{{ title() | t }}</h2>
+      @if (subtitle()) {
+        <p class="page-header__subtitle">{{ subtitle() | t }}</p>
+      }
+    </div>
+  </div>
   <div class="page-header__actions">
     <ng-content />
-    @if (viewMode()) {
-      <div class="view-toggle">
-        <button class="view-toggle__btn" [class.view-toggle__btn--active]="viewMode() === 'inbox'" (click)="viewChange.emit('inbox')">
-          <svg lucideLayoutList [size]="15" />
-        </button>
-        <button class="view-toggle__btn" [class.view-toggle__btn--active]="viewMode() === 'table'" (click)="viewChange.emit('table')">
-          <svg lucideTable2 [size]="15" />
-        </button>
-      </div>
-    }
   </div>
 </header>

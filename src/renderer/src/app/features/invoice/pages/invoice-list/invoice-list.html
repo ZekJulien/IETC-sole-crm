@@ -1,24 +1,10 @@
 <section class="invoices-page">
-  <header class="invoices-page__header">
-    <div class="invoices-page__heading">
-      <h1 class="invoices-page__title">{{ 'invoice.title' | t }}</h1>
-      <p class="invoices-page__subtitle">{{ 'invoice.subtitle' | t }}</p>
-    </div>
-    <div class="invoices-page__stats">
-      <div class="stat stat--accent">
-        <span class="stat__label">{{ 'invoice.stats.unpaid' | t }}</span>
-        <strong class="stat__value">{{ formatCurrency(store.stats().unpaid) }}</strong>
-      </div>
-      <div class="stat">
-        <span class="stat__label">{{ 'invoice.stats.revenueMonth' | t }}</span>
-        <strong class="stat__value">{{ formatCurrency(store.stats().revenueThisMonth) }}</strong>
-      </div>
-      <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
-        <svg lucidePlus [size]="15" />
-        {{ 'invoice.new' | t }}
-      </app-button>
-    </div>
-  </header>
+  <app-page-header [icon]="headerIcon" title="invoice.title" subtitle="invoice.subtitle">
+    <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+      <svg lucidePlus [size]="15" />
+      {{ 'invoice.new' | t }}
+    </app-button>
+  </app-page-header>
 
   <div class="invoices-page__pipeline">
     <button

@@ -5,19 +5,6 @@
   overflow: hidden;
 }
 
-.time-page__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 24px 28px 0;
-}
-
-.time-page__header-actions { display: flex; align-items: center; gap: 10px; }
-.time-page__heading { display: flex; align-items: center; gap: 12px; }
-.time-page__icon { color: var(--color-accent); }
-.time-page__title { font-size: 20px; font-weight: 700; color: var(--color-text); }
-.time-page__subtitle { margin-top: 2px; font-size: 13px; color: var(--color-text-muted); }
 
 .time-page__empty {
   flex: 1;

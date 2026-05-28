@@ -1,11 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { Router } from '@angular/router'
-import { LucidePlus } from '@lucide/angular'
+import { LucidePlus, LucideFolderKanban } from '@lucide/angular'
 import { ProjectStatus } from '@shared/dtos/project'
 import { ProjectStore } from '@app/stores/project'
 import { ClientStore } from '@app/stores/client/client-store'
 import { CategoryStore } from '@app/stores/category'
-import { Button, SearchBar, DataTable } from '@app/components'
+import { Button, SearchBar, DataTable, PageHeader } from '@app/components'
 import { TableColumn, TableTag } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
@@ -24,7 +24,7 @@ interface ProjectRow {
 
 @Component({
   selector: 'app-project-list',
-  imports: [SearchBar, DataTable, Button, TranslatePipe, LucidePlus],
+  imports: [SearchBar, DataTable, Button, PageHeader, TranslatePipe, LucidePlus],
   templateUrl: './project-list.html',
   styleUrl: './project-list.css',
 })
@@ -34,6 +34,7 @@ export class ProjectList implements OnInit {
   readonly clients    = inject(ClientStore)
   readonly categories = inject(CategoryStore)
 
+  readonly headerIcon    = LucideFolderKanban
   readonly ButtonVariant = ButtonVariant
   readonly statuses      = PROJECT_STATUSES
   readonly statusKey     = projectStatusKey

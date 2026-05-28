@@ -1,14 +1,10 @@
 <section class="projects-page">
-  <header class="projects-page__header">
-    <div class="projects-page__heading">
-      <h1 class="projects-page__title">{{ 'project.title' | t }}</h1>
-      <p class="projects-page__subtitle">{{ 'project.subtitle' | t }}</p>
-    </div>
+  <app-page-header [icon]="headerIcon" title="project.title" subtitle="project.subtitle">
     <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
       <svg lucidePlus [size]="15" />
       {{ 'project.new' | t }}
     </app-button>
-  </header>
+  </app-page-header>
 
   <div class="projects-page__content">
     <div class="projects-page__filters">

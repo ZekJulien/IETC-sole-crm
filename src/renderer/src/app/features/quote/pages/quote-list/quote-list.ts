@@ -1,10 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { Router } from '@angular/router'
-import { LucidePlus } from '@lucide/angular'
+import { LucidePlus, LucideFileText } from '@lucide/angular'
 import { QuoteStatus } from '@shared/dtos/quote'
 import { QuoteStore } from '@app/stores/quote'
 import { ClientStore } from '@app/stores/client/client-store'
-import { Button, SearchBar, DataTable } from '@app/components'
+import { Button, SearchBar, DataTable, PageHeader } from '@app/components'
 import { TableColumn } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
@@ -23,11 +23,13 @@ interface QuoteRow {
 
 @Component({
   selector: 'app-quote-list',
-  imports: [SearchBar, DataTable, Button, TranslatePipe, LucidePlus],
+  imports: [SearchBar, DataTable, Button, PageHeader, TranslatePipe, LucidePlus],
   templateUrl: './quote-list.html',
   styleUrl: './quote-list.css',
 })
 export class QuoteList implements OnInit {
+  readonly headerIcon = LucideFileText
+
   private readonly router = inject(Router)
   readonly store   = inject(QuoteStore)
   readonly clients = inject(ClientStore)

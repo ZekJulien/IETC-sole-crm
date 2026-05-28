@@ -1,4 +1,9 @@
 :host {
+  display: block;
+  height:  100%;
+}
+
+.settings-layout {
   display:        flex;
   flex-direction: column;
   height:         100%;

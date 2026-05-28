@@ -1,14 +1,13 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { Router } from '@angular/router'
-import { LucidePlus } from '@lucide/angular'
+import { LucidePlus, LucideReceiptEuro } from '@lucide/angular'
 import { InvoiceStatus } from '@shared/dtos/invoice'
 import { InvoiceStore } from '@app/stores/invoice'
 import { ClientStore } from '@app/stores/client/client-store'
-import { Button, SearchBar, DataTable } from '@app/components'
+import { Button, SearchBar, DataTable, PageHeader } from '@app/components'
 import { TableColumn } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
-import { formatCurrency } from '@app/utils'
 import { INVOICE_STATUSES, invoiceStatusKey } from '../../utils/invoice-status'
 
 interface InvoiceRow {
@@ -24,17 +23,18 @@ interface InvoiceRow {
 
 @Component({
   selector: 'app-invoice-list',
-  imports: [SearchBar, DataTable, Button, TranslatePipe, LucidePlus],
+  imports: [SearchBar, DataTable, Button, PageHeader, TranslatePipe, LucidePlus],
   templateUrl: './invoice-list.html',
   styleUrl: './invoice-list.css',
 })
 export class InvoiceList implements OnInit {
+  readonly headerIcon = LucideReceiptEuro
+
   private readonly router = inject(Router)
   readonly store   = inject(InvoiceStore)
   readonly clients = inject(ClientStore)
 
   readonly ButtonVariant  = ButtonVariant
-  readonly formatCurrency = formatCurrency
   readonly statuses       = INVOICE_STATUSES
   readonly statusKey      = invoiceStatusKey
 

@@ -1,25 +1,16 @@
 <section class="time-page">
-  <header class="time-page__header">
-    <div class="time-page__heading">
-      <svg lucideClock [size]="22" class="time-page__icon" />
-      <div>
-        <h1 class="time-page__title">{{ 'time.pageTitle' | t }}</h1>
-        <p class="time-page__subtitle">{{ 'time.pageSubtitle' | t }}</p>
-      </div>
-    </div>
+  <app-page-header [icon]="headerIcon" title="time.pageTitle" subtitle="time.pageSubtitle">
     @if (hasProjects()) {
-      <div class="time-page__header-actions">
-        <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="pomodoro.openPanel()">
-          <svg lucideTimer [size]="15" />
-          {{ 'time.view.pomodoro' | t }}
-        </app-button>
-        <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
-          <svg lucidePlus [size]="15" />
-          {{ 'time.new' | t }}
-        </app-button>
-      </div>
+      <app-button [variant]="ButtonVariant.OUTLINE" (clicked)="pomodoro.openPanel()">
+        <svg lucideTimer [size]="15" />
+        {{ 'time.view.pomodoro' | t }}
+      </app-button>
+      <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
+        <svg lucidePlus [size]="15" />
+        {{ 'time.new' | t }}
+      </app-button>
     }
-  </header>
+  </app-page-header>
 
   @if (!hasProjects()) {
     <div class="time-page__empty">

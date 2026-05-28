@@ -208,6 +208,7 @@ body {
   box-shadow:   0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
 }
 
+.app-shell__anim > :not(router-outlet),
 .settings-layout__content > :not(router-outlet) {
   display:    block;
   height:     100%;

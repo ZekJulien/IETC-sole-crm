@@ -1,14 +1,10 @@
 <section class="quotes-page">
-  <header class="quotes-page__header">
-    <div class="quotes-page__heading">
-      <h1 class="quotes-page__title">{{ 'quote.title' | t }}</h1>
-      <p class="quotes-page__subtitle">{{ 'quote.subtitle' | t }}</p>
-    </div>
+  <app-page-header [icon]="headerIcon" title="quote.title" subtitle="quote.subtitle">
     <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
       <svg lucidePlus [size]="15" />
       {{ 'quote.new' | t }}
     </app-button>
-  </header>
+  </app-page-header>
 
   <div class="quotes-page__pipeline">
     <button

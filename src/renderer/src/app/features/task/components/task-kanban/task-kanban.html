@@ -5,6 +5,9 @@
         <span class="kanban-col__dot"></span>
         <span class="kanban-col__label">{{ statusKey(column.status) | t }}</span>
         <span class="kanban-col__count">{{ column.tasks.length }}</span>
+        <button type="button" class="kanban-col__add" [title]="'task.new' | t" (click)="addTask.emit(column.status)">
+          <svg lucidePlus [size]="15" />
+        </button>
       </header>
 
       <div

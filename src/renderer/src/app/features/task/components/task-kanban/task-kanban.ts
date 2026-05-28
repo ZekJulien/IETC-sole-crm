@@ -1,6 +1,6 @@
 import { Component, effect, input, output, signal } from '@angular/core'
 import { CdkDropListGroup, CdkDropList, CdkDrag, CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop'
-import { LucideCalendar } from '@lucide/angular'
+import { LucideCalendar, LucidePlus } from '@lucide/angular'
 import { TaskDto, TaskStatus } from '@shared/dtos/task'
 import { StatusBadge } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
@@ -15,7 +15,7 @@ interface Column {
 
 @Component({
   selector: 'app-task-kanban',
-  imports: [CdkDropListGroup, CdkDropList, CdkDrag, StatusBadge, TranslatePipe, LucideCalendar],
+  imports: [CdkDropListGroup, CdkDropList, CdkDrag, StatusBadge, TranslatePipe, LucideCalendar, LucidePlus],
   templateUrl: './task-kanban.html',
   styleUrl: './task-kanban.css',
 })
@@ -24,6 +24,7 @@ export class TaskKanban {
 
   readonly moved    = output<{ id: number; status: TaskStatus }>()
   readonly editTask = output<TaskDto>()
+  readonly addTask  = output<TaskStatus>()
 
   readonly statusKey   = taskStatusKey
   readonly priorityKey = taskPriorityKey

@@ -5,18 +5,6 @@
   overflow: hidden;
 }
 
-.tasks-page__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 24px 28px 0;
-}
-
-.tasks-page__heading { display: flex; align-items: center; gap: 12px; }
-.tasks-page__icon { color: var(--color-accent); }
-.tasks-page__title { font-size: 20px; font-weight: 700; color: var(--color-text); }
-.tasks-page__subtitle { margin-top: 2px; font-size: 13px; color: var(--color-text-muted); }
 
 .tasks-page__empty {
   flex: 1;

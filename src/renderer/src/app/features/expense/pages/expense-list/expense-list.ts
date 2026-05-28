@@ -4,7 +4,7 @@ import { ExpenseDto, ExpenseFilter } from '@shared/dtos/expense'
 import { ExpenseStore } from '@app/stores/expense'
 import { ExpenseCategoryStore } from '@app/stores/expense-category'
 import { ProjectStore } from '@app/stores/project'
-import { Button, DataTable, ConfirmDialog } from '@app/components'
+import { Button, DataTable, ConfirmDialog, PageHeader } from '@app/components'
 import { TableColumn, TableTag } from '@app/interfaces'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
@@ -23,7 +23,7 @@ interface ExpenseRow {
 
 @Component({
   selector: 'app-expense-list',
-  imports: [DataTable, Button, ConfirmDialog, ExpenseFormModal, TranslatePipe, LucideReceiptText, LucidePlus],
+  imports: [DataTable, Button, ConfirmDialog, ExpenseFormModal, PageHeader, TranslatePipe, LucidePlus],
   templateUrl: './expense-list.html',
   styleUrl: './expense-list.css',
 })
@@ -32,6 +32,7 @@ export class ExpenseList implements OnInit {
   readonly categories = inject(ExpenseCategoryStore)
   readonly projects   = inject(ProjectStore)
 
+  readonly headerIcon     = LucideReceiptText
   readonly ButtonVariant  = ButtonVariant
   readonly formatCurrency = formatCurrency
   readonly currentYear    = new Date().getFullYear()

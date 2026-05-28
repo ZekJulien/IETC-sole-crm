@@ -1,16 +1,15 @@
-import { Component, input, output } from '@angular/core'
-import { LucideLayoutList, LucideTable2 } from '@lucide/angular'
-
-type ViewMode = 'inbox' | 'table'
+import { Component, Type, input } from '@angular/core'
+import { NgComponentOutlet } from '@angular/common'
+import { TranslatePipe } from '../../pipes/translate-pipe'
 
 @Component({
   selector: 'app-page-header',
-  imports: [LucideLayoutList, LucideTable2],
+  imports: [NgComponentOutlet, TranslatePipe],
   templateUrl: './page-header.html',
   styleUrl: './page-header.css',
 })
 export class PageHeader {
-  readonly title      = input<string>('')
-  readonly viewMode   = input<ViewMode | null>(null)
-  readonly viewChange = output<ViewMode>()
+  readonly icon     = input<Type<unknown> | null>(null)
+  readonly title    = input<string>('')
+  readonly subtitle = input<string>('')
 }

@@ -43,6 +43,21 @@
   font-size: 11px;
 }
 
+.kanban-col__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-subtle);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.kanban-col__add:hover { background: var(--color-bg-elevated); color: var(--color-accent); }
+
 .kanban-col__head--TODO        .kanban-col__dot { background: var(--color-info); }
 .kanban-col__head--IN_PROGRESS .kanban-col__dot { background: var(--color-accent); }
 .kanban-col__head--DONE        .kanban-col__dot { background: var(--color-success); }

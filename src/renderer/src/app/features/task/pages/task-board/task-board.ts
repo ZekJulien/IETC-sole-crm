@@ -4,7 +4,7 @@ import { LucidePlus, LucideKanban, LucideLayoutList, LucideListTodo } from '@luc
 import { TaskDto, TaskStatus } from '@shared/dtos/task'
 import { TaskStore } from '@app/stores/task'
 import { ProjectStore } from '@app/stores/project'
-import { Button, ConfirmDialog, SegmentedToggle, SegmentedOption } from '@app/components'
+import { Button, ConfirmDialog, PageHeader, SegmentedToggle, SegmentedOption } from '@app/components'
 import { TranslatePipe } from '@app/pipes'
 import { ButtonVariant } from '@app/enums'
 import { AppRoutes } from '@app/core/routes/app-routes.const'
@@ -18,13 +18,15 @@ type TaskView = 'kanban' | 'list'
 @Component({
   selector: 'app-task-board',
   imports: [
-    RouterLink, Button, ConfirmDialog, SegmentedToggle, TaskKanban, TaskListView, TaskFormModal, TranslatePipe,
-    LucidePlus, LucideListTodo,
+    RouterLink, Button, ConfirmDialog, PageHeader, SegmentedToggle, TaskKanban, TaskListView, TaskFormModal, TranslatePipe,
+    LucidePlus,
   ],
   templateUrl: './task-board.html',
   styleUrl: './task-board.css',
 })
 export class TaskBoard implements OnInit {
+  readonly headerIcon = LucideListTodo
+
   readonly store    = inject(TaskStore)
   readonly projects = inject(ProjectStore)
 
@@ -39,10 +41,11 @@ export class TaskBoard implements OnInit {
   ]
 
   readonly selectedProjectId = signal<number | null>(null)
-  readonly view      = signal<TaskView>('kanban')
-  readonly modalOpen = signal(false)
-  readonly editing   = signal<TaskDto | null>(null)
-  readonly confirmId = signal<number | null>(null)
+  readonly view         = signal<TaskView>('kanban')
+  readonly modalOpen    = signal(false)
+  readonly editing      = signal<TaskDto | null>(null)
+  readonly createStatus = signal<TaskStatus>(TaskStatus.TODO)
+  readonly confirmId    = signal<number | null>(null)
 
   readonly hasProjects = computed(() => this.projects.projects().length > 0)
 
@@ -67,6 +70,13 @@ export class TaskBoard implements OnInit {
 
   openCreate(): void {
     this.editing.set(null)
+    this.createStatus.set(TaskStatus.TODO)
+    this.modalOpen.set(true)
+  }
+
+  openCreateIn(status: TaskStatus): void {
+    this.editing.set(null)
+    this.createStatus.set(status)
     this.modalOpen.set(true)
   }
 

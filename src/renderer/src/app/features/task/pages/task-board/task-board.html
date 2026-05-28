@@ -1,19 +1,12 @@
 <section class="tasks-page">
-  <header class="tasks-page__header">
-    <div class="tasks-page__heading">
-      <svg lucideListTodo [size]="22" class="tasks-page__icon" />
-      <div>
-        <h1 class="tasks-page__title">{{ 'task.pageTitle' | t }}</h1>
-        <p class="tasks-page__subtitle">{{ 'task.pageSubtitle' | t }}</p>
-      </div>
-    </div>
+  <app-page-header [icon]="headerIcon" title="task.pageTitle" subtitle="task.pageSubtitle">
     @if (hasProjects()) {
       <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
         <svg lucidePlus [size]="15" />
         {{ 'task.new' | t }}
       </app-button>
     }
-  </header>
+  </app-page-header>
 
   @if (!hasProjects()) {
     <div class="tasks-page__empty">
@@ -49,7 +42,8 @@
         <app-task-kanban
           [tasks]="store.tasks()"
           (moved)="onMoved($event)"
-          (editTask)="openEdit($event)" />
+          (editTask)="openEdit($event)"
+          (addTask)="openCreateIn($event)" />
       } @else if (store.tasks().length === 0) {
         <p class="tasks-page__list-empty">{{ 'task.empty' | t }}</p>
       } @else {
@@ -65,6 +59,7 @@
   <app-task-form-modal
     [open]="modalOpen()"
     [task]="editing()"
+    [initialStatus]="createStatus()"
     [saving]="store.saving()"
     (submitted)="submit($event)"
     (cancelled)="modalOpen.set(false)"

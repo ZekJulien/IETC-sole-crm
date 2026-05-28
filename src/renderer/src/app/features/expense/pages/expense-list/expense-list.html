@@ -1,17 +1,10 @@
 <section class="expenses-page">
-  <header class="expenses-page__header">
-    <div class="expenses-page__heading">
-      <svg lucideReceiptText [size]="22" class="expenses-page__icon" />
-      <div>
-        <h1 class="expenses-page__title">{{ 'expense.pageTitle' | t }}</h1>
-        <p class="expenses-page__subtitle">{{ 'expense.pageSubtitle' | t }}</p>
-      </div>
-    </div>
+  <app-page-header [icon]="headerIcon" title="expense.pageTitle" subtitle="expense.pageSubtitle">
     <app-button [variant]="ButtonVariant.PRIMARY" (clicked)="openCreate()">
       <svg lucidePlus [size]="15" />
       {{ 'expense.new' | t }}
     </app-button>
-  </header>
+  </app-page-header>
 
   <div class="expenses-page__toolbar">
     <label class="filter">
