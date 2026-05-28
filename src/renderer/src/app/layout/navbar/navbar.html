@@ -10,11 +10,36 @@
         class="nav-pill"
         [routerLink]="item.route"
         routerLinkActive="nav-pill--active"
-        [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-        [attr.aria-label]="item.labelKey | t">
+        [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
         <ng-container [ngComponentOutlet]="item.icon" />
         <span class="nav-pill__label">{{ item.labelKey | t }}</span>
       </a>
+    }
+
+    @for (group of groups; track group.labelKey) {
+      <div class="nav-group" [class.nav-group--active]="activeGroup() === group.labelKey" [class.nav-group--open]="openMenu() === group.labelKey">
+        <button
+          type="button"
+          class="nav-pill nav-pill--group"
+          [attr.aria-expanded]="openMenu() === group.labelKey"
+          (click)="toggleMenu(group.labelKey, $event)">
+          <ng-container [ngComponentOutlet]="group.icon" />
+          <span class="nav-pill__label">{{ group.labelKey | t }}</span>
+          <svg lucideChevronDown [size]="14" class="nav-pill__caret" />
+        </button>
+        <div class="nav-group__menu">
+          @for (child of group.children; track child.route) {
+            <a
+              class="nav-group__item"
+              [routerLink]="child.route"
+              routerLinkActive="nav-group__item--active"
+              (click)="closeMenu()">
+              <ng-container [ngComponentOutlet]="child.icon" />
+              <span>{{ child.labelKey | t }}</span>
+            </a>
+          }
+        </div>
+      </div>
     }
   </nav>
 
@@ -24,11 +49,8 @@
       class="navbar__icon-btn"
       [routerLink]="settingsRoute"
       routerLinkActive="navbar__icon-btn--active"
-      aria-label="Paramètres">
+      [attr.aria-label]="'nav.settings' | t">
       <svg lucideSettings [size]="16" />
     </a>
-    <button type="button" class="navbar__icon-btn" aria-label="Compte utilisateur">
-      <svg lucideUserCircle2 [size]="16" />
-    </button>
   </div>
 </header>
