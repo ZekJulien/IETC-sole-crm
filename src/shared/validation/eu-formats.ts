@@ -1,24 +1,9 @@
-/**
- * Formats de validation par pays de l'Union européenne.
- *
- * Chaque pays expose :
- *   - postalCode    : regex pour le code postal national
- *   - vatNumber     : regex pour le numéro TVA (préfixe pays + format national)
- *   - companyNumber : regex pour le numéro d'enregistrement entreprise (si applicable)
- *
- * Les regex sont volontairement permissives sur les séparateurs (espaces, tirets, points)
- * pour ne pas refuser des entrées valides juste à cause du formatage.
- *
- * Les noms alternatifs (FR/EN/local) permettent de matcher un pays même si l'utilisateur
- * saisit "Belgique", "Belgium" ou "België" — pas seulement le code ISO "BE".
- */
-
 export interface CountryFormat {
-  code:           string     // ISO 3166-1 alpha-2
-  names:          string[]   // noms acceptés (matching case-insensitive)
+  code:           string
+  names:          string[]
   postalCode:     RegExp
   vatNumber:      RegExp
-  companyNumber?: RegExp     // certains pays utilisent la TVA comme identifiant entreprise
+  companyNumber?: RegExp
 }
 
 export const EU_COUNTRIES: Record<string, CountryFormat> = {
@@ -84,12 +69,12 @@ export const EU_COUNTRIES: Record<string, CountryFormat> = {
     code: 'FR', names: ['France'],
     postalCode:    /^\d{5}$/,
     vatNumber:     /^FR[A-HJ-NP-Z0-9]{2}\d{9}$/i,
-    companyNumber: /^\d{9}(\d{5})?$/,  // SIREN (9) ou SIRET (14)
+    companyNumber: /^\d{9}(\d{5})?$/,
   },
   GR: {
     code: 'GR', names: ['Grèce', 'Greece', 'Ελλάδα'],
     postalCode:    /^\d{3}\s?\d{2}$/,
-    vatNumber:     /^EL\d{9}$/i,  // attention : préfixe EL, pas GR
+    vatNumber:     /^EL\d{9}$/i,
   },
   HR: {
     code: 'HR', names: ['Croatie', 'Croatia', 'Hrvatska'],
@@ -104,14 +89,14 @@ export const EU_COUNTRIES: Record<string, CountryFormat> = {
   },
   IE: {
     code: 'IE', names: ['Irlande', 'Ireland', 'Éire'],
-    postalCode:    /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i,  // Eircode
+    postalCode:    /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i,
     vatNumber:     /^IE\d{7}[A-Z]{1,2}$/i,
   },
   IT: {
     code: 'IT', names: ['Italie', 'Italy', 'Italia'],
     postalCode:    /^\d{5}$/,
     vatNumber:     /^IT\d{11}$/i,
-    companyNumber: /^\d{11}$/,  // partita IVA = code entreprise
+    companyNumber: /^\d{11}$/,
   },
   LT: {
     code: 'LT', names: ['Lituanie', 'Lithuania', 'Lietuva'],
@@ -138,7 +123,7 @@ export const EU_COUNTRIES: Record<string, CountryFormat> = {
     code: 'NL', names: ['Pays-Bas', 'Netherlands', 'Nederland'],
     postalCode:    /^\d{4}\s?[A-Z]{2}$/i,
     vatNumber:     /^NL\d{9}B\d{2}$/i,
-    companyNumber: /^\d{8}$/,  // KvK
+    companyNumber: /^\d{8}$/,
   },
   PL: {
     code: 'PL', names: ['Pologne', 'Poland', 'Polska'],
@@ -149,7 +134,7 @@ export const EU_COUNTRIES: Record<string, CountryFormat> = {
     code: 'PT', names: ['Portugal'],
     postalCode:    /^\d{4}-\d{3}$/,
     vatNumber:     /^PT\d{9}$/i,
-    companyNumber: /^\d{9}$/,  // NIPC
+    companyNumber: /^\d{9}$/,
   },
   RO: {
     code: 'RO', names: ['Roumanie', 'Romania', 'România'],
@@ -174,7 +159,6 @@ export const EU_COUNTRIES: Record<string, CountryFormat> = {
   },
 }
 
-/** Retourne le format du pays, ou null si non reconnu (laisse passer = validation lenient). */
 export function getCountryFormat(value: string | null | undefined): CountryFormat | null {
   if (!value) return null
   const normalized = value.trim().toLowerCase()
@@ -185,5 +169,4 @@ export function getCountryFormat(value: string | null | undefined): CountryForma
   return null
 }
 
-/** Téléphone international (E.164 lenient) : préfixe pays + chiffres/séparateurs courants. */
 export const PHONE_INTERNATIONAL_RE = /^\+?[\d\s().\-]{6,20}$/

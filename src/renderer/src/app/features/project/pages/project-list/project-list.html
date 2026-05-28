@@ -13,21 +13,21 @@
         [placeholder]="'project.searchPlaceholder' | t"
         (search)="onSearch($event)" />
 
-      <select class="filter-select" (change)="onStatusChange($any($event.target).value)">
+      <select class="app-select app-select--filter" (change)="onStatusChange($any($event.target).value)">
         <option value="">{{ 'project.filter.allStatuses' | t }}</option>
         @for (s of statuses; track s) {
           <option [value]="s">{{ statusKey(s) | t }}</option>
         }
       </select>
 
-      <select class="filter-select" (change)="onClientChange($any($event.target).value)">
+      <select class="app-select app-select--filter" (change)="onClientChange($any($event.target).value)">
         <option value="">{{ 'project.filter.allClients' | t }}</option>
         @for (c of clients.clients(); track c.id) {
           <option [value]="c.id">{{ c.name }}</option>
         }
       </select>
 
-      <select class="filter-select" (change)="onCategoryChange($any($event.target).value)">
+      <select class="app-select app-select--filter" (change)="onCategoryChange($any($event.target).value)">
         <option value="">{{ 'project.filter.allCategories' | t }}</option>
         @for (cat of categories.categories(); track cat.id) {
           <option [value]="cat.id">{{ cat.name }}</option>

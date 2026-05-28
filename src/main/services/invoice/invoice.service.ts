@@ -6,13 +6,10 @@ import { BaseService } from '../base.service'
 import { FindManyArgs, PaginatedResult } from '@shared/types'
 import {
   InvoiceDto, CreateInvoiceDto, UpdateInvoiceDto, UpdateInvoiceStatusDto, RecordPaymentDto,
-  InvoiceStatus, InvoiceStatusCount, InvoiceStats, InvoiceLineInput, InvoiceVatBreakdownLine,
+  InvoiceStatus, InvoiceStatusCount, InvoiceStats, InvoiceLineInput,
   InvoiceSumByMonthDto,
 } from '@shared/dtos/invoice'
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100
-}
+import { round2, lineNet, computeDocumentTotals } from '@shared/utils/document-totals'
 
 function toLineData(line: InvoiceLineInput): InvoiceLineData {
   return {
@@ -23,29 +20,6 @@ function toLineData(line: InvoiceLineInput): InvoiceLineData {
     vatRate:     line.vatRate,
     productId:   line.productId ?? null,
   }
-}
-
-interface LineLike { quantity: number; unitPrice: number; discount: number; vatRate: number }
-
-function lineNet(line: LineLike): number {
-  return line.quantity * line.unitPrice * (1 - (line.discount ?? 0) / 100)
-}
-
-function computeTotals(lines: LineLike[]): {
-  totalHt: number; totalVat: number; totalTtc: number; vatBreakdown: InvoiceVatBreakdownLine[]
-} {
-  const byRate = new Map<number, number>()
-  let totalHt = 0
-  for (const l of lines) {
-    const ht = lineNet(l)
-    totalHt += ht
-    byRate.set(l.vatRate, (byRate.get(l.vatRate) ?? 0) + ht)
-  }
-  const vatBreakdown = [...byRate.entries()]
-    .map(([rate, baseHt]) => ({ rate, baseHt: round2(baseHt), vat: round2((baseHt * rate) / 100) }))
-    .sort((a, b) => b.rate - a.rate)
-  const totalVat = round2(vatBreakdown.reduce((sum, b) => sum + b.vat, 0))
-  return { totalHt: round2(totalHt), totalVat, totalTtc: round2(round2(totalHt) + totalVat), vatBreakdown }
 }
 
 function sumPayments(payments: { amount: number }[]): number {
@@ -81,7 +55,7 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
     const live = await this.repo.findByStatuses([InvoiceStatus.SENT, InvoiceStatus.OVERDUE])
     let unpaid = 0
     for (const inv of live) {
-      const { totalTtc } = computeTotals(inv.lines)
+      const { totalTtc } = computeDocumentTotals(inv.lines)
       unpaid += Math.max(0, round2(totalTtc - sumPayments(inv.payments)))
     }
     const { start, end } = monthRange()
@@ -176,7 +150,7 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
     const current = inv.status as InvoiceStatus
     if (current === InvoiceStatus.DRAFT || current === InvoiceStatus.CANCELLED) return current
 
-    const { totalTtc } = computeTotals(inv.lines)
+    const { totalTtc } = computeDocumentTotals(inv.lines)
     const paid = sumPayments(inv.payments)
     if (totalTtc > 0 && paid >= totalTtc) return InvoiceStatus.PAID
 
@@ -199,7 +173,7 @@ export class InvoiceService extends BaseService<InvoiceWithRelations, InvoiceDto
       total:       round2(lineNet(l)),
     }))
 
-    const { totalHt, totalVat, totalTtc, vatBreakdown } = computeTotals(inv.lines)
+    const { totalHt, totalVat, totalTtc, vatBreakdown } = computeDocumentTotals(inv.lines)
     const paidAmount = sumPayments(inv.payments)
 
     return {

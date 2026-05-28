@@ -6,10 +6,7 @@ import {
   QuoteDto, CreateQuoteDto, UpdateQuoteDto, UpdateQuoteStatusDto,
   QuoteStatus, QuoteStatusCount, QuoteLineInput,
 } from '@shared/dtos/quote'
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100
-}
+import { round2, lineNet, computeDocumentTotals } from '@shared/utils/document-totals'
 
 function toLineData(line: QuoteLineInput): QuoteLineData {
   return {
@@ -20,10 +17,6 @@ function toLineData(line: QuoteLineInput): QuoteLineData {
     vatRate:     line.vatRate,
     productId:   line.productId ?? null,
   }
-}
-
-function lineNet(line: { quantity: number; unitPrice: number; discount: number }): number {
-  return line.quantity * line.unitPrice * (1 - (line.discount ?? 0) / 100)
 }
 
 export class QuoteService extends BaseService<QuoteWithRelations, QuoteDto> {
@@ -93,15 +86,7 @@ export class QuoteService extends BaseService<QuoteWithRelations, QuoteDto> {
       total:       round2(lineNet(l)),
     }))
 
-    const byRate = new Map<number, number>()
-    for (const l of lines) byRate.set(l.vatRate, (byRate.get(l.vatRate) ?? 0) + l.total)
-    const vatBreakdown = [...byRate.entries()]
-      .map(([rate, baseHt]) => ({ rate, baseHt: round2(baseHt), vat: round2((baseHt * rate) / 100) }))
-      .sort((a, b) => b.rate - a.rate)
-
-    const totalHt  = round2(lines.reduce((sum, l) => sum + l.total, 0))
-    const totalVat = round2(vatBreakdown.reduce((sum, b) => sum + b.vat, 0))
-    const totalTtc = round2(totalHt + totalVat)
+    const { totalHt, totalVat, totalTtc, vatBreakdown } = computeDocumentTotals(q.lines)
 
     return {
       id:           q.id,

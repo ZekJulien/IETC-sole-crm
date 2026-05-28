@@ -7,7 +7,7 @@ import {
 } from '@shared/dtos/expense'
 import { IdSchema } from '@shared/types'
 import { ipcHandle, ipcHandleNoTx } from '../../core/ipc.handle'
-import { persistWithFiles } from '../../core'
+import { persistWithFiles, isManagedFile } from '../../core'
 import { ExpenseService } from '../../services/expense/expense.service'
 
 const RECEIPT_SCOPE = 'expenses'
@@ -43,7 +43,8 @@ export function registerExpenseHandlers(service: ExpenseService): void {
   })
 
   ipcHandleNoTx(EXPENSE_CHANNELS.PICK_RECEIPT,                 ()     => pickReceipt())
-  ipcHandleNoTx(EXPENSE_CHANNELS.OPEN_RECEIPT, z.string(),     (path) => shell.openPath(path))
+  ipcHandleNoTx(EXPENSE_CHANNELS.OPEN_RECEIPT, z.string(),     (path) =>
+    isManagedFile(path) ? shell.openPath(path) : Promise.resolve(''))
 }
 
 async function pickReceipt(): Promise<string | null> {

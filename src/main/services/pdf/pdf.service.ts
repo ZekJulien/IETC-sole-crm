@@ -9,6 +9,7 @@ import { ExportPdfDto } from '@shared/dtos/pdf'
 import { CompanyDto } from '@shared/dtos/company'
 import { ClientDto } from '@shared/dtos/client'
 import { resolveVatTreatment, VatTreatment } from '@shared/utils/vat-treatment'
+import { round2, lineNet } from '@shared/utils/document-totals'
 import { renderToBuffer } from './pdf-printer'
 import { buildDocument, PdfCompanyParty, PdfLineModel, PdfModel, PdfParty } from './pdf-document'
 
@@ -23,10 +24,6 @@ interface LineLike {
   unitPrice:   number
   discount:    number
   vatRate:     number
-}
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100
 }
 
 export class PdfService {
@@ -152,7 +149,7 @@ function toLine(line: LineLike): PdfLineModel {
     unitPrice:   line.unitPrice,
     discount:    line.discount,
     vatRate:     line.vatRate,
-    lineHt:      round2(line.quantity * line.unitPrice * (1 - (line.discount ?? 0) / 100)),
+    lineHt:      round2(lineNet(line)),
   }
 }
 

@@ -17,12 +17,8 @@ export class FormField {
   readonly control       = input<AbstractControl | null>(null)
   readonly patternErrorKey = input<string>('pattern')
 
-  /** Émis au blur de l'input (event DOM natif). À utiliser quand un autre
-   *  champ doit se ré-évaluer en fonction de celui-ci (ex: pays → CP). */
   readonly changed = output<void>()
 
-  // Bump à chaque event du FormControl (value, status, touched, pristine).
-  // Sert de dépendance pour que errorMessage se ré-évalue après markAllAsTouched.
   private readonly tick = signal(0)
 
   constructor() {

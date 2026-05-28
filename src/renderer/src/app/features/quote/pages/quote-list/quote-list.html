@@ -35,7 +35,7 @@
         [placeholder]="'quote.searchPlaceholder' | t"
         (search)="onSearch($event)" />
 
-      <select class="filter-select" (change)="onClientChange($any($event.target).value)">
+      <select class="app-select app-select--filter" (change)="onClientChange($any($event.target).value)">
         <option value="">{{ 'quote.filter.allClients' | t }}</option>
         @for (c of clients.clients(); track c.id) {
           <option [value]="c.id">{{ c.name }}</option>

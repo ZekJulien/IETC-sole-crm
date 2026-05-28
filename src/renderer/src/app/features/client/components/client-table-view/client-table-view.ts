@@ -22,7 +22,6 @@ export class ClientTableView {
     { key: 'email', labelKey: 'common.email', sortable: true },
   ]
 
-  /** Vue avec name = displayName (firstName + name) pour affichage. */
   readonly tableData = computed(() =>
     this.clients().map(c => ({ ...c, name: displayClientName(c) }))
   )

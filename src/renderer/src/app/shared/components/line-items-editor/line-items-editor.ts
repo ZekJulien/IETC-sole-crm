@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormArray, FormBuilder, FormGroup, Validators } fr
 import { LucidePlus, LucideTrash2 } from '@lucide/angular'
 import { VatRateDto } from '@shared/dtos/vat-rate'
 import { ProductDto } from '@shared/dtos/product'
+import { lineNet } from '@shared/utils/document-totals'
 import { Combobox } from '../combobox'
 import { TranslatePipe } from '../../pipes/translate-pipe'
 import { formatCurrency } from '../../utils'
@@ -66,8 +67,7 @@ export class LineItemsEditor {
   }
 
   lineTotal(index: number): number {
-    const { quantity, unitPrice, discount } = this.lines().at(index).getRawValue()
-    return (Number(quantity) || 0) * (Number(unitPrice) || 0) * (1 - (Number(discount) || 0) / 100)
+    return lineNet(this.lines().at(index).getRawValue())
   }
 
   onDescriptionInput(index: number, value: string): void {

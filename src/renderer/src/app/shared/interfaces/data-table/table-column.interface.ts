@@ -6,6 +6,5 @@ export interface TableColumn<T = Record<string, unknown>> {
   type?:            TableColumnType
   sortable?:        boolean
   width?:           string
-  /** Pour les colonnes type 'badge' : préfixe i18n à appliquer à la valeur (lowercased). Ex : "client.type." + "individual". */
   badgeI18nPrefix?: string
 }

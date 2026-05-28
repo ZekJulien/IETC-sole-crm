@@ -7,6 +7,7 @@ import {
   InvoiceStatus, PaymentMethod, InvoiceDto, PaymentDto,
   CreateInvoiceDto, UpdateInvoiceDto, InvoiceLineInput,
 } from '@shared/dtos/invoice'
+import { computeDocumentTotals } from '@shared/utils/document-totals'
 import { InvoiceStore } from '@app/stores/invoice'
 import { ClientStore } from '@app/stores/client/client-store'
 import { ProjectStore } from '@app/stores/project'
@@ -100,20 +101,9 @@ export class InvoiceDetail implements OnInit {
 
   readonly totals = computed<InvoiceTotals>(() => {
     this.formTick()
-    const groups = new Map<number, number>()
-    let totalHt = 0
-    for (const ctrl of this.linesArray.controls) {
-      const { quantity, unitPrice, discount, vatRate } = ctrl.getRawValue()
-      const lineHt = (Number(quantity) || 0) * (Number(unitPrice) || 0) * (1 - (Number(discount) || 0) / 100)
-      const rate   = Number(vatRate) || 0
-      totalHt += lineHt
-      groups.set(rate, (groups.get(rate) ?? 0) + lineHt)
-    }
-    const breakdown = [...groups.entries()]
-      .map(([rate, baseHt]) => ({ rate, baseHt, vat: (baseHt * rate) / 100 }))
-      .sort((a, b) => b.rate - a.rate)
-    const totalVat = breakdown.reduce((sum, b) => sum + b.vat, 0)
-    return { totalHt, totalVat, totalTtc: totalHt + totalVat, breakdown }
+    const lines = this.linesArray.controls.map(c => c.getRawValue())
+    const { totalHt, totalVat, totalTtc, vatBreakdown } = computeDocumentTotals(lines)
+    return { totalHt, totalVat, totalTtc, breakdown: vatBreakdown }
   })
 
   readonly balanceDue = computed(() => Math.max(0, this.totals().totalTtc - this.paidAmount()))

@@ -9,6 +9,52 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.19.0] — 2026-05-29 — Qualité : source unique des totaux (shared kernel), durcissement IPC, dédup CSS/commentaires
+
+Passe de **dette technique** post-Phase 11 (préparation soutenance), **sans nouvelle feature, sans migration**.
+Trois axes issus d'un audit interne (structure / sécurité / DRY / SOLID).
+
+### 1. Source unique des totaux HT/TVA/TTC (shared kernel)
+
+Le calcul des totaux et de la **ventilation TVA par taux** était **réécrit 5 fois** : `QuoteService.toDto`,
+`InvoiceService` (`computeTotals`), `ConversionService`, et les deux `computed()` front (`quote-detail`,
+`invoice-detail`) — avec, en prime, un **arrondi divergent** (la facture accumulait en pleine précision, le devis
+arrondissait par ligne, le front n'arrondissait pas). Risque de **bug d'argent silencieux**, aggravé par la
+conversion devis→facture qui relit `vatBreakdown`.
+
+- **Extraction** dans **`src/shared/utils/document-totals.ts`** (fonctions **pures**, zéro dépendance) :
+  `round2`, `lineNet`, `computeDocumentTotals(lines) → { totalHt, totalVat, totalTtc, vatBreakdown }`. Importé par le
+  **main** (services) **et** le **renderer** (`computed`) — c'est un **shared kernel** : `shared` ne dépend ni d'Angular
+  ni de Node/Prisma, donc graphe **acyclique**, aucune fuite renderer→main.
+- **Arrondi unifié** sur la règle **« par ligne »** (la plus défendable : `Σ lignes affichées = total affiché`).
+  Corrige au passage l'arrondi de la facture. **Totaux toujours dérivés** (jamais stockés) → aucune migration.
+- **Autorité inchangée** : le DTO renvoyé par le back fait foi ; le front recalcule seulement pour le live preview.
+
+### 2. Durcissement sécurité — `OPEN_RECEIPT`
+
+Le canal `OPEN_RECEIPT` faisait `shell.openPath(path)` sur **n'importe quel chemin** envoyé par le renderer.
+Désormais gardé par **`isManagedFile(path)`** (helper déjà présent, utilisé jusqu'ici seulement par `deleteManagedFile`) :
+seuls les fichiers de `userData/storage` s'ouvrent. Défense en profondeur contre un renderer compromis.
+
+### 3. Dédup CSS + commentaires (conventions)
+
+- **`.filter-select` supprimé** des 3 pages liste (Devis/Facture/Projet) au profit du **`.app-select` global** + nouveau
+  modificateur **`.app-select--filter`** (largeur auto) dans `styles.css` — apparence single-source.
+- **Commentaires retirés** (convention « zéro commentaire ») : `form-field`, `table-column.interface`,
+  `client-table-view`, `eu-formats`.
+
+### Fichiers
+
+- **Nouveau** : `src/shared/utils/document-totals.ts`.
+- **Main** : `services/invoice|quote|conversion` (consomment le util) ; `handlers/expense` (`isManagedFile` sur `OPEN_RECEIPT`).
+- **Renderer** : `quote-detail`, `invoice-detail` (`totals` via le util), `line-items-editor` (`lineTotal` via `lineNet`) ;
+  `styles.css` (`.app-select--filter`) ; `quote-list|invoice-list|project-list` (.html + .css) ; `form-field`,
+  `table-column.interface`, `client-table-view` (commentaires).
+- **Shared** : `validation/eu-formats` (commentaires).
+
+> Vérifs : `tsc` main/preload OK, `build:renderer` OK (budgets tenus), et `computeDocumentTotals` testé hors Electron
+> (cas simples, multi-taux, arrondi 33,33 × 3 = 100,00, remise, coercition des `string` du front).
+
 ## [0.18.0] — 2026-05-27 — Phase 11 · 6/6 : Notifications OS natives + arrêt du Pomodoro avec enregistrement
 
 Sixième et **dernier chantier de la Phase 11** : les **notifications système natives** (Win11 / Linux / macOS)

@@ -11,12 +11,9 @@ import {
 import { ProjectStatus } from '@shared/dtos/project'
 import { QuoteStatus, QuoteDto } from '@shared/dtos/quote'
 import { InvoiceStatus, InvoiceLineInput } from '@shared/dtos/invoice'
+import { round2 } from '@shared/utils/document-totals'
 
 const EPSILON = 0.005
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100
-}
 
 interface RateAmount { rate: number; baseHt: number }
 
