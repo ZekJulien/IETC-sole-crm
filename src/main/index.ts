@@ -54,9 +54,9 @@ function watchRendererSources(win: BrowserWindow): void {
 }
 
 app.whenReady().then(async () => {
-  const csp = app.isPackaged
-    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'"
-    : "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://localhost:* ws://localhost:* http://127.0.0.1:* ws://127.0.0.1:*"
+  const csp = process.env.NG_DEV_SERVER
+    ? "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://localhost:* ws://localhost:* http://127.0.0.1:* ws://127.0.0.1:*"
+    : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'"
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
