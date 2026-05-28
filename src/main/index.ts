@@ -1,4 +1,4 @@
-import { app, BrowserWindow, session } from 'electron'
+import { app, BrowserWindow, Menu, session } from 'electron'
 import path from 'node:path'
 import { watch } from 'node:fs'
 import started from 'electron-squirrel-startup'
@@ -6,6 +6,8 @@ import { log } from './core'
 import { bootstrap } from './bootstrap'
 
 if (started) app.quit()
+
+Menu.setApplicationMenu(null)
 
 if (!app.isPackaged) {
   app.commandLine.appendSwitch('disable-http-cache')
@@ -22,6 +24,7 @@ function createWindow(): BrowserWindow {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      devTools: !app.isPackaged,
     },
   })
 
@@ -34,6 +37,18 @@ function createWindow(): BrowserWindow {
     win.loadFile(
       path.join(__dirname, '../../src/renderer/dist/renderer/browser/index.html')
     )
+  }
+
+  if (!app.isPackaged) {
+    win.webContents.on('before-input-event', (event, input) => {
+      const toggleDevTools =
+        input.type === 'keyDown' &&
+        (input.key === 'F12' || (input.control && input.shift && input.key.toLowerCase() === 'i'))
+      if (toggleDevTools) {
+        win.webContents.toggleDevTools()
+        event.preventDefault()
+      }
+    })
   }
 
   return win
