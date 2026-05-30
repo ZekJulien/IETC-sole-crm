@@ -1,5 +1,5 @@
 <header class="navbar">
-  <a class="navbar__brand" [routerLink]="'/'">
+  <a class="navbar__brand" tabindex="-1" [routerLink]="'/'">
     <span class="navbar__brand-mark">S</span>
     <span class="navbar__brand-text">Sole</span>
   </a>
@@ -8,6 +8,7 @@
     @for (item of navItems; track item.route) {
       <a
         class="nav-pill"
+        tabindex="-1"
         [routerLink]="item.route"
         routerLinkActive="nav-pill--active"
         [routerLinkActiveOptions]="{ exact: item.exact ?? false }">
@@ -20,6 +21,7 @@
       <div class="nav-group" [class.nav-group--active]="activeGroup() === group.labelKey" [class.nav-group--open]="openMenu() === group.labelKey">
         <button
           type="button"
+          tabindex="-1"
           class="nav-pill nav-pill--group"
           [attr.aria-expanded]="openMenu() === group.labelKey"
           (click)="toggleMenu(group.labelKey, $event)">
@@ -31,6 +33,7 @@
           @for (child of group.children; track child.route) {
             <a
               class="nav-group__item"
+              tabindex="-1"
               [routerLink]="child.route"
               routerLinkActive="nav-group__item--active"
               (click)="closeMenu()">
@@ -47,6 +50,7 @@
     <app-pomodoro-indicator />
     <a
       class="navbar__icon-btn"
+      tabindex="-1"
       [routerLink]="settingsRoute"
       routerLinkActive="navbar__icon-btn--active"
       [attr.aria-label]="'nav.settings' | t">

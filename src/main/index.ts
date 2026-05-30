@@ -37,7 +37,9 @@ function createWindow(): BrowserWindow {
     win.webContents.openDevTools({ mode: 'detach' })
   } else {
     win.loadFile(
-      path.join(__dirname, '../../src/renderer/dist/renderer/browser/index.html')
+      app.isPackaged
+        ? path.join(process.resourcesPath, 'browser/index.html')
+        : path.join(__dirname, '../../src/renderer/dist/renderer/browser/index.html')
     )
   }
 

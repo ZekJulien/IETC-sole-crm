@@ -1,6 +1,7 @@
 @if (store.isActive()) {
   <button
     type="button"
+    tabindex="-1"
     class="pomo-indicator"
     [class.pomo-indicator--work]="store.phase() === 'WORK'"
     [class.pomo-indicator--paused]="!store.isRunning()"

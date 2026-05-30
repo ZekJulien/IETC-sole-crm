@@ -10,7 +10,9 @@ import { initLocale } from './i18n'
 
 export async function bootstrap(): Promise<PrismaClient> {
   const dbPath = path.join(app.getPath('userData'), 'sole.db')
-  const migrationsPath = path.join(__dirname, '../../prisma/migrations')
+  const migrationsPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'migrations')
+    : path.join(__dirname, '../../prisma/migrations')
 
   initLocale()
   runMigrations(dbPath, migrationsPath)

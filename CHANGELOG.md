@@ -9,6 +9,30 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-05-30 — Release stable : livrable packagé multi-OS + CI + correctifs finaux
+
+**Version de soutenance.** Marque la fin du développement actif du TFE — l'app est packagée, installable sur les 3 OS via CI, et les derniers correctifs sont en place. Premier tag stable.
+
+### Packaging fonctionnel (l'app installée démarre vraiment)
+- `forge.config` : `extraResource` pour `prisma/migrations` + le dist Angular ; hook `packageAfterCopy` qui copie `better-sqlite3` / `@prisma/*` / `pdfmake` (et leurs deps transitives) dans le paquet. Le natif n'était pas embarqué → l'app packagée crashait au boot avec `Cannot find module 'better-sqlite3'` (silencieux en GUI, visible dans `~/.config/Sole/logs/main.log`).
+- `bootstrap.ts` + `main/index.ts` : chemins des migrations et `loadFile` branchés sur `app.isPackaged` → `process.resourcesPath` en prod, sources en dev. `npm start` testait les chemins source ; le binaire packagé, lui, n'avait jamais été lancé.
+- `maker-rpm` retiré (`rpmbuild` absent en local et en CI ubuntu) → `npm run make` fonctionne sur les 3 OS sans config supplémentaire.
+- `package.json` : scripts `package`/`make` rebuildent le renderer en amont ; métadonnées `.deb` posées (`author` Julien Paquet, `homepage`, `maintainer`, `categories`, description nettoyée em-dash → tiret).
+- `LICENSE` MIT ajouté au repo root.
+
+### CI release multi-plateforme
+- `.github/workflows/build.yml` — matrice `ubuntu-latest` / `windows-latest` / `macos-latest` ; chaque runner build **nativement** son installateur (impossible de cross-compiler `better-sqlite3` depuis Linux, c'est précisément le rôle de la CI). Déclenchement sur push de tag `v*` ou manuel (`workflow_dispatch`) ; `softprops/action-gh-release@v2` attache `.deb` / `Setup.exe` / `.zip` à la Release GitHub.
+
+### Correctifs UX finaux
+- **Welcome Wizard** — `dashboard.load()` après le seed démo. `navigateByUrl('/')` était un no-op (déjà sur `/`) → les signals du `DashboardStore` (singleton) restaient sur leur snapshot vide jusqu'à navigation aller/retour. Fix signal-correct (le store recharge, les `computed` du dashboard se réévaluent — sans recréer le composant ni recharger la fenêtre).
+- **Navbar** — `tabindex="-1"` sur tous les liens/boutons (marque, nav-pills, menus déroulants, items, icône paramètres) + l'indicateur Pomodoro. Le focus Tab boucle désormais dans la page de formulaire au lieu de s'échapper vers la navbar (le bouton Enregistrer étant dans le header, le wrap naturel last-→-first redescend dans la page). Clic souris intact.
+
+### Doc
+- `README.md` : section *Installation* restructurée en deux parcours — *binaires* (téléchargement depuis la page Releases + mode démo qui auto-seede les données) et *développement* (`npm install` + `prisma:generate` + `npm start` ou `npm run dev`). Section *Build/packaging* mise à jour pour expliquer honnêtement local (= OS courant uniquement) vs cross-platform (= CI).
+
+### Tests (bonus)
+- `tests/document-totals.test.ts` — **10 assertions** sur la logique métier **pure** la plus critique : le shared kernel des totaux (calcul HT/TVA/TTC, multi-taux, arrondi par ligne `3 × 33,33 = 100,00`, remise, coercition des `string` du formulaire, liste vide). Branche `npm test` via **Vitest** (1 devDep, `vitest.config.ts` restreint à `tests/`). Les `*.spec.ts` auto-générés par Angular CLI dans `src/renderer/` restent en place comme preuves d'usage du CLI mais ne sont pas exécutés par cette suite (smoke tests `should create` triviaux).
+
 ## [0.20.0] — 2026-05-29 — Qualité (passe 2) : helpers partagés + composants extraits + classe de base
 
 Deuxième passe de **dette technique** (suite de l'audit interne), **sans nouvelle feature, sans migration, sans changement de comportement**. Objectif : éliminer les duplications restantes signalées.

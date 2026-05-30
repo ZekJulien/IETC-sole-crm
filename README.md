@@ -441,18 +441,39 @@ prisma/
 
 ## Installation et démarrage
 
+### En 1 minute — utiliser l'app (binaires)
+
+Télécharge l'installateur pour ton OS depuis la **[page Releases du dépôt](https://github.com/ZekJulien/IETC-sole-crm/releases)** :
+
+| OS | Fichier | Installation |
+|---|---|---|
+| Windows 10/11 | `Sole-win32-x64-<version>.zip` | Décompresser → double-clic sur `sole.exe` |
+| macOS | `Sole-darwin-arm64-<version>.zip` | Décompresser → **clic droit → Ouvrir** (Gatekeeper) |
+| Linux (Debian/Ubuntu) | `sole_<version>_amd64.deb` | `sudo dpkg -i sole_<version>_amd64.deb` |
+
+Lance **Sole** depuis le menu de ton OS. Au premier démarrage, le **Welcome Wizard** propose le **mode démo** qui crée automatiquement un jeu de données complet (clients, projets, devis, factures payées/impayées/en retard, dépenses, time tracking, pomodoros) — l'app est immédiatement utilisable et le tableau de bord rempli.
+
+> **Binaires non signés** (pas de certificat éditeur — c'est un projet d'études) :
+> - **macOS** : premier lancement = clic droit → Ouvrir.
+> - **Windows** : SmartScreen → « Plus d'infos » → « Exécuter quand même ».
+
+### En mode développement
+
 ```bash
-# Installer les dépendances (root + renderer via postinstall)
+# 1. Installer les dépendances (root + renderer via postinstall)
 npm install
 
-# Générer le client Prisma TypeScript
+# 2. Générer le client Prisma TypeScript
 npm run prisma:generate
 
-# Lancer l'application
+# 3. Lancer l'application (Electron + renderer en build statique)
 npm start
+
+# OU mode HMR (Angular dev server + Electron, live reload)
+npm run dev
 ```
 
-> Les migrations sont appliquées automatiquement au démarrage via le migrator maison — aucune commande supplémentaire. Au premier lancement, le **Welcome Wizard** crée l'entreprise et propose un jeu de données de démo.
+> Les migrations sont appliquées automatiquement au démarrage via le migrator maison — aucune commande supplémentaire. Au premier lancement, le **Welcome Wizard** crée l'entreprise et propose un jeu de données de démo (identique au binaire).
 
 **Modifier le schéma :**
 ```bash
@@ -468,8 +489,16 @@ npm run prisma:studio
 
 ## Build / packaging
 
+**Local — un seul OS** (celui de la machine, car `better-sqlite3` est un natif non cross-compilable) :
 ```bash
-npm run make
+npm run make    # → out/make/  (installateur pour l'OS courant)
 ```
 
-Produit `.exe` (Windows), `.dmg` / `.zip` (macOS), `.deb` / `.rpm` (Linux) dans `out/`.
+**Cross-platform (Windows + macOS + Linux)** — workflow GitHub Actions (`.github/workflows/build.yml`) qui build les trois en parallèle sur des runners natifs et attache les installateurs à une **Release** GitHub.
+
+- **Déclenchement automatique** sur push d'un tag `v*` :
+  ```bash
+  git tag v0.21.0
+  git push --tags
+  ```
+- **Déclenchement manuel** via l'onglet **Actions** → « Build installers » → « Run workflow ».

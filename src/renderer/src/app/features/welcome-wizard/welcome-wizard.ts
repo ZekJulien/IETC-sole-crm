@@ -3,6 +3,7 @@ import { Router } from '@angular/router'
 import { SaveCompanyInput } from '@shared/dtos/company'
 import { CompanyStore } from '@app/stores/company/company-store'
 import { SeedStore } from '@app/stores/seed/seed-store'
+import { DashboardStore } from '@app/stores/dashboard'
 import { WizardService } from '@app/services/wizard/wizard'
 import { WizardWelcome } from './components/wizard-welcome/wizard-welcome'
 import { WizardCompany } from './components/wizard-company/wizard-company'
@@ -17,6 +18,7 @@ import { WizardSeedChoice, SeedChoice } from './components/wizard-seed-choice/wi
 export class WelcomeWizard {
   readonly company = inject(CompanyStore)
   readonly seed    = inject(SeedStore)
+  private readonly dashboard = inject(DashboardStore)
   private readonly wizard = inject(WizardService)
   private readonly router = inject(Router)
 
@@ -37,6 +39,7 @@ export class WelcomeWizard {
 
   private async complete(): Promise<void> {
     await this.company.load()
+    await this.dashboard.load()
     this.wizard.finish()
     await this.router.navigateByUrl('/')
   }

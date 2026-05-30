@@ -2,19 +2,19 @@
   "name": "sole",
   "version": "1.0.0",
   "productName": "Sole",
-  "description": "CRM desktop pour indépendants — Electron Forge, Angular, Prisma, SQLite. Projet bachelier 2 SGBD (IETC).",
+  "description": "CRM desktop pour indépendants - Electron Forge, Angular, Prisma, SQLite. Projet bachelier 2 SGBD (IETC).",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "npm run build:renderer && electron-forge start -- --no-sandbox",
-    "dev": "concurrently -k -n NG,ELC -c blue,magenta \"cd src/renderer && npx ng serve --port 4200 --hmr --live-reload\" \"wait-on http://localhost:4200 && NG_DEV_SERVER=http://localhost:4200 electron-forge start -- --no-sandbox\"",
+    "dev": "concurrently -k -n NG,ELC -c blue,magenta \"cd src/renderer && npx ng serve --port 4200 --hmr --live-reload\" \"wait-on http://localhost:4200 && cross-env NG_DEV_SERVER=http://localhost:4200 electron-forge start -- --no-sandbox\"",
     "build:renderer": "cd src/renderer && npx ng build --base-href ./",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
+    "package": "npm run build:renderer && electron-forge package",
+    "make": "npm run build:renderer && electron-forge make",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev --name init",
     "prisma:studio": "npx prisma studio",
     "postinstall": "npm install --prefix src/renderer",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run"
   },
   "keywords": [
     "electron",
@@ -23,8 +23,13 @@
     "sqlite",
     "boilerplate"
   ],
-  "author": "",
+  "author": "Julien Paquet",
   "license": "MIT",
+  "homepage": "https://github.com/ZekJulien/IETC-sole-crm",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZekJulien/IETC-sole-crm.git"
+  },
   "type": "commonjs",
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
@@ -41,11 +46,13 @@
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/pdfmake": "^0.3.3",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "electron": "^41.1.1",
     "prisma": "^7.8.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.10",
+    "vitest": "^4.1.7",
     "wait-on": "^9.0.10"
   },
   "dependencies": {
